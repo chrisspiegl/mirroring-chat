@@ -1,0 +1,14 @@
+extends ../layout
+block content
+
+  h1 Login / Sign Up
+
+  .container.flexContainer(style="justify-content: space-between;")
+    div
+      a.button.twitch(href="/auth/twitch") Twitch
+    div
+      a.button.google(href="/auth/google") Google
+    div
+      a.button.facebook(href="/auth/facebook") Facebook
+    div
+      a.button.discord(href="/auth/discord") Discord

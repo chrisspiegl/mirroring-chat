@@ -1,0 +1,9 @@
+extends layout
+block content
+
+  h1 Chat Messages for #{channelName}
+
+  .container
+    ul
+      each message in messages
+        li #{message.provider} | #{moment(message.timestamp).format('YYYY-MM-DD HH:mm')} | #{message.displayName} : #{message.message}

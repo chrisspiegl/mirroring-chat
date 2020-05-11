@@ -1,0 +1,63 @@
+extends layout
+block content
+
+  h1 Dashboard
+
+  div.container.center
+    if req.user
+      div LOGGED IN
+      div= req.user.displayName
+    else
+      div LOGGED OUT
+
+  div.container
+    //- user.filter(value => provider.includes(value)).length
+    //- TODO: find a way to make a better 'disabled if only one' (aka)
+    - const onlyOne = ([req.user.UserGoogle, req.user.UserTwitch, req.user.UserFacebook, req.user.UserDiscord].filter(value => (value != undefined)).length === 1) ? 'disabled' : ''
+    div Google/YouTube
+      = ' '
+      if req.user.UserGoogle
+        a.button(href="/auth/google/unlink", class=`${onlyOne}`) Unlink #{req.user.UserGoogle.displayName}
+        = ' '
+        a.button(href="/auth/google", class=`${onlyOne}`) Relink #{req.user.UserGoogle.displayName}
+        if (onlyOne)
+          = ' '
+          span This can not be disabled because it is the only way for you to login.
+      else
+        a.button(href="/auth/google") Link
+
+    div Twitch
+      = ' '
+      if req.user.UserTwitch
+        a.button(href="/auth/twitch/unlink", class=`${onlyOne}`) Unlink #{req.user.UserTwitch.displayName}
+        = ' '
+        a.button(href="/auth/twitch", class=`${onlyOne}`) Relink #{req.user.UserTwitch.displayName}
+        if (onlyOne)
+          = ' '
+          span This can not be disabled because it is the only way for you to login.
+      else
+        a.button(href="/auth/twitch") Link
+
+    div Facebook
+      = ' '
+      if req.user.UserFacebook
+        a.button(href="/auth/facebook/unlink", class=`${onlyOne}`) Unlink #{req.user.UserFacebook.displayName}
+        = ' '
+        a.button(href="/auth/facebook", class=`${onlyOne}`) Relink #{req.user.UserFacebook.displayName}
+        if (onlyOne)
+          = ' '
+          span This can not be disabled because it is the only way for you to login.
+      else
+        a.button(href="/auth/facebook") Link
+
+    div Discord
+      = ' '
+      if req.user.UserDiscord
+        a.button(href="/auth/discord/unlink", class=`${onlyOne}`) Unlink #{req.user.UserDiscord.displayName}
+        = ' '
+        a.button(href="/auth/discord", class=`${onlyOne}`) Relink #{req.user.UserDiscord.displayName}
+        if (onlyOne)
+          = ' '
+          span This can not be disabled because it is the only way for you to login.
+      else
+        a.button(href="/auth/discord") Link
