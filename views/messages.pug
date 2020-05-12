@@ -6,4 +6,4 @@ block content
   .container
     ul
       each message in messages
-        li #{message.provider} | #{moment(message.timestamp).format('YYYY-MM-DD HH:mm')} | #{message.displayName} : #{message.message}
+        li #{message.provider} | #{moment(message.timestamp).format('YYYY-MM-DD HH:mm:ss')} | #{message.displayName} : #{message.message}

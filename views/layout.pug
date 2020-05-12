@@ -22,7 +22,7 @@ head
   link(rel="icon" type="image/png" href="/assets/images/favicon-16x16.png" sizes="16x16")
 
   title mirroring.chat
-  link(rel="image_src" href="https://mirroring.ChrisSpiegl.com/assets/images/social-media.png")
+  link(rel="image_src" href="https://mirroring.chat/assets/images/social-media.png")
   meta(name="description" content="Get updates when there is a firmware update for your device! Easily tracked and delivered.")
 
   meta(name="apple-mobile-web-app-title" content="mirroring.chat")
@@ -34,10 +34,10 @@ head
   meta(property="og:title" content="mirroring.chat")
   meta(property="og:site_name" content="mirroring.chat")
   meta(property="og:description" content="Get updates when there is a firmware update for your device! Easily tracked and delivered.")
-  meta(property="og:image" content="https://mirroring.ChrisSpiegl.com/assets/images/social-media.png")
+  meta(property="og:image" content="https://mirroring.chat/assets/images/social-media.png")
   meta(property="og:image:width" content="2048")
   meta(property="og:image:height" content="1024")
-  meta(property="og:url" content="https://network.ChrisSpiegl.com")
+  meta(property="og:url" content="https://mirroring.chat")
   meta(property="og:type" content="website")
 
   meta(name="twitter:card" content="summary_large_image")
@@ -45,9 +45,9 @@ head
   meta(name="twitter:creator" content="@ChrisSpiegl")
   meta(name="twitter:title" content="mirroring.chat")
   meta(name="twitter:description" content="Get updates when there is a firmware update for your device! Easily tracked and delivered.")
-  meta(name="twitter:image" content="https://mirroring.ChrisSpiegl.com/assets/images/social-media.png")
+  meta(name="twitter:image" content="https://mirroring.chat/assets/images/social-media.png")
   meta(name="twitter:image:alt" content=".")
-  meta(name="twitter:url" content="https://network.ChrisSpiegl.com")
+  meta(name="twitter:url" content="https://mirroring.chat")
 
   meta(http-equiv="last-modified" content="")
   meta(name="last-modified" content="")
@@ -62,24 +62,27 @@ body(
   header.mainHeader
     h1
       a.logo(href="/") mirroring.chat
-      = ' '
-      em v
-        = config.version
+      span
+        em v
+          = config.version
+        = ' '
+        | early development
 
-  nav.container
-    ul(style="display: flex; justify-content: space-around")
-      li
-        a.button(href="/") Home
-      if (req.user)
+  if (req.user)
+    nav.container
+      ul(style="display: flex; justify-content: space-around")
         li
-          a.button(href="/dashboard") Dashboard
-        li
-          a.button(href="/messages") Messages
-        li
-          a.button(href="/auth/logout") Logout
-      else
-        li
-          a.button(href="/auth/login") Login
+          a.button(href="/") Home
+        if (req.user)
+          li
+            a.button(href="/dashboard") Dashboard
+          li
+            a.button(href="/messages") Messages
+          li
+            a.button(href="/auth/logout") Logout
+        else
+          li
+            a.button(href="/auth/login") Login
 
   .container.flash
     #topMessage.message(role="alert", style="z-index: 1000")
@@ -97,18 +100,21 @@ body(
   footer
     p.center &copy; #{moment().year()} Chris Spiegl | #[a(href="https://chrisspiegl.com/legal-disclosure/") Imprint]
 
-  //- a.madeBy(href="https://ChrisSpiegl.com?utm_source=footer&utm_medium=npc&utm_campaign=MadeBy" target="_blank")
-    span Made by Chris Spiegl
+  link(href='https://fonts.googleapis.com/css?family=Cookie' rel='stylesheet')
+  a.bmc-button(target='_blank' href='https://www.buymeacoffee.com/chrisspiegl')
+    img(src='https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg' alt='Buy me a coffee')
+    span(style='margin-left:.2rem;font-size:1.5rem !important;') Buy me a Tea
+
 
   script(src="/assets/script.js")
 
   != footerScripts
 
-  //- if config.env === 'production'
-    //- Begin Cookie Consent plugin by Silktide - http://silktide.com/cookieconsent
-    //- script(type="text/javascript").
-    //-  window.cookieconsent_options = {"message":"This website uses cookies to ensure you get the best experience on our website","dismiss":"Got it!","learnMore":"More info","link":null,"theme":"dark-bottom"};
-    //- script(type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/1.0.9/cookieconsent.min.js")
+  if config.env === 'production'
+    Begin Cookie Consent plugin by Silktide - http://silktide.com/cookieconsent
+    script(type="text/javascript").
+      window.cookieconsent_options = {"message":"This website uses cookies to ensure you get the best experience on our website","dismiss":"Got it!","learnMore":"More info","link":null,"theme":"dark-bottom"};
+    script(type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/1.0.9/cookieconsent.min.js")
 
   //- Include footer JavaScript form pages
   block footerJs
