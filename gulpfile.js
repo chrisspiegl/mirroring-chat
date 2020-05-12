@@ -1,12 +1,14 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'local'
 process.env.NODE_PATH = '.'
-require("module").Module._initPaths(); // this is needed to update NODE_PATH at runtime of Gulp
+require('module').Module._initPaths() // this is needed to update NODE_PATH at runtime of Gulp
 const path = require('path')
+
 const config = require(path.join(__dirname, './config'))
 
 const async = require('async')
 const browserSync = require('browser-sync').create()
 const changed = require('gulp-changed')
+const _ = require('lodash')
 const clean = require('gulp-clean')
 const composer = require('gulp-uglify/composer')
 const concat = require('gulp-concat')
@@ -24,29 +26,36 @@ const minify = composer(uglifyjs)
 const paths = {
   clean: ['public/*'],
   copy: {
-    'public/assets/images': {
-      cwd: './frontend/images',
-      src: '**/*'
+    // 'public/assets/img': {
+    //   cwd: './frontend/img',
+    //   src: '**/*',
+    // },
+    // 'public/assets/fonts': {
+    //   cwd: './frontend/fonts',
+    //   src: '**/*',
+    // },
+    _public1: {
+      dest: 'public',
+      cwd: './vue-dist',
+      src: ['**/*'],
     },
-    'public/assets/fonts': {
-      cwd: './frontend/fonts',
-      src: '**/*'
-    },
-    'public': {
-      cwd: './frontend',
-      src: ['robots.txt']
-    }
+    // _public2: {
+    //   dest: 'public',
+    //   cwd: './frontend',
+    //   src: ['robots.txt'],
+    // },
   },
   views: ['views/**/*'],
   sass: [
-    'frontend/**/*.scss',
-    'frontend/**/*.sass'
+    // 'frontend/**/*.scss',
+    // 'frontend/**/*.sass',
   ],
   js: [
-    'node_modules/jquery/dist/jquery.js',
-    'frontend/script.js'
+    // 'node_modules/jquery/dist/jquery.js',
+    // 'node_modules/socket.io-client/dist/socket.io.js',
+    // 'frontend/script.js',
   ],
-  server: ['data/livereload.json']
+  server: ['data/livereload.json'],
 }
 
 const onError = (err) => {
@@ -63,33 +72,32 @@ gulp.task('setProductionMode', (cb) => {
 gulp.task('clean', (cb) => {
   pump([
     gulp.src(paths.clean, {
-      read: false
+      read: false,
     }),
     clean(),
-    notify('Cleanup Public Directory')
+    notify('Cleanup Public Directory'),
   ], cb)
 })
 
-gulp.task('copy', (cb) => {
-  return async.forEachOf(paths.copy, function (src, dest, cb) {
-    pump([
-      gulp.src(src.src, {
-        cwd: src.cwd
-      }),
-      changed(dest),
-      gulp.dest(dest)
-    ], cb)
-  }, function (err) {
-    if (err) console.log(err)
-    notify('Build Copy Reloading')
-    if (browserSync.active) browserSync.reload()
-    return cb()
-  })
-})
+gulp.task('copy', (cb) => async.forEachOf(paths.copy, (src, dest, cb) => {
+  destination = (dest.startsWith('_')) ? src.dest : dest
+  pump([
+    gulp.src(src.src, {
+      cwd: src.cwd,
+    }),
+    changed(destination),
+    gulp.dest(destination),
+  ], cb)
+}, (err) => {
+  if (err) console.log(err)
+  notify('Build Copy Reloading')
+  if (browserSync.active) browserSync.reload()
+  return cb()
+}))
 
 gulp.task('buildSass', (cb) => {
   const sassOptions = {
-    outputStyle: (!isProductionMode) ? 'expanded' : 'compressed'
+    outputStyle: (!isProductionMode) ? 'expanded' : 'compressed',
   }
   pump([
     gulp.src(paths.sass),
@@ -98,7 +106,7 @@ gulp.task('buildSass', (cb) => {
     gif(!isProductionMode, sourcemaps.write()),
     gulp.dest('public/assets'),
     gif(browserSync.active, browserSync.stream()),
-    notify('Build Styles Reloading')
+    notify('Build Styles Reloading'),
   ], cb)
 })
 
@@ -106,8 +114,8 @@ gulp.task('buildJs', (cb) => {
   const options = {
     output: {
       comments: /^!/,
-      shebang: true
-    }
+      shebang: true,
+    },
   }
   pump([
     gulp.src(paths.js),
@@ -117,7 +125,7 @@ gulp.task('buildJs', (cb) => {
     gif(!isProductionMode, sourcemaps.write()),
     gulp.dest('public/assets'),
     gif(browserSync.active, browserSync.stream()),
-    notify('Build Javascript Reloading')
+    notify('Build Javascript Reloading'),
   ], cb)
 })
 
@@ -125,62 +133,66 @@ gulp.task('buildViews', (cb) => {
   pump([
     gulp.src(paths.views),
     gif(browserSync.active, browserSync.stream()),
-    notify('Build Views Reloading')
+    notify('Build Views Reloading'),
   ], cb)
 })
 
 gulp.task('buildServer', (cb) => {
   if (!browserSync.active) {
     return browserSync.init({
-      proxy: 'localhost:3000',
-      port: 8080,
+      proxy: {
+        target: `${config.server.protocol}://${config.server.address}:${config.server.port}`,
+        ws: true,
+      },
+      port: config.server.portPublic,
       https: {
         key: './assets/localhost-ssl-certificate/localhost.key',
         cert: './assets/localhost-ssl-certificate/localhost.crt',
       },
       ui: {
-        port: 8081,
+        port: config.server.portPublic + 1,
       },
-    }).emitter.on('init', function () {
+      // socket: {
+      // namespace: `http://localhost:4000/bs`
+      // },
+    }).emitter.on('init', () => {
       console.log('Browsersync is running!')
       return cb()
     })
-  } else {
-    return pump([
-      gulp.src(paths.server),
-      gif(browserSync.active, browserSync.stream()),
-      notify('Build Server Reloading')
-    ], cb)
   }
+  return pump([
+    gulp.src(paths.server),
+    gif(browserSync.active, browserSync.stream()),
+    notify('Build Server Reloading'),
+  ], cb)
 })
 
 gulp.task('localtunnelWebserver', (cb) => {
-  var localtunnel = require('localtunnel')
+  const localtunnel = require('localtunnel')
 
-  var opts = {
-    subdomain: 'spieglio-npc-bw2siafw63'
+  const opts = {
+    subdomain: 'spieglio-npc-bw2si4afw63',
   }
-  var tunnel = localtunnel(config.server.port, opts, function (err, tunnel) {
+  const tunnel = localtunnel(config.server.port, opts, (err, tunnel) => {
     if (err) console.log(err)
     else console.log(tunnel.url)
   })
 
-  tunnel.on('close', function () {
+  tunnel.on('close', () => {
     console.log('tunnel closed')
     return cb()
   })
 })
 
-gulp.task('watch', (cb) => {
-  return (
-    gulp.watch(paths.sass).on('all', gulp.series('buildSass')),
-    gulp.watch(paths.js).on('all', gulp.series('buildJs')),
-    gulp.watch(paths.views).on('all', gulp.series('buildViews')),
-    gulp.watch(paths.server).on('all', gulp.series('buildServer'))
-  )
-})
+gulp.task('watch', (cb) => ((
+  gulp.watch(_.map(paths.copy, (el) => `${el.cwd}/**/*`), { delay: 500 }).on('all', gulp.series('copy')),
+  gulp.watch(paths.sass, { delay: 500 }).on('all', gulp.series('buildSass')),
+  gulp.watch(paths.js, { delay: 500 }).on('all', gulp.series('buildJs')),
+  gulp.watch(paths.views, { delay: 500 }).on('all', gulp.series('buildViews')),
+  gulp.watch(paths.server, { delay: 500 }).on('all', gulp.series('buildServer'))
+)))
 
-gulp.task('startWebserver', function (cb) {
+gulp.task('startWebserver', (cb) => {
   const stream = nodemon({
     script: 'server/index.js',
     ext: 'js',
@@ -189,20 +201,50 @@ gulp.task('startWebserver', function (cb) {
       LOCALTUNNEL: 0,
       NODE_PATH: '.',
       NODE_ENV: config.env,
-      DEBUG: `${config.slug}:*`
-    }
+      DEBUG: `${config.slug}:*,socket.io:socket*`,
+    },
   })
 
   stream.on('start', () => {
-      console.log('nodemon webserver => started')
+    console.log('nodemon webserver => started')
+  })
+    .on('quit', () => {
+      console.log('nodemon webserver => quit')
+      return cb()
     })
-    .on('quit', () => cb())
-    .on('restart', function () {
+    .on('restart', () => {
       console.log('nodemon webserver => restart')
     })
-    .on('crash', function () {
+    .on('crash', () => {
       console.error('nodemon webserver => app crashed\n')
       // stream.emit('restart', 10)  // restart the server in 10 seconds
+    })
+})
+
+gulp.task('startCrawlerTwitch', (cb) => {
+  const stream = nodemon({
+    script: 'services/crawlerTwitch.js',
+    ext: 'js',
+    watch: ['services'],
+    env: {
+      NODE_PATH: '.',
+      NODE_ENV: config.env,
+      DEBUG: `${config.slug}:*`,
+    },
+  })
+
+  stream.on('start', () => {
+    console.log('nodemon crawler twitch => started')
+  })
+    .on('quit', () => {
+      console.log('nodemon crawler twitch => quit')
+      return cb()
+    })
+    .on('restart', () => {
+      console.log('nodemon crawler twitch => restart')
+    })
+    .on('crash', () => {
+      console.error('nodemon crawler twitch => app crashed\n')
     })
 })
 
