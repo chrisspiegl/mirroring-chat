@@ -2,6 +2,7 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 const config = require('config')
 
 const debug = require('debug')
+
 const log = debug(`${config.slug}:redis`)
 log.log = console.log.bind(console)
 const error = debug(`${config.slug}:redis:error`)
@@ -12,16 +13,20 @@ const Promise = require('bluebird')
 Promise.promisifyAll(redis.RedisClient.prototype)
 Promise.promisifyAll(redis.Multi.prototype)
 
-const redisClient = redis.createClient(config.database.redis)
+const newRedisClient = () => redis.createClient(config.database.redis)
+
+const redisClient = newRedisClient()
+const redisSubscriber = newRedisClient()
 
 redisClient.unref()
 
-redisClient.on('error', (err) => {
-  return error(err)
-})
+redisClient.on('error', (err) => error(err))
 
 module.exports = {
-  redis: redis,
-  redisClient: redisClient,
-  client: redisClient
+  redis,
+  redisClient,
+  client: redisClient,
+  redisSubscriber,
+  subscriber: redisSubscriber,
+  newRedisClient,
 }

@@ -23,7 +23,7 @@ const models = require('database/models')
  * Build Callback Url from Config Settings
  */
 const buildCallbackUrl = (provider) => {
-  return config.server.protocol + "://" + config.server.hostname + (config.server.portPublic === '' ? '' : ':' + config.server.portPublic) + `/auth/${provider}/callback`
+  return config.server.protocolPublic + "://" + config.server.hostname + (config.server.portPublic === '' ? '' : ':' + config.server.portPublic) + `/auth/${provider}/callback`
 }
 
 /**
@@ -80,7 +80,7 @@ const strategyGoogle = new passportGoogle({
   clientID: config.passport.google.clientId,
   clientSecret: config.passport.google.clientSecret,
   accessType: 'offline',
-  // This userProfileURL is neessary becuase of the Google+ Deprecation
+  // This userProfileURL is necessary because of the Google+ Deprecation
   userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
   callbackURL: buildCallbackUrl('google'),
   passReqToCallback: true,

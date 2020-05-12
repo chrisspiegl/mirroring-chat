@@ -2,6 +2,7 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 const config = require('config')
 
 const debug = require('debug')
+
 const log = debug(`${config.slug}:server`)
 log.log = console.log.bind(console)
 const error = debug(`${config.slug}:server:error`)
@@ -9,6 +10,7 @@ const error = debug(`${config.slug}:server:error`)
 log(`Running '${config.name}' Server in '${process.env.NODE_ENV}' environment`)
 
 const pmx = require('pmx')
+
 pmx.init({ http: true })
 
 const bodyParser = require('body-parser')
@@ -28,22 +30,27 @@ moment.tz.setDefault('UTC')
 
 const passport = require('server/passport')
 const models = require('database/models')
+const sockets = require('server/sockets')
 const middleware = require('server/middleware')
-// const routes = require('server/routes')
-const pnotice = require('pushnotice')(`${config.slug}:server`, { env: config.env, chat: config.pushnotice.chat, debug: true, disabled: config.pushnotice.disabled })
+const routes = require('server/routes')
+const pnotice = require('pushnotice')(`${config.slug}:server`, {
+  env: config.env, chat: config.pushnotice.chat, debug: true, disabled: config.pushnotice.disabled,
+})
 const redis = require('server/redis')
 
 // Application
 const app = express()
+const server = require('http').Server(app)
+
 app.use(helmet())
 // app.use(cors())
-// morganBody(app) // Log all messages including their parameters in a failry pretty way
+// morganBody(app) // Log all messages including their parameters in a fairly pretty way
 app.use(logger('tiny')) // Less extreme logging of requests
 // app.use(middleware.analytics) // Disable analytics cause it's a internal tool
-app.use(expressStatusMonitor())
+// app.use(expressStatusMonitor())
 app.set('trust proxy', 1) // only if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
 // app.use(require('server/limiter').limiterReject); // Apply rate limiting to all routes
-// app.use(require('server/limiter').limiterSlowDown); // Apply limter to slow down to all routes
+// app.use(require('server/limiter').limiterSlowDown); // Apply limiter to slow down to all routes
 app.set('views', path.join(config.root, 'views'))
 app.set('view engine', 'pug')
 app.set('view cache', (config.envShort === 'pro'))
@@ -66,7 +73,7 @@ app.use(session({
     path: '/',
     maxAge: 365 * 24 * 60 * 60 * 1000, // The maximum age (in milliseconds) of a valid session.
     secure: (config.env === 'production' && config.server.protocol === 'https'),
-    httpOnly: true // Since the session ID is of no use to the client, there is absolutely no reason that the front-end  application should ever have access to the session ID in the cookie.  However, by default, any script running on the front-end application will have access to a cookie’s contents.
+    httpOnly: true, // Since the session ID is of no use to the client, there is absolutely no reason that the front-end  application should ever have access to the session ID in the cookie.  However, by default, any script running on the front-end application will have access to a cookie’s contents.
   },
   name: 'id',
 }))
@@ -77,16 +84,16 @@ app.use(passport.session())
 app.use(flash())
 app.use(middleware.extension)
 app.use(require('server/locals'))
+
 app.use((err, req, res, next) => {
   // Error in the Express App
   error(err.message)
   pnotice(`app.use error ${err.message}`)
   next(err, req, res)
 })
-app.use((req, res, next) => {
+app.use((req, res, next) =>
   // Each and every request
-  return next()
-})
+  next())
 // app.use(middleware.catchErrors(async (req, res, next) => {
 //   // Load the user from the session
 //   // This is specifically needed in PushNotice because we don't use passport.io
@@ -113,20 +120,20 @@ app.use((req, res, next) => {
 //   return next()
 // }))
 
-app.use(require('server/routes'))
+app.use(routes)
 
-const server = app.listen(config.server.port, config.server.address, async () => {
+server.listen(config.server.port, config.server.address, async () => {
   await models.init()
 
   const host = server.address().address
-  const port = server.address().port
+  const { port } = server.address()
   const livereloadDate = new Date()
   const fs = require('fs')
   fs.writeFileSync(path.join(config.root, '/data/livereload.json'), JSON.stringify({ livereload: livereloadDate }), { flat: 'w' })
-  log('Livereload written at ' + livereloadDate)
-  log('App listening at ' + config.server.protocol + '://' + config.server.hostname + (config.server.portPublic === '' ? '' : ':' + config.server.portPublic))
-  log(`Internal Adress: ${host}:${port}`)
-  pnotice('App listening at ' + config.server.protocol + '://' + config.server.hostname + (config.server.portPublic === '' ? '' : ':' + config.server.portPublic))
+  log(`Livereload written at ${livereloadDate}`)
+  log(`App listening at ${config.server.protocol}://${config.server.hostname}${config.server.portPublic === '' ? '' : `:${config.server.portPublic}`}`)
+  log(`Internal Address: ${host}:${port}`)
+  pnotice(`App listening at ${config.server.protocol}://${config.server.hostname}${config.server.portPublic === '' ? '' : `:${config.server.portPublic}`}`)
 })
 
 // Graceful shutdown
