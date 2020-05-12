@@ -124,6 +124,7 @@ app.use(routes)
 
 server.listen(config.server.port, config.server.address, async () => {
   await models.init()
+  await sockets.init(server)
 
   const host = server.address().address
   const { port } = server.address()
