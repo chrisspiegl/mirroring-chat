@@ -1,5 +1,25 @@
 # Changelog
 
+## 2020-05-12 18:58
+
+- Frontend: vue.js build system (understanding, learning, setup, trial and error)
+- Frontend: vue.js integrate moment date filter
+- Frontend: vue.js integrate socket.io (had to downgrade to earlier version of vue-socket.io because of a bug)
+- Frontend: vue.js show chat messages (load via API call)
+- Backend: API: implement api file structure and `/api/v1/chat/messages/:channel` as first route
+- Backend: make `redisSubscriber` one reusable client connection just like `redisClient`
+- Backend: message store to provide encode and decode methods for smaller redis storage while staying readable in code
+- Backend: Twitch Crawler: added configuration setting for twitch bot username
+- Backend: Twitch Crawler: twitch bot automatically listens to all active users on the platform (will change in the future)
+- Backend/Frontend: made redis keys a bit cleaner, never use twitch channel name with `#` in the beginning (just confusing), and update all the pub/sub to work together again
+- Backend/Frontend: Socket: implement disconnect to close down redis.subscribe for certain channel once view left or socket disconnected
+
+## 2020-05-11
+
+- PM2 deploy setup and git repository (not deployed but at least a step closer)
+- socket.io trial and error
+- redis lpush, ltrim, and such things
+
 ## 2020-05-09 22:11
 
 - registered mirroring.chat
