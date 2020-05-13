@@ -16,6 +16,7 @@ module.exports = {
     semi: ['warn', 'never'],
     'no-unused-vars': 'warn',
     'max-len': 0,
+    radix: ['error', 'as-needed'],
   },
   settings: {
     'import/resolver': {
