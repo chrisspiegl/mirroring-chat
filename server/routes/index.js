@@ -18,13 +18,9 @@ app.use('/api', require('./api/v1'))
 app.use(slashes(false)) // has to be used after `/api` routes and `express.static` so it does not change those urls
 // app.use(csurf({ cookie: false }))
 
-// app.use('/auth', require('./auth').login())
-app.use('/auth/login', require('./auth').login())
-app.use('/auth/logout', require('./auth').logout())
-// app.use('/dashboard', require('./dashboard')())
-// app.use('/messages(|.json)', require('./messages')())
-// app.use('/home', require('./home')())
-app.use('/*', require('./home')())
+app.use('/auth', require('./auth'))
+app.use('/', require('./home')())
+app.use('*', require('./home')())
 app.use(require('./error').error404)
 app.use(require('./error').error500)
 
