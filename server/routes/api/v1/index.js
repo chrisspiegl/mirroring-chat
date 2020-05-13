@@ -17,5 +17,6 @@ const {
 
 const router = express.Router()
 router.get('/chat/messages/:channelName', ensureLogin, require('./chat/messages'))
+router.get('/jwt', require('./jwt'))
 
 module.exports = router
