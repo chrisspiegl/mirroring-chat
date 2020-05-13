@@ -1,4 +1,5 @@
-path = require('path')
+const path = require('path')
+const packageJson = require('package.json')
 
 module.exports = {
   env: process.env.NODE_ENV,
@@ -6,7 +7,7 @@ module.exports = {
   name: 'mirroring.chat',
   slug: 'simic',
   slugShort: 'mic',
-  version: require('package.json').version,
+  version: packageJson.version,
 
   root: path.normalize(`${__dirname}/..`),
 
