@@ -1,31 +1,30 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 const config = require('config')
-
 const debug = require('debug')
 
 const log = debug(`${config.slug}:server`)
 log.log = console.log.bind(console)
+// eslint-disable-next-line no-unused-vars
 const error = debug(`${config.slug}:server:error`)
 
 log(`Running '${config.name}' Server in '${process.env.NODE_ENV}' environment`)
 
-const pmx = require('pmx')
-
-pmx.init({ http: true })
-
+// const cors = require('cors')
 const bodyParser = require('body-parser')
 const compression = require('compression')
 const express = require('express')
 const expressStatusMonitor = require('express-status-monitor')
 const flash = require('express-flash')
+const fs = require('fs')
 const helmet = require('helmet')
-// const cors = require('cors')
 const logger = require('morgan')
 const moment = require('moment-timezone')
-const pug = require('pug')
+const path = require('path')
+const pmx = require('pmx')
 const session = require('express-session')
 const SessionRedisStore = require('connect-redis')(session)
 
+pmx.init({ http: true })
 moment.tz.setDefault('UTC')
 
 const passport = require('server/passport')
@@ -44,10 +43,9 @@ const server = require('http').Server(app)
 
 app.use(helmet())
 // app.use(cors())
-// morganBody(app) // Log all messages including their parameters in a fairly pretty way
 app.use(logger('tiny')) // Less extreme logging of requests
 // app.use(middleware.analytics) // Disable analytics cause it's a internal tool
-// app.use(expressStatusMonitor())
+app.use(expressStatusMonitor())
 app.set('trust proxy', 1) // only if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
 // app.use(require('server/limiter').limiterReject); // Apply rate limiting to all routes
 // app.use(require('server/limiter').limiterSlowDown); // Apply limiter to slow down to all routes
@@ -91,34 +89,9 @@ app.use((err, req, res, next) => {
   pnotice(`app.use error ${err.message}`)
   next(err, req, res)
 })
-app.use((req, res, next) =>
-  // Each and every request
-  next())
-// app.use(middleware.catchErrors(async (req, res, next) => {
-//   // Load the user from the session
-//   // This is specifically needed in PushNotice because we don't use passport.io
-//   if (req.session.user) {
-//     const user = await models.User.findByPk(req.session.user.idUser)
 
-//     if (!user) {
-//       error(`req.session.user.idUser is set to ${req.session.user.idUser} but there is no user with this id in the database`)
-//       await req.session.regenerate((err) => {
-//         if (err) {
-//           error('/auth/signout', err)
-//           return res.redirect('/')
-//         } else {
-//           req.flash('info', 'Successfully signed out')
-//           return res.redirect('/')
-//         }
-//       })
-//       req.user = undefined
-//       return next()
-//     }
-//     req.user = user
-//     return next()
-//   }
-//   return next()
-// }))
+// Each and every request
+// app.use((req, res, next) => next())
 
 app.use(routes)
 
@@ -129,7 +102,6 @@ server.listen(config.server.port, config.server.address, async () => {
   const host = server.address().address
   const { port } = server.address()
   const livereloadDate = new Date()
-  const fs = require('fs')
   fs.writeFileSync(path.join(config.root, '/data/livereload.json'), JSON.stringify({ livereload: livereloadDate }), { flat: 'w' })
   log(`Livereload written at ${livereloadDate}`)
   log(`App listening at ${config.server.protocol}://${config.server.hostname}${config.server.portPublic === '' ? '' : `:${config.server.portPublic}`}`)

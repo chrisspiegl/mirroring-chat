@@ -1,11 +1,13 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 const config = require('config')
-
 const debug = require('debug')
+
 const log = debug(`${config.slug}:mailer`)
 log.log = console.log.bind(console)
+// eslint-disable-next-line no-unused-vars
 const error = debug(`${config.slug}:mailer:error`)
 
+const path = require('path')
 const nodemailer = require('nodemailer')
 const Email = require('email-templates')
 
@@ -21,7 +23,7 @@ module.exports = () => {
 
     const emailDefaults = {
       message: {
-        from: `${config.name} <${mail.from}>`
+        from: `${config.name} <${mail.from}>`,
       },
       send: mail.send, // set wether or not emails should be sent
       transport: transporter,
@@ -30,9 +32,9 @@ module.exports = () => {
       juiceResources: {
         preserveImportant: true,
         webResources: {
-          relativeTo: path.resolve(config.root, 'public/assets')
-        }
-      }
+          relativeTo: path.resolve(config.root, 'public/assets'),
+        },
+      },
     }
 
     return new Email(emailDefaults)
@@ -42,16 +44,16 @@ module.exports = () => {
     emailObject = initEmailObject()
   }
 
-  const sendMail = (template, message, locals = {}) => {
+  const sendMail = (template, msg, locals = {}) => {
     const messageDefaults = {}
-    message = { ...messageDefaults, ...message }
+    const message = { ...messageDefaults, ...msg }
     const emailOptions = {
       template: path.resolve(config.root, 'views', 'email', template),
       message,
-      locals
+      locals,
     }
     if (!mail.send) {
-      log(`Not sending email '${template}' to '${message.to}' / Mail Sending Disabled in Config`)
+      log(`Not sending email '${template}' to '${message.to}' / Mail Sending Disabled in Config`)
     } else {
       log(`Sending email email '${template}' to '${message.to}'`)
     }
@@ -59,6 +61,6 @@ module.exports = () => {
   }
 
   return {
-    sendMail
+    sendMail,
   }
 }

@@ -1,9 +1,10 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 const config = require('config')
-
 const debug = require('debug')
+
 const log = debug(`${config.slug}:cacheManager`)
 log.log = console.log.bind(console)
+// eslint-disable-next-line no-unused-vars
 const error = debug(`${config.slug}:cacheManager:error`)
 
 // https://github.com/BryanDonovan/node-cache-manager
@@ -16,11 +17,11 @@ const redisStore = require('cache-manager-redis-store')
 const diskCache = cacheManager.caching({
   store: fsStore,
   options: {
-    path: config.database.path, //path for cached files
-    ttl: 60 * 60, /*seconds*/
+    path: config.database.path, // path for cached files
+    ttl: 60 * 60, /* seconds */
     subdirs: true, // create subdirectories to reduce the files in a single dir (default: false)
     zip: true, // zip files to save diskspace (default: false)
-  }
+  },
 })
 
 const redisCache = cacheManager.caching({
@@ -29,12 +30,12 @@ const redisCache = cacheManager.caching({
   port: config.database.redis.port,
   auth_pass: config.database.redis.options.auth_pass || '',
   db: config.database.redis.options.db || 0,
-  ttl: 600, /*seconds*/
+  ttl: 600, /* seconds */
 })
 
 module.exports = {
-  redisCache: redisCache,
+  redisCache,
   redis: redisCache,
-  diskCache: diskCache,
+  diskCache,
   fs: diskCache,
 }

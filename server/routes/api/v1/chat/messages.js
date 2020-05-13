@@ -1,15 +1,14 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 const config = require('config')
-
 const debug = require('debug')
 
-const log = debug(`${config.slug}:api:chat:messages`)
+const log = debug(`${config.slug}:api:v1:chat:messages`)
 log.log = console.log.bind(console)
-const error = debug(`${config.slug}:api:chat:messages:error`)
-
-const express = require('express')
+// eslint-disable-next-line no-unused-vars
+const error = debug(`${config.slug}:api:v1:chat:messages:error`)
 
 const middleware = require('server/middleware')
+const messagesStore = require('server/messagesStore')
 
 module.exports = middleware.catchErrors(async (req, res) => {
   const response = {
@@ -24,7 +23,7 @@ module.exports = middleware.catchErrors(async (req, res) => {
   console.log('channelName', channelName)
 
   response.data.channelName = channelName
-  response.data.messages = await require('server/messagesStore').fetch(channelName)
+  response.data.messages = await messagesStore.fetch(channelName)
 
   return res.set('Content-Type', 'application/json').send(response)
 })

@@ -1,6 +1,6 @@
 <template>
-  <div class="about">
-    <h1>About</h1>
+  <div class="error404">
+    <h1>Error 404 — Not Found</h1>
   </div>
 </template>
 
@@ -9,5 +9,5 @@ export default {
   name: 'About',
   components: {},
 }
-console.log('About.vue initialized')
+console.log('404.vue initialized')
 </script>

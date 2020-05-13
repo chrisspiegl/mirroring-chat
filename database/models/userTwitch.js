@@ -46,7 +46,7 @@ module.exports = function (sequelize, Sequelize) {
         idUser,
         displayName,
         picture,
-      };
+      }
     }
   }
 

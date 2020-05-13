@@ -1,19 +1,20 @@
-'use strict'
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 const config = require('config')
 const configDatabase = require('database/config.js')[config.env]
 
 const debug = require('debug')
+
 const log = debug(`${config.slug}:database`)
 log.log = console.log.bind(console)
+// eslint-disable-next-line no-unused-vars
 const error = debug(`${config.slug}:database:error`)
 
 const fs = require('fs')
-// const Promise = require('bluebird');
+const path = require('path')
 const Sequelize = require('sequelize')
-
 const { promisify } = require('util')
+
 const fsReadDir = promisify(fs.readdir)
 
 const db = {}
@@ -30,15 +31,13 @@ const init = async () => {
         configDatabase.database,
         configDatabase.username,
         configDatabase.password,
-        configDatabase
+        configDatabase,
       )
     }
 
     log('loading all database models from files')
     let filestream = await fsReadDir(__dirname)
-    filestream = await filestream.filter((file) => {
-      return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js')
-    })
+    filestream = await filestream.filter((file) => (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js'))
     for await (const file of filestream) {
       log(`importing model ${path.join(__dirname, file)}`)
       const model = sequelize.import(path.join(__dirname, file))

@@ -1,16 +1,14 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 const config = require('config')
-
 const debug = require('debug')
 
 const log = debug(`${config.slug}:messagesStore`)
 log.log = console.log.bind(console)
+// eslint-disable-next-line no-unused-vars
 const error = debug(`${config.slug}:messagesStore:error`)
 
 const redisClient = require('server/redis').client
-const redisSubscriber = require('server/redis').subscriber
 
-// const ttl = 60/*seconds*/
 const ttl = 60 * 60 * 24 * 7/* seconds */ // 7 days
 const keyListBase = `${config.slugShort}:${config.envShort}:messages:store:`
 const keyStreamBase = `${config.slugShort}:${config.envShort}:messages:stream:`
@@ -52,13 +50,12 @@ const fetch = (channel) => {
     redisClient.lrangeAsync(keyList, 0, -1).then(
       (messages) => {
         const messagesDecoded = messages.reverse().map(messageDecode)
-        resolve(messagesDecoded)
-      }, (err) => {
-        reject(err)
+        return resolve(messagesDecoded)
       },
-    )
-  }, (err) => {
-    reject(`Redis connection failed: ${err}`)
+    ).catch((err) => {
+      error(`Redis connection failed: ${err}`)
+      return reject(err)
+    })
   })
 }
 
@@ -68,24 +65,24 @@ const add = (channel, message) => new Promise((resolve, reject) => {
   const keyStream = keyStreamBase + message.channelName
   console.log('add -> keyStream', keyStream)
   // possible use of `.expire(key, ttl)` to expire the whole key after a certain amount of time (after the last rpush)
-  redisClient.multi().lpush(keyList, messageEncoded) // .expire(keyList, ttl)
+  redisClient.multi().lpush(keyList, messageEncoded).expire(keyList, ttl)
     .publish(keyStream, messageEncoded)
     .execAsync()
-    .then((res) => {
+    .then((resMulti) => {
       const trimAt = 120
       const trimTo = 100
-      if (res[0] > trimAt) {
+      if (resMulti[0] > trimAt) {
         log(`found over ${trimAt} messages in the channel, trimming to ${trimTo}`)
-        redisClient.ltrimAsync(keyList, 0, trimTo).then((res) => {
-          log(`trimmed ${channelName} to ${trimTo} messages`)
+        redisClient.ltrimAsync(keyList, 0, trimTo).then((resLtrim) => {
+          log(`trimmed ${message.channelName} to ${trimTo} messages with ${resLtrim}`)
         })
       }
-      resolve(res)
-    }, (err) => {
-      reject(err)
+      return resolve(resMulti)
     })
-}, (err) => {
-  reject(`Redis connection failed: ${err}`)
+    .catch((err) => {
+      error(`Redis connection failed: ${err}`)
+      return reject(err)
+    })
 })
 
 module.exports = {

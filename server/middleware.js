@@ -1,14 +1,16 @@
+/* eslint-disable no-param-reassign */
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 const config = require('config')
-
 const debug = require('debug')
+
 const log = debug(`${config.slug}:router:middleware`)
 log.log = console.log.bind(console)
+// eslint-disable-next-line no-unused-vars
 const error = debug(`${config.slug}:router:middleware:error`)
 
 const _ = require('lodash')
 const boom = require('boom')
-const moment = require('moment')
+const moment = require('moment-timezone')
 const url = require('url')
 const useragent = require('express-useragent')
 
@@ -47,52 +49,49 @@ const extension = (req, res, next) => {
   return next()
 }
 
-const setBounce = (def) => {
-  return function (req, res, next) {
-    let ref, ref1
-    if ((ref = req.session) != null ? ref.bounceTo : undefined) {
-      return next()
-    }
-    if (def) {
-      req.session.bounceTo = def
-    } else if ((ref1 = req.query) != null ? ref1.bounce : undefined) {
-      req.session.bounceTo = req.query.bounce
-    } else {
-      req.session.bounceTo = req.get('Referer') || '/'
-    }
-    log('session.bounceTo = ' + req.session.bounceTo)
+const setBounce = (def) => (req, res, next) => {
+  const ref = req.session
+  const ref1 = req.query
+  if (ref != null ? ref.bounceTo : undefined) {
     return next()
   }
+  if (def) {
+    req.session.bounceTo = def
+  } else if (ref1 != null ? ref1.bounce : undefined) {
+    req.session.bounceTo = req.query.bounce
+  } else {
+    req.session.bounceTo = req.get('Referer') || '/'
+  }
+  log(`session.bounceTo = ${req.session.bounceTo}`)
+  return next()
 }
 
-const bounce = (def) => {
-  return (req, res, next) => {
-    const tmp = req.session.bounceTo
-    if (tmp) {
-      delete req.session.bounceTo
-    }
-    return res.redirect(tmp || def || '/')
+const bounce = (def) => (req, res, next) => {
+  const tmp = req.session.bounceTo
+  if (tmp) {
+    delete req.session.bounceTo
   }
+  return res.redirect(tmp || def || '/')
 }
 
 const ensureLogin = (req, res, next) => {
-  log('ensure loggin')
+  log('ensure logged in')
   if (req.isAuthenticated()) {
     return next()
   }
   req.flash('alert', `You have to be logged in to access ${req.originalUrl}`)
   return res.format({
-    html: function () {
+    html() {
       return res.redirect('/auth')
     },
-    json: function () {
+    json() {
       return res.json({
-        error: 'not-logged-in'
+        error: 'not-logged-in',
       })
     },
-    default: function () {
+    default() {
       return res.redirect('/auth')
-    }
+    },
   })
 }
 
@@ -101,11 +100,17 @@ const analytics = (req, res, next) => {
   const requestPath = url.parse(req.url).path
   res.on('finish', async () => {
     const useragentParsed = useragent.parse(req.get('User-Agent'))
+    const type = ((locals) => {
+      if (locals.isPage) return 'page'
+      if (locals.isAPI) return 'api'
+      return 'static'
+    })(res.locals)
+
     await models.LogRequest.create({
       url: requestPath,
       method: req.method,
       status: res.statusCode,
-      type: (res.locals.isPage) ? 'page' : ((res.locals.isApi) ? 'api' : 'static'),
+      type,
       refHeader: req.headers.referer,
       refQuery: req.query.ref,
       userAgent: req.get('User-Agent'),
@@ -117,26 +122,25 @@ const analytics = (req, res, next) => {
       dnt: !!req.header('dnt'),
       responseTime: (new Date() - requestTime) / 1000, // convert to seconds
       day: moment(requestTime).format('dddd'),
-      hour: moment(requestTime).hour()
+      hour: moment(requestTime).hour(),
     })
   })
   next()
 }
 
-const catchErrors = (fn) => {
-  return (req, res, next) => {
-    // Make sure to `.catch()` any errors and pass them along to the `next()`
-    // middleware in the chain, in this case the error handler.
-    // return fn(req, res, next).catch(next;
-    // return Promise.resolve(fn(req, res, next)).catch((err) => {
-    return fn(req, res, next).catch((err) => {
-      if (!err.isBoom) {
-        return next(boom.badImplementation(err))
-      }
-      return next(err)
-    })
-  }
+const catchErrors = (fn) => (req, res, next) => {
+// Make sure to `.catch()` any errors and pass them along to the `next()`
+// middleware in the chain, in this case the error handler.
+// return fn(req, res, next).catch(next;
+// return Promise.resolve(fn(req, res, next)).catch((err) => {
+  fn(req, res, next).catch((err) => {
+    if (!err.isBoom) {
+      return next(boom.badImplementation(err))
+    }
+    return next(err)
+  })
 }
+
 
 module.exports = {
   extension,
@@ -144,5 +148,5 @@ module.exports = {
   bounce,
   ensureLogin,
   analytics,
-  catchErrors
+  catchErrors,
 }

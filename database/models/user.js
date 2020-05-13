@@ -73,7 +73,7 @@ module.exports = function (sequelize, Sequelize) {
         // UserTwitch,
         // UserFacebook,
         // UserDiscord,
-        profilePath,
+        // profilePath,
       };
     }
   }

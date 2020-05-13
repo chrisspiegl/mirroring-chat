@@ -3,9 +3,10 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 const config = require('config')
 const debug = require('debug')
 
-const log = debug(`${config.slug}:router:index`)
+const log = debug(`${config.slug}:api:v1:index`)
 log.log = console.log.bind(console)
-const error = debug(`${config.slug}:router:index:error`)
+// eslint-disable-next-line no-unused-vars
+const error = debug(`${config.slug}:api:v1:index:error`)
 
 const express = require('express')
 // const csurf = require('csurf')
@@ -15,6 +16,6 @@ const {
 } = require('server/middleware')
 
 const router = express.Router()
-router.get('/chat/messages/:channelName', require('./chat/messages'))
+router.get('/chat/messages/:channelName', ensureLogin, require('./chat/messages'))
 
 module.exports = router

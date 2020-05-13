@@ -1,9 +1,10 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
-const config = require('config')
-
 const debug = require('debug')
+const config = require('../config')
+
 const log = debug(`${config.slug}:db:config`)
 log.log = console.log.bind(console)
+// eslint-disable-next-line no-unused-vars
 const error = debug(`${config.slug}:db:config:error`)
 
 const exp = {}

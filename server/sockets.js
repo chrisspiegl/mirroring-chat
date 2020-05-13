@@ -1,10 +1,10 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 const config = require('config')
-
 const debug = require('debug')
 
 const log = debug(`${config.slug}:socket`)
 log.log = console.log.bind(console)
+// eslint-disable-next-line no-unused-vars
 const error = debug(`${config.slug}:socket:error`)
 
 const socketio = require('socket.io')
@@ -40,7 +40,7 @@ const init = async (http) => {
       const messageDecoded = messageDecode(message)
       log('on:redis:message for: ', keyRedis, ' and-message ', messageDecoded)
 
-      // Do not handle messages that are not in the `keySteram` key range for now
+      // Do not handle messages that are not in the `keyStream` key range for now
       if (keyRedis !== this.keyStreamChannel) return
       const keySocket = `message-to-${messageDecoded.channelName}`
       log('socket:emit:', keySocket)

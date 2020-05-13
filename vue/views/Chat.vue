@@ -24,12 +24,6 @@
 </template>
 
 <script>
-import axios from 'axios'
-import socket from '@/plugins/socket.client'
-
-// @ is an alias to /src
-// import HelloWorld from '@/components/HelloWorld.vue'
-
 export default {
   name: 'Chat',
 
@@ -44,11 +38,11 @@ export default {
   },
 
   watch: {
-    newMessage(value) {},
+    newMessage(value) { console.log('Typing: ', value) },
   },
 
   mounted() {
-    axios
+    this.$axios
       .get(`/api/v1/chat/messages/${this.channelName}`)
       .then((response) => {
         this.messages = response.data.data.messages

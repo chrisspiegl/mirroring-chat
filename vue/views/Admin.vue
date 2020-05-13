@@ -1,13 +1,13 @@
 <template>
   <div class="about">
-    <h1>About</h1>
+    <h1>Admin</h1>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'About',
+  name: 'Admin',
   components: {},
 }
-console.log('About.vue initialized')
+console.log('Admin.vue initialized')
 </script>
