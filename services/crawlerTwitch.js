@@ -1,10 +1,10 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 const config = require('config')
-
 const debug = require('debug')
 
 const log = debug(`${config.slug}:botTwitch`)
 log.log = console.log.bind(console)
+// eslint-disable-next-line no-unused-vars
 const error = debug(`${config.slug}:botTwitch:error`)
 
 const tmi = require('tmi.js')
@@ -32,7 +32,7 @@ const init = async (userProviderParam = null) => {
 
   // Get all active users channels
   // TODO: needs to be limited at a later time (user must have been active in the past 7 days, channel must be enabled)
-  // LATER: may also make sense to seperate channels from users in the database
+  // LATER: may also make sense to separate channels from users in the database
   const users = await models.UserTwitch.findAll({})
   const channels = users.map((user) => (user.displayName))
 
