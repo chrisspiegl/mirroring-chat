@@ -1,18 +1,12 @@
-<template>
-  <v-app id="inspire">
-    <navigation />
+<template lang="pug">
+  v-app#inspire
+    navigation
 
-    <v-content>
-      <v-container
-        fluid
-      >
-        <router-view/>
-        <v-footer app>
-          <span>&copy; 2020 Chris Spiegl | mirroring.chat</span>
-        </v-footer>
-      </v-container>
-    </v-content>
-  </v-app>
+    v-content
+      v-container.fill-height(fluid)
+        router-view
+        v-footer(app)
+          span &copy; 2020 Chris Spiegl | mirroring.chat
 </template>
 
 <script>
@@ -37,3 +31,9 @@ export default {
 console.log('App.vue initialized')
 
 </script>
+
+<style lang="scss" scoped>
+.fill-height {
+  align-items: flex-start;
+}
+</style>
