@@ -28,7 +28,9 @@ const init = async (userProviderParam = null) => {
   }
 
   // Refresh oauth tokens for bot
-  userProvider = await refreshTokenAccess('twitch', userProvider)
+  userProvider = await refreshTokenAccess('twitch', userProvider).catch((err) => {
+    error('Error while refreshing the tokens for the mirroringbot on Twitch: ', err)
+  })
 
   // Get all active users channels
   // TODO: needs to be limited at a later time (user must have been active in the past 7 days, channel must be enabled)
@@ -57,7 +59,9 @@ const init = async (userProviderParam = null) => {
   // Register our event handlers (defined below)
 
   // Connect to Twitch:
-  client.connect()
+  client.connect().catch((err) => {
+    error('Twitch Client Error: ', err)
+  })
 
   // Called every time a message comes in
   function onMessageHandler(channel, context, msg, self) {

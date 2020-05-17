@@ -8,6 +8,8 @@ log.log = console.log.bind(console)
 const error = debug(`${config.slug}:passport:refresh:error`)
 
 const refresh = require('passport-oauth2-refresh')
+// eslint-disable-next-line no-unused-vars
+const passport = require('./passport') // necessary since refresh otherwise does not find the used strategies.
 
 /**
  * Refresh TokenAccess if the user has not logged in in a while
@@ -18,6 +20,15 @@ const refreshTokenAccess = async (provider, userProvider) => new Promise((resolv
   log(`login:${provider}:${userProvider.idUserProvider}:refreshing-access-token`)
   try {
     return refresh.requestNewAccessToken(provider, userProvider.tokenRefresh, async (err, tokenAccess, tokenRefresh) => {
+      if (err) {
+        throw new Error(
+          `login:${provider} did not provide new login token for ${userProvider.idUserProvider}`,
+          err,
+        )
+      }
+      if (!tokenAccess || !tokenRefresh) {
+        throw new Error(`login:${provider} did not provide new login token for ${userProvider.idUserProvider}`)
+      }
       const userProviderOptions = {
         tokenAccess,
         tokenRefresh,

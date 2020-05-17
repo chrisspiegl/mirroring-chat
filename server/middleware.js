@@ -14,6 +14,7 @@ const moment = require('moment-timezone')
 const url = require('url')
 const useragent = require('express-useragent')
 
+const passport = require('server/passport')
 const models = require('database/models')
 const routerError = require('server/routes/error')
 
@@ -73,6 +74,10 @@ const bounce = (def) => (req, res, next) => {
   }
   return res.redirect(tmp || def || '/')
 }
+
+const ensureJwtAuth = passport.authenticate('jwt', {
+  session: false,
+})
 
 const ensureLogin = (req, res, next) => {
   log('ensure logged in')

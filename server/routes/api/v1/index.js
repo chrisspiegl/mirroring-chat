@@ -12,11 +12,26 @@ const express = require('express')
 // const csurf = require('csurf')
 
 const {
-  ensureLogin,
+  ensureJwtAuth,
 } = require('server/middleware')
 
+const passport = require('server/passport')
+
+
 const router = express.Router()
-router.get('/chat/messages/:channelName', ensureLogin, require('./chat/messages'))
-router.get('/jwt', require('./jwt'))
+router.get('/chat/messages/:channelName', passport.authenticate('jwt', {
+  session: false,
+}), require('./chat/messages'))
+router.get('/user/me', passport.authenticate('jwt', {
+  session: false,
+}), require('./user/me'))
+router.get('/auth/token', require('./auth/token'))
+router.post('/auth/token', require('./auth/token'))
+router.get('/auth/:provider/unlink', passport.authenticate('jwt', {
+  session: false,
+}), require('./auth/unlink'))
+router.post('/auth/:provider/unlink', passport.authenticate('jwt', {
+  session: false,
+}), require('./auth/unlink'))
 
 module.exports = router

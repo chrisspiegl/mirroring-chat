@@ -32,13 +32,13 @@ router.get('/success', (req, res) => {
   if (req.isAuthenticated()) {
     // Double check login status.
     req.flash('notice', 'Logged in successfully.')
-    return res.redirect('/dashboard')
+    return res.redirect('/login/success')
   }
   return res.redirect('/auth/failed')
 })
 router.get('/failed', (req, res) => {
   req.flash('alert', 'Login failed.')
-  return res.redirect('/')
+  return res.redirect('/login/failed')
 })
 
 router.get('/logout', (req, res) => req.session.regenerate((err) => {
@@ -46,30 +46,6 @@ router.get('/logout', (req, res) => req.session.regenerate((err) => {
   req.flash('notice', 'Logout success.')
   return res.redirect('/')
 }))
-
-router.get('/:provider/unlink', async (req, res) => {
-  const { provider } = req.params
-  let userProvider
-  switch (provider) {
-    case 'facebook':
-      userProvider = await req.user.getUserFacebook()
-      break
-    case 'twitch':
-      userProvider = await req.user.getUserTwitch()
-      break
-    case 'google':
-      userProvider = await req.user.getUserGoogle()
-      break
-    case 'discord':
-      userProvider = await req.user.getUserDiscord()
-      break
-    default:
-      break
-  }
-  await userProvider.destroy()
-  req.flash('success', `Connection to ${provider} account unlinked.`)
-  return res.redirect('/dashboard')
-})
 
 // Google
 router.get('/google', passport.authenticate('google', {

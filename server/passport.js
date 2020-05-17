@@ -19,6 +19,7 @@ const PassportDiscord = require('passport-discord').Strategy
 const PassportFacebook = require('passport-facebook').Strategy
 const PassportGoogle = require('passport-google-oauth20').Strategy
 const PassportTwitch = require('@d-fischer/passport-twitch').Strategy
+const { Strategy: PassportJwt, ExtractJwt: PassportJwtExtract } = require('passport-jwt')
 
 const models = require('database/models')
 
@@ -356,6 +357,26 @@ refresh.use(strategyDiscord)
 // passport.use(strategyTelegram)
 // refresh.use(strategyTelegram)
 
+/**
+ * Passport JWT Authentication Strategy
+ */
+
+const strategyJwt = new PassportJwt({
+  jwtFromRequest: PassportJwtExtract.fromAuthHeaderAsBearerToken(),
+  secretOrKey: config.secrets.jwt,
+},
+(jwtPayload, done) => models.User.findByPk(jwtPayload.idUser, {
+  include: [
+    models.UserGoogle,
+    models.UserTwitch,
+    models.UserFacebook,
+    models.UserDiscord,
+  ],
+})
+  .then((user) => done(null, user))
+  .catch((err) => done(err)))
+
+passport.use(strategyJwt)
 
 /**
  * ======================================================

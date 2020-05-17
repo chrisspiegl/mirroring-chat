@@ -12,8 +12,11 @@ const messagesStore = require('server/messagesStore')
 
 module.exports = middleware.catchErrors(async (req, res) => {
   const response = {
+    ok: true,
     status: 200,
     apiVersion: 1,
+    name: 'ChatMessages',
+    description: 'Last chat messages for requested channel (up to 150 messages).',
     data: {},
   }
 
