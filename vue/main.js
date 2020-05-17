@@ -6,6 +6,7 @@ import store from '@/store'
 import vuetify from '@/plugins/vuetify'
 import '@/plugins/socket.client'
 import '@/plugins/moment'
+import '@/plugins/chatScroll'
 
 import Loading from '@/components/lib/loading.vue'
 import CenterContainer from '@/components/lib/center-container.vue'
