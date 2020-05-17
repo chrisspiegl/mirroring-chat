@@ -1,7 +1,7 @@
 <template>
   <div class="chat">
     <v-container>
-      <h1>Chat Twitch #{{this.channelName}}</h1>
+      <h1>Chat Twitch #{{channelName}}</h1>
 
       <div class="card bg-info">
           <ul class="list-group list-group-flush">
@@ -24,29 +24,42 @@
 </template>
 
 <script>
+import { mapGetters, mapState } from 'vuex'
+import apiCall from '@/utils/api'
+
 export default {
   name: 'Chat',
 
   components: {},
 
+  computed: {
+    ...mapGetters(['getProfile', 'isAuthenticated', 'isProfileLoaded']),
+    ...mapState({
+      channelName: (state) => state.user.profile.UserTwitch.username, // TODO: make this somehow idUser dependent
+      user: (state) => state.user.profile,
+    }),
+  },
+
   data() {
     return {
       newMessage: null,
       messages: [],
-      channelName: 'spieglio', // TODO: make this somehow user login dependent
     }
+  },
+
+  mounted() {
+    apiCall({
+      url: `/v1/chat/messages/${this.channelName}`,
+      method: 'GET',
+    }).then((resp) => {
+      this.messages = resp.data.messages
+    }).catch((err) => {
+      console.error('Error requesting chat messages: ', err)
+    })
   },
 
   watch: {
     newMessage(value) { console.log('Typing: ', value) },
-  },
-
-  mounted() {
-    this.$axios
-      .get(`/api/v1/chat/messages/${this.channelName}`)
-      .then((response) => {
-        this.messages = response.data.data.messages
-      })
   },
 
   methods: {
@@ -77,6 +90,7 @@ export default {
 
   created() {
     console.log(this.$socket)
+    console.log(this.channelName)
 
     // REMEMBER: this is how to subscribe dynamically (not via the definitions in vue component `sockets:{}`)
     this.sockets.subscribe(`message-to-${this.channelName}`, (data) => {
