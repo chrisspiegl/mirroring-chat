@@ -1,5 +1,13 @@
 # Changelog
 
+## 2020-05-17 17:28
+
+- Frontend: vue.js implemented Json Web Token based authentication flow (user is redirected to callback based server authentication oauth flow based on provider chosen, then the backend redirects to `/login/success` which calls the api `/api/v1/auth/token` to retreave the jwt token for the session) (Note: this can be improved with a frontend only flow but right now, this works and will be used for the time being. Eventually there will be a solution without session cookies)
+- Frontend: vue.js updated 'link & unlink' functionality to work with the new frontend implementation
+- Frontend: vue.js updated chat to use twitch username of logged in user as channel name (needs improving in the future to be a `idUser` based chat instead)
+- Frontend: vue.js started to use pug for templating (much easier to write and read in my opinion)
+- Backend: Passport.js refresh was broken because of missing `require('./passport)` so that the used strategies are available.
+
 ## 2020-05-12 18:58
 
 - Frontend: vue.js build system (understanding, learning, setup, trial and error)
