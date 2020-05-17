@@ -1,5 +1,10 @@
 # Changelog
 
+## 2020-05-18 00:50
+
+- Frontend: vue.js added a component functionality to scroll the chat to the bottom automatically if it's already at the bottom.
+- Tried to fix the socket.io connection, but I can't figure out for some reason. It just is not working :( will have to get back to that with a clear mind.
+
 ## 2020-05-17 17:28
 
 - Frontend: vue.js implemented Json Web Token based authentication flow (user is redirected to callback based server authentication oauth flow based on provider chosen, then the backend redirects to `/login/success` which calls the api `/api/v1/auth/token` to retreave the jwt token for the session) (Note: this can be improved with a frontend only flow but right now, this works and will be used for the time being. Eventually there will be a solution without session cookies)
