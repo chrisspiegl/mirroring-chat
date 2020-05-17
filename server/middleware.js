@@ -148,6 +148,7 @@ const catchErrors = (fn) => (req, res, next) => {
 
 
 module.exports = {
+  ensureJwtAuth,
   extension,
   setBounce,
   bounce,
