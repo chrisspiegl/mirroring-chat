@@ -42,9 +42,11 @@ module.exports = function (sequelize, Sequelize) {
   UserTwitch.prototype.toJSON = function () {
     with(this.get()) {
       return {
+        provider: 'twitch',
         idUserProvider,
         idUser,
         displayName,
+        username,
         picture,
       }
     }

@@ -38,6 +38,7 @@ module.exports = function (sequelize, Sequelize) {
   UserGoogle.prototype.toJSON = function () {
     with(this.get()) {
       return {
+        provider: 'google',
         idUserProvider,
         idUser,
         displayName,

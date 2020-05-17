@@ -42,6 +42,7 @@ module.exports = function (sequelize, Sequelize) {
   UserDiscord.prototype.toJSON = function () {
     with(this.get()) {
       return {
+        provider: 'discord',
         idUserProvider,
         idUser,
         displayName,

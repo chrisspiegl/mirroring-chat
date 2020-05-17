@@ -38,6 +38,7 @@ module.exports = function (sequelize, Sequelize) {
   UserFacebook.prototype.toJSON = function () {
     with(this.get()) {
       return {
+        provider: 'facebook',
         idUserProvider,
         idUser,
         displayName,
