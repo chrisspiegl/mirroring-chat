@@ -140,21 +140,21 @@ gulp.task('buildViews', (cb) => {
 gulp.task('buildServer', (cb) => {
   if (!browserSync.active) {
     return browserSync.init({
+      // logConnections: true,
+      // logLevel: 'debug',
       proxy: {
         target: `${config.server.protocol}://${config.server.address}:${config.server.port}`,
-        ws: true,
+        ws: true, // enables websockets
       },
+      open: 'external',
+      host: config.server.hostname,
       port: config.server.portPublic,
       https: {
         key: './assets/localhost-ssl-certificate/localhost.key',
         cert: './assets/localhost-ssl-certificate/localhost.crt',
       },
-      ui: {
-        port: config.server.portPublic + 1,
-      },
-      // socket: {
-      // namespace: `http://localhost:4000/bs`
-      // },
+      // tunnel: 'my-private-site' // Attempt to use the URL "http://my-private-site.localtunnel.me"
+      // cors: true,
     }).emitter.on('init', () => {
       console.log('Browsersync is running!')
       return cb()
@@ -201,7 +201,7 @@ gulp.task('startWebserver', (cb) => {
       LOCALTUNNEL: 0,
       NODE_PATH: '.',
       NODE_ENV: config.env,
-      DEBUG: `${config.slug}:*,socket.io:socket*`,
+      DEBUG: `${config.slug}:*`,
     },
   })
 
