@@ -1,7 +1,6 @@
-<template>
-  <div class="about">
-    <h1>Admin</h1>
-  </div>
+<template lang='pug'>
+  v-container.admin
+    h1 Admin
 </template>
 
 <script>

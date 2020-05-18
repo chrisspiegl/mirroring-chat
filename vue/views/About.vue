@@ -1,7 +1,6 @@
-<template>
-  <div class="about">
-    <h1>About</h1>
-  </div>
+<template lang='pug'>
+  v-container.about
+    h1 About
 </template>
 
 <script>

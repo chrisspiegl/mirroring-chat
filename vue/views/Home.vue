@@ -1,7 +1,6 @@
-<template>
-  <div class="home">
-    <h1>mirroring.chat</h1>
-  </div>
+<template lang='pug'>
+  v-container.home
+    h1 mirroring.chat
 </template>
 
 <script>

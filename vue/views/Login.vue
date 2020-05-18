@@ -1,19 +1,16 @@
-<template>
-  <div class="login">
-    <h1>Login</h1>
-    <div>
-      <a href="/auth/twitch" class="">Twitch</a>
-    </div>
-    <div>
-      <a href="/auth/facebook" class="">Facebook</a>
-    </div>
-    <div>
-      <a href="/auth/discord" class="">Discord</a>
-    </div>
-    <div>
-      <a href="/auth/google" class="">Google/YouTube</a>
-    </div>
-  </div>
+<template lang='pug'>
+  v-container.login
+    h1 Login
+    div
+      a(href="/auth/twitch") Twitch
+    div
+      a(href="/auth/facebook") Facebook
+    div
+      a(href="/auth/discord") Discord
+    div
+      a(href="/auth/google") Google/YouTube
+
+
 </template>
 
 <script>

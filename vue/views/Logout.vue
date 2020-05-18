@@ -1,7 +1,6 @@
-<template>
-  <div class="logout">
-    <h1>Logout</h1>
-  </div>
+<template lang='pug'>
+  v-container.logout
+    h1 Logout
 </template>
 
 <script>

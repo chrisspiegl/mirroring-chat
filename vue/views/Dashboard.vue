@@ -1,8 +1,6 @@
-<template>
-  <div class="dashboard">
-    <h1>Dashboard</h1>
-    <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
-  </div>
+<template lang="pug">
+  v-container.dashboard
+    h1 Dashboard
 </template>
 
 <script>

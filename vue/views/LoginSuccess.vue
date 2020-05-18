@@ -1,7 +1,6 @@
-<template>
-  <div class="loginSuccess">
-    <h1>Login Success</h1>
-  </div>
+<template lang='pug'>
+  v-container.loginSuccess
+    h1 Login Success
 </template>
 
 <script>
