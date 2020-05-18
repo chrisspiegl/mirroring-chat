@@ -64,7 +64,7 @@ const init = async (userProviderParam = null) => {
   })
 
   // Called every time a message comes in
-  function onMessageHandler(channel, context, msg, self) {
+  const onMessageHandler = async (channel, context, msg, self) => {
     // Ignore messages from the bot
     if (self) return
     // Ignore all messages that are not type chat for now
