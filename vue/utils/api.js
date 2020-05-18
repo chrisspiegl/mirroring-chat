@@ -6,7 +6,7 @@ const apiCall = ({
   data = {},
 }) => new Promise((resolve, reject) => {
   if (!url) throw new Error('apiCall - url must be defined in options object')
-  const urlCall = `https://localhost:8080/api${url}`
+  const urlCall = `/api${url}`
   let methodCall = method || 'GET'
   methodCall = methodCall.toLowerCase()
 
