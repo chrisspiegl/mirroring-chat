@@ -72,11 +72,15 @@ const init = async (userProviderParam = null) => {
     // Remove whitespace from chat message
     const msgCleaned = msg.trim()
     const channelName = channel.substring(1) // remove the # sign
-    messagesStore.add(channelName, {
+    const userProviderForMessage = await models.UserTwitch.findOne({
+      where: {
+        username: channelName,
+      },
+    })
+    messagesStore.add(userProviderForMessage.idUser, {
       id: context.id,
       provider: 'twitch',
       timestamp: parseInt(context['tmi-sent-ts']),
-      channelName,
       username: context.username,
       displayName: context['display-name'],
       message: msgCleaned,

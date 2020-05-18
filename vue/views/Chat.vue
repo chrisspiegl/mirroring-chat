@@ -1,7 +1,7 @@
 <template lang="pug">
   //- v-container.fill-height
   v-container.fill-height
-    h1 Chat Twitch \#{{channelName}}
+    h1 Chat for {{channelName}}
     .boxToFillHeight
       .chat-container(v-chat-scroll="{always: false, notSmoothOnInit: true, scrollonremoved: false, smooth: true}" @v-chat-scroll-top-reached="chatTopReached")
         .message(v-for="message in messages" :key="message.timestamp" :class="`${message.provider}-bg`") {{message.timestamp | moment('YYYY-MM-DD HH:mm:ss')}} [{{message.provider}}/{{message.displayName}}]: {{message.message}}
@@ -27,7 +27,7 @@ export default {
   computed: {
     ...mapGetters(['getProfile', 'isAuthenticated', 'isProfileLoaded']),
     ...mapState({
-      channelName: (state) => state.user.profile.UserTwitch.username, // TODO: make this somehow idUser dependent
+      channelName: (state) => state.user.profile.idUser,
       user: (state) => state.user.profile,
     }),
   },
@@ -41,7 +41,7 @@ export default {
 
   mounted() {
     apiCall({
-      url: `/v1/chat/messages/${this.channelName}`,
+      url: `/v1/chat/messages/${this.user.idUser}`,
       method: 'GET',
     }).then((resp) => {
       this.messages = resp.data.messages
