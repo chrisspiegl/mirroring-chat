@@ -10,9 +10,9 @@ const error = debug(`${config.slug}:api:v1:auth:token:error`)
 
 const jwt = require('jsonwebtoken')
 
-const middleware = require('server/middleware')
+const asyncHandler = require('express-async-handler')
 
-module.exports = middleware.catchErrors(async (req, res) => {
+module.exports = asyncHandler(async (req, res) => {
   const response = {
     ok: true,
     status: 200,

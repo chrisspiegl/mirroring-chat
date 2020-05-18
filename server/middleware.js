@@ -133,6 +133,7 @@ const analytics = (req, res, next) => {
   next()
 }
 
+// NOTE: got replaced by `const asyncHandler = require('express-async-handler')` which is a public maintained version of the code below and in my current opinion cleaner.
 const catchErrors = (fn) => (req, res, next) => {
 // Make sure to `.catch()` any errors and pass them along to the `next()`
 // middleware in the chain, in this case the error handler.

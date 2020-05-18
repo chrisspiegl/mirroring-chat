@@ -10,11 +10,11 @@ const error = debug(`${config.slug}:router:home:error`)
 const path = require('path')
 const express = require('express')
 
-const middleware = require('server/middleware')
+const asyncHandler = require('express-async-handler')
 
 module.exports = () => {
   const router = express.Router()
-  router.get('/', middleware.catchErrors(async (req, res) => {
+  router.get('/', asyncHandler(async (req, res) => {
     res.sendFile(path.join(config.root, 'public/index.html'))
   }))
 
