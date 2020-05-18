@@ -1,106 +1,78 @@
-<template>
-  <v-container>
-    <v-navigation-drawer
-      v-model="drawer"
-      app
-      clipped
-      :permanent=!miniVariant
-      :mini-variant=miniVariant
-      :expand-on-hover=miniVariant
-    >
-      <v-list dense>
-        <v-list-item link to="/">
-          <v-list-item-action>
-            <v-icon>mdi-home</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Home</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+<template lang='pug'>
+  div
+    v-app-bar(app, clipped-left, dense)
+      //- TODO: remember the state of the menu in the users local storage? (eventually once there is a unified global 'settings' page or such)
+      v-app-bar-nav-icon(@click.stop="miniVariant = !miniVariant")
+      v-toolbar-title mirroring.chat
+      v-spacer
+      v-toolbar-items.hidden-sm-and-down
+        v-btn(to="/home") Home
+        v-btn(to="/about") About
+        v-btn(to="/login", v-if="!isAuthenticated && !authLoading") Login
+        v-btn(to="/logout", v-if="isAuthenticated && !authLoading") Logout
 
-        <v-list-item link to="/about">
-          <v-list-item-action>
-            <v-icon>mdi-info</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>About</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+    v-navigation-drawer(v-model="miniVariant", app, top, clipped, :permanent="!isMobile", :mini-variant="miniVariant && !isMobile", :expand-on-hover="miniVariant && !isMobile")
+      v-list(nav, dense)
+        v-list-item(link, to="/home")
+          v-list-item-action
+            v-icon mdi-home
+          v-list-item-content
+            v-list-item-title Home
 
+        v-list-item(link, to="/about")
+          v-list-item-action
+            v-icon mdi-info
+          v-list-item-content
+            v-list-item-title About
 
-        <v-divider></v-divider>
+        v-divider
 
-        <v-list-item v-if="!isAuthenticated && !authLoading" link to="/login">
-          <v-list-item-action>
-            <v-icon>mdi-face</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Login</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+        v-list-item.hidden-md-and-up(v-if="!isAuthenticated && !authLoading", link, to="/login")
+          v-list-item-action
+            v-icon mdi-face
+          v-list-item-content
+            v-list-item-title Login
 
-        <v-list-item v-if="isAuthenticated && !authLoading" link to="/dashboard">
-          <v-list-item-action>
-            <v-icon>mdi-view-dashboard</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Dashboard</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+        v-list-item(v-if="isAuthenticated && !authLoading", link, to="/dashboard")
+          v-list-item-action
+            v-icon mdi-view-dashboard
+          v-list-item-content
+            v-list-item-title Dashboard
 
-        <v-list-item v-if="isAuthenticated && !authLoading" link to="/chat">
-          <v-list-item-action><v-icon>mdi-chat</v-icon></v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Chat</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+        v-list-item(v-if="isAuthenticated && !authLoading", link, to="/chat")
+          v-list-item-action
+            v-icon mdi-chat
+          v-list-item-content
+            v-list-item-title Chat
 
-        <v-divider v-if="isAuthenticated && !authLoading"></v-divider>
+        v-divider(v-if="isAuthenticated && !authLoading")
 
-        <v-list-item v-if="isAuthenticated && !authLoading" link to="/account">
-          <v-list-item-action>
-            <v-icon>mdi-face</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Account: {{ displayName }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+        v-list-item(v-if="isAuthenticated && !authLoading", link, to="/account")
+          v-list-item-action
+            v-icon mdi-face
+          v-list-item-content
+            v-list-item-title Account: {{ displayName }}
 
-        <v-list-item v-if="isAuthenticated && !authLoading" link to="/settings">
-          <v-list-item-action><v-icon>mdi-settings</v-icon></v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Settings</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+        v-list-item(v-if="isAuthenticated && !authLoading", link, to="/settings")
+          v-list-item-action
+            v-icon mdi-settings
+          v-list-item-content
+            v-list-item-title Settings
 
-        <v-list-item v-if="isAuthenticated && !authLoading" link to="/logout">
-          <v-list-item-action>
-            <v-icon>mdi-exit-to-app</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Logout</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+        v-list-item.hidden-md-and-up(v-if="isAuthenticated && !authLoading", link, to="/logout")
+          v-list-item-action
+            v-icon mdi-exit-to-app
+          v-list-item-content
+            v-list-item-title Logout
 
-        <v-divider></v-divider>
+        v-divider
 
-        <v-list-item link to="/support">
-          <v-list-item-action><v-icon>mdi-help</v-icon></v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Support/Help</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
+        v-list-item(link, to="/support")
+          v-list-item-action
+            v-icon mdi-help
+          v-list-item-content
+            v-list-item-title Support/Help
 
-    <v-app-bar
-        app
-        clipped-left
-      >
-      <v-app-bar-nav-icon @click.stop="miniVariant = !miniVariant" />
-      <v-toolbar-title>mirroring.chat</v-toolbar-title>
-    </v-app-bar>
-  </v-container>
 </template>
 
 <script>
@@ -113,10 +85,15 @@ export default {
     ...mapState({
       authLoading: (state) => state.auth.status === 'loading',
       displayName: (state) => `${state.user.profile.displayName}`,
+      isMobile: (state) => {
+        console.log(state.isMobile)
+        console.log(state.windowWidth)
+        return state.isMobile
+      },
     }),
   },
+
   data: () => ({
-    drawer: null,
     miniVariant: false,
   }),
 }
