@@ -9,7 +9,7 @@ const error = debug(`${config.slug}:server:error`)
 
 log(`Running '${config.name}' Server in '${process.env.NODE_ENV}' environment`)
 
-// const cors = require('cors')
+const cors = require('cors')
 const bodyParser = require('body-parser')
 const compression = require('compression')
 const express = require('express')
@@ -21,6 +21,7 @@ const logger = require('morgan')
 const moment = require('moment-timezone')
 const path = require('path')
 const pmx = require('pmx')
+const http = require('http')
 const session = require('express-session')
 const SessionRedisStore = require('connect-redis')(session)
 
@@ -39,13 +40,42 @@ const redis = require('server/redis')
 
 // Application
 const app = express()
-const server = require('http').Server(app)
+const server = http.Server(app)
+const websocket = sockets(server)
 
 app.use(helmet())
-// app.use(cors())
+app.use(cors())
 app.use(logger('tiny')) // Less extreme logging of requests
 // app.use(middleware.analytics) // Disable analytics cause it's a internal tool
-app.use(expressStatusMonitor())
+app.use(expressStatusMonitor({
+  title: 'Express Status', // Default title
+  // theme: 'default.css', // Default styles
+  // path: '/status',
+  // socketPath: '/socket.io', // In case you use a custom path
+  websocket,
+  spans: [{
+    interval: 1, // Every second
+    retention: 60, // Keep 60 datapoints in memory
+  }, {
+    interval: 5, // Every 5 seconds
+    retention: 60,
+  }, {
+    interval: 15, // Every 15 seconds
+    retention: 60,
+  }],
+  chartVisibility: {
+    cpu: true,
+    mem: true,
+    load: true,
+    eventLoop: true,
+    heap: true,
+    responseTime: true,
+    rps: true,
+    statusCodes: true,
+  },
+  healthChecks: [],
+  ignoreStartsWith: '/admin',
+}))
 app.set('trust proxy', 1) // only if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
 // app.use(require('server/limiter').limiterReject); // Apply rate limiting to all routes
 // app.use(require('server/limiter').limiterSlowDown); // Apply limiter to slow down to all routes
@@ -91,13 +121,12 @@ app.use((err, req, res, next) => {
 })
 
 // Each and every request
-// app.use((req, res, next) => next())
+app.use((req, res, next) => next())
 
 app.use(routes)
 
 server.listen(config.server.port, config.server.address, async () => {
   await models.init()
-  await sockets.init(server)
 
   const host = server.address().address
   const { port } = server.address()

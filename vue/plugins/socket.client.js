@@ -3,11 +3,14 @@ import store from '@/store'
 import VueSocketIO from 'vue-socket.io'
 import SocketIO from 'socket.io-client'
 
-const connection = '/'
+const url = '/mirroring'
+const socketConnection = SocketIO(url, {
+  // transports: ['polling', 'websocket'],
+})
 
 const io = new VueSocketIO({
   debug: true,
-  connection: SocketIO(connection),
+  connection: socketConnection,
   vuex: {
     store,
     actionPrefix: 'SOCKET_',

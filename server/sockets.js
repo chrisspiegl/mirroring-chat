@@ -14,17 +14,31 @@ const { messageDecode } = require('server/messagesStore')
 
 const keyStream = `${config.slugShort}:${config.envShort}:messages:stream:`
 
-const sockets = {}
-
 // TODO: make this context based with cleaner functions for the socket to process stuff.
 // EXAMPLE: new Connection() => this.socket available in all functions, and listening on stuff…
 
-const init = async (http) => {
+module.exports = (http) => {
   log('initializing socket.io connections')
   const io = socketio(http)
-  sockets.io = io
 
-  io.on('connection', (socket) => {
+  // NOTE: future note for socket.io with authentication
+  // io.use((socket, next) => {
+  //   console.log('I AM ACTUALLY HERE')
+  //   // if (socket.handshake.query && socket.handshake.query.token) {
+  //   //   jwt.verify(socket.handshake.query.token, 'SECRET_KEY', function (err, decoded) {
+  //   //     if (err) return next(new Error('Authentication error'));
+  //   //     socket.decoded = decoded;
+  //   //     next();
+  //   //   });
+  //   // } else {
+  //   //   next(new Error('Authentication error'));
+  //   // }
+  // })
+
+  io.of('/mirroring').use((socket, next) => {
+    log('mirroring namespace middleware')
+    next()
+  }).on('connection', (socket) => {
     log('on:connection')
 
     this.channelName = ''
@@ -34,7 +48,6 @@ const init = async (http) => {
       log('on:hello', data)
       socket.emit('hello', 'this is the server speaking')
     })
-
 
     const onRedisMessage = (keyRedis, message) => {
       const messageDecoded = messageDecode(message)
@@ -60,7 +73,6 @@ const init = async (http) => {
       log('on:disconnect for: ', this.keyStreamChannel)
       redisSubscriber.removeListener('message', onRedisMessage)
       redisSubscriber.unsubscribe(this.keyStreamChannel)
-      // io.emit('user disconnected')
     })
 
     socket.on('chat-channel-disconnect', (data) => {
@@ -82,9 +94,5 @@ const init = async (http) => {
     })
   })
 
-  return sockets
+  return io
 }
-
-sockets.init = init
-
-module.exports = sockets
