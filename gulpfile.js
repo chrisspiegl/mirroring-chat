@@ -248,6 +248,33 @@ gulp.task('startCrawlerTwitch', (cb) => {
     })
 })
 
+gulp.task('startCrawlerYoutube', (cb) => {
+  const stream = nodemon({
+    script: 'services/crawlerYoutube.js',
+    ext: 'js',
+    watch: ['services'],
+    env: {
+      NODE_PATH: '.',
+      NODE_ENV: config.env,
+      DEBUG: `${config.slug}:*`,
+    },
+  })
+
+  stream.on('start', () => {
+    console.log('nodemon crawler youtube => started')
+  })
+    .on('quit', () => {
+      console.log('nodemon crawler youtube => quit')
+      return cb()
+    })
+    .on('restart', () => {
+      console.log('nodemon crawler youtube => restart')
+    })
+    .on('crash', () => {
+      console.error('nodemon crawler youtube => app crashed\n')
+    })
+})
+
 gulp.task('default', gulp.parallel('startWebserver', 'watch'))
 
 gulp.task('build', gulp.parallel('copy', 'buildSass', 'buildJs'))
