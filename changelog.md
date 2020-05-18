@@ -1,5 +1,11 @@
 # Changelog
 
+## 2020-05-18 08:57
+
+- Backend: replace self made middleware for async route functions in express.js with a public npm package called `const asyncHandler = require('express-async-handler')`. In the future I may move to `fastify` or a different server implementation but for now I am sticking with `express.js` because I know it.
+- Backend: Socket.io cleanup. `Express Status Monitor` had to be changed because it was highjacking my socket.io connection, now it uses the same socket.io connection as the rest of the backend.
+- Backend: Socket.io chat messages are being sent again and working.
+
 ## 2020-05-18 00:50
 
 - Frontend: vue.js added a component functionality to scroll the chat to the bottom automatically if it's already at the bottom.
