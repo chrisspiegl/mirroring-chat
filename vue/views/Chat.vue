@@ -1,8 +1,9 @@
 <template lang="pug">
-  v-container.chat.fill-height
+  //- v-container.fill-height
+  v-container.fill-height
     h1 Chat Twitch \#{{channelName}}
     .boxToFillHeight
-      .chat-container(v-chat-scroll="{always: false, notSmoothOnInit: true, smooth: true}")
+      .chat-container(v-chat-scroll="{always: false, notSmoothOnInit: true, scrollonremoved: false, smooth: true}" @v-chat-scroll-top-reached="chatTopReached")
         .message(v-for="message in messages" :key="message.timestamp" :class="`${message.provider}-bg`") {{message.timestamp | moment('YYYY-MM-DD HH:mm:ss')}} [{{message.provider}}/{{message.displayName}}]: {{message.message}}
         //- .message.facebook-bg facebook Message
         //- .message.discord-bg discord Message
@@ -54,6 +55,9 @@ export default {
   },
 
   methods: {
+    chatTopReached() {
+      console.log('top of chat reached, TODO: load previous messages')
+    },
     send() {
       console.log('Message Typed and Hit Enter: ', this.newMessage)
       // this.messages.push({

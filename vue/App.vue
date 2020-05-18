@@ -1,12 +1,11 @@
 <template lang="pug">
   v-app#inspire
     navigation
-
     v-content
-      v-container.fill-height(fluid)
+      v-container.fill-height(fluid, style="padding: 0;")
         router-view
-        v-footer(app)
-          span &copy; 2020 Chris Spiegl | mirroring.chat
+      v-footer(app)
+        span &copy; 2020 Chris Spiegl | mirroring.chat
 </template>
 
 <script>
@@ -66,7 +65,7 @@ console.log('App.vue initialized')
 </script>
 
 <style lang="scss" scoped>
-.fill-height {
+.container.fill-height {
   align-items: flex-start;
 }
 </style>
