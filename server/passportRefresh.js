@@ -21,17 +21,14 @@ const refreshTokenAccess = async (provider, userProvider) => new Promise((resolv
   try {
     return refresh.requestNewAccessToken(provider, userProvider.tokenRefresh, async (err, tokenAccess, tokenRefresh) => {
       if (err) {
-        throw new Error(
-          `login:${provider} did not provide new login token for ${userProvider.idUserProvider}`,
-          err,
-        )
+        throw new Error(`login:${provider} error while token refresh ${userProvider.idUserProvider}: ${err}`)
       }
-      if (!tokenAccess || !tokenRefresh) {
-        throw new Error(`login:${provider} did not provide new login token for ${userProvider.idUserProvider}`)
+      if (!tokenAccess) {
+        throw new Error(`login:${provider} did not provide new tokenAccess for ${userProvider.idUserProvider}: ${err}`)
       }
       const userProviderOptions = {
-        tokenAccess,
-        tokenRefresh,
+        tokenAccess: tokenAccess || undefined,
+        tokenRefresh: tokenRefresh || undefined,
       }
       await userProvider.update(userProviderOptions)
       log(`login:${provider}:${userProvider.idUserProvider}:refreshed-access-token-stored`)

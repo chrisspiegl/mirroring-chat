@@ -18,12 +18,13 @@ const messageEncode = (message) => {
     // condensed variable names to have less redis storage needs
     // Possibly could upgrade to https://www.npmjs.com/package/protobufjs or https://www.npmjs.com/package/msgpack
     id: message.id,
+    c /* channel */: message.channel,
     p /* provider */: message.provider,
     t /* timestamp */: message.timestamp,
-    cn /* channel */: message.channelName,
     u /* username */: message.username,
     dn /* displayName */: message.displayName,
     m /* message */: message.message,
+    po /* providerObject */: message.providerObject,
   }
   return JSON.stringify(messageEncoded)
 }
@@ -33,12 +34,13 @@ const messageDecode = (message) => {
   // Remapping condensed json for redis storage back to readable code version.
   return {
     id: messageDecoded.id,
+    channel: messageDecoded.c,
     provider: messageDecoded.p,
     timestamp: messageDecoded.t,
-    channelName: messageDecoded.cn,
     username: messageDecoded.u,
     displayName: messageDecoded.dn,
     message: messageDecoded.m,
+    providerObject: messageDecoded.po,
   }
 }
 
@@ -59,10 +61,12 @@ const fetch = (channel) => {
   })
 }
 
-const add = (channel, message) => new Promise((resolve, reject) => {
+const add = (channel, messageArg) => new Promise((resolve, reject) => {
+  const message = messageArg
+  message.channel = channel
   const messageEncoded = messageEncode(message)
-  const keyList = keyListBase + message.channelName
-  const keyStream = keyStreamBase + message.channelName
+  const keyList = keyListBase + channel
+  const keyStream = keyStreamBase + channel
   console.log('add -> keyStream', keyStream)
   // possible use of `.expire(key, ttl)` to expire the whole key after a certain amount of time (after the last rpush)
   redisClient.multi().lpush(keyList, messageEncoded).expire(keyList, ttl)
@@ -74,7 +78,7 @@ const add = (channel, message) => new Promise((resolve, reject) => {
       if (resMulti[0] > trimAt) {
         log(`found over ${trimAt} messages in the channel, trimming to ${trimTo}`)
         redisClient.ltrimAsync(keyList, 0, trimTo).then((resLtrim) => {
-          log(`trimmed ${message.channelName} to ${trimTo} messages with ${resLtrim}`)
+          log(`trimmed ${channel} to ${trimTo} messages with ${resLtrim}`)
         })
       }
       return resolve(resMulti)

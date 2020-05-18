@@ -84,6 +84,11 @@ const init = async (userProviderParam = null) => {
       username: context.username,
       displayName: context['display-name'],
       message: msgCleaned,
+      providerObject: {
+        channel,
+        context,
+        message: msg,
+      },
     })
   }
 
