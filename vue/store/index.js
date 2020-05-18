@@ -16,8 +16,16 @@ export default new Vuex.Store({
   },
   strict: debug,
   state: {
+    isMobile: false,
+    windowHeight: 450,
+    windowWidth: 450,
   },
   mutations: {
+    CHANGE_IS_MOBILE(state, payload) {
+      state.windowHeight = payload.height
+      state.windowWidth = payload.width
+      state.isMobile = (payload.width < 500)
+    },
   },
   actions: {
   },

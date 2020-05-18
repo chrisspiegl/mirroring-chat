@@ -12,6 +12,21 @@
 <script>
 import Navigation from '@/components/navigation/index.vue'
 
+function debounce(func, wait, immediate) {
+  let timeout
+  return (...args) => {
+    const context = this
+    const later = () => {
+      timeout = null
+      if (!immediate) func.apply(context, args)
+    }
+    const callNow = immediate && !timeout
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
+    if (callNow) func.apply(context, args)
+  }
+}
+
 export default {
   name: 'App',
 
@@ -23,8 +38,26 @@ export default {
     source: String,
   },
 
+  methods: {
+    onResize() {
+      this.$store.commit('CHANGE_IS_MOBILE', {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      })
+    },
+  },
+
+  mounted() {
+    window.addEventListener('resize', debounce(this.onResize, 250))
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize)
+  },
+
   created() {
     this.$vuetify.theme.dark = true
+    this.onResize()
   },
 }
 
