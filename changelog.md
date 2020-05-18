@@ -1,5 +1,16 @@
 # Changelog
 
+## 2020-05-18 19:23
+
+- Backend: YouTube Chat Listener - Implemented bot to automatically auth with youtube api based on oAuth2 login details.
+- Backend: YouTube Chat Listener - Implemented function to check which streams are `upcoming` and `active` for a specified user.
+- Backend: YouTube Chat Listener - Implemented function to watch a stream for new messages and to do so on an interval (this however comes with the problem that the api cost of polling needs to be considered 😕).
+- Backend: YouTube Chat Listener - Implemented a redis key to remember the broadcast nextPage variable which makes sure that a specific broadcasts messages are not crawled multiple times into the chat redis (this may change in the future to a database based system to store the chat messages and not just put them into redis)?
+- Backend: YouTube Chat Listener - opted for a once per minute check for now to reduce the API Quota needs and reduce the risk of running into those limits while testing already.
+- Backend/Frontend: made sure the chat messages are associated to the `idUser` instead of the twitch `channelName` in redis storage and socket communication.
+- Backend: MessageStore to store the original provider message object additionally to a cleaned version so that the frontend can show those details eventually (verified badge, moderator, and more).
+- Code Formatting
+
 ## 2020-05-18 08:57
 
 - Backend: replace self made middleware for async route functions in express.js with a public npm package called `const asyncHandler = require('express-async-handler')`. In the future I may move to `fastify` or a different server implementation but for now I am sticking with `express.js` because I know it.
