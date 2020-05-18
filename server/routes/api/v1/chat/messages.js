@@ -20,9 +20,7 @@ module.exports = asyncHandler(async (req, res) => {
     data: {},
   }
 
-  const {
-    channelName,
-  } = req.params
+  const { channelName } = req.params
   console.log('channelName', channelName)
 
   response.data.channelName = channelName
