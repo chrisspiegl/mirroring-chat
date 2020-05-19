@@ -49,10 +49,7 @@ module.exports = (sequelize, Sequelize) => {
   }
 
   UserGoogle.associate = (models) => Promise.all([
-    models.UserGoogle.belongsTo(models.User, {
-      foreignKey: 'idUser',
-      targetKey: 'idUser',
-    }),
+    models.UserGoogle.belongsTo(models.User, { foreignKey: 'idUser', targetKey: 'idUser' }),
   ])
 
   return UserGoogle
