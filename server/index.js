@@ -55,7 +55,7 @@ app.use(expressStatusMonitor({
   websocket,
   spans: [{
     interval: 1, // Every second
-    retention: 60, // Keep 60 datapoints in memory
+    retention: 60, // Keep 60 data points in memory
   }, {
     interval: 5, // Every 5 seconds
     retention: 60,
