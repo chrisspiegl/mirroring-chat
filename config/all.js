@@ -95,10 +95,10 @@ module.exports = {
       ],
     },
     telegram: {
-      mirroringChatBot: {
-        clientId: undefined,
-      },
+      username: 'MirroringChatBot',
+      tokenAuth: undefined,
+      polling: false,
+      webHook: false,
     },
   },
-
 }
