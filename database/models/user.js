@@ -1,6 +1,7 @@
-const uuid = require('uuid');
+const uuid = require('uuid')
+const _ = require('lodash')
 
-module.exports = function (sequelize, Sequelize) {
+module.exports = (sequelize, Sequelize) => {
   const User = sequelize.define('User', {
     idUser: {
       type: Sequelize.UUID,
@@ -30,14 +31,14 @@ module.exports = function (sequelize, Sequelize) {
       type: Sequelize.TEXT,
       allowNull: false,
       get() {
-        if (this.getDataValue('settings') !== void 0) {
-          return JSON.parse(this.getDataValue('settings'));
+        if (this.getDataValue('settings') !== undefined) {
+          return JSON.parse(this.getDataValue('settings'))
         }
-        return {};
+        return {}
       },
       set(value) {
-        return this.setDataValue('settings', JSON.stringify(value));
-      }
+        return this.setDataValue('settings', JSON.stringify(value))
+      },
     },
     adminSuper: {
       type: Sequelize.BOOLEAN,
@@ -55,49 +56,41 @@ module.exports = function (sequelize, Sequelize) {
   }, {
     freezeTableName: true,
     getterMethods: {
-      profilePath: function () {
-        const identifier = (this.get('username')) ? this.get('username') : this.get('idUser');
-        return `/@${identifier}`;
-      }
-    }
-  });
+      profilePath: () => {
+        const identifier = (this.get('username')) ? this.get('username') : this.get('idUser')
+        return `/@${identifier}`
+      },
+    },
+  })
 
-  User.prototype.toJSON = function () {
-    with(this.get()) {
-      return {
-        idUser,
-        displayName,
-        username,
-        picture,
-        // UserGoogle,
-        // UserTwitch,
-        // UserFacebook,
-        // UserDiscord,
-        // profilePath,
-      };
-    }
+  User.prototype.toJSON = function toJSON() {
+    const pick = _.pick(this.get(), [
+      'idUser',
+      'displayName',
+      'username',
+      'picture',
+    ])
+    return pick
   }
 
-  User.associate = (models) => {
-    return Promise.all([
-      models.User.hasOne(models.UserGoogle, {
-        foreignKey: 'idUser',
-        targetKey: 'idUser',
-      }),
-      models.User.hasOne(models.UserDiscord, {
-        foreignKey: 'idUser',
-        targetKey: 'idUser',
-      }),
-      models.User.hasOne(models.UserFacebook, {
-        foreignKey: 'idUser',
-        targetKey: 'idUser',
-      }),
-      models.User.hasOne(models.UserTwitch, {
-        foreignKey: 'idUser',
-        targetKey: 'idUser',
-      }),
-    ]);
-  };
+  User.associate = (models) => Promise.all([
+    models.User.hasOne(models.UserGoogle, {
+      foreignKey: 'idUser',
+      targetKey: 'idUser',
+    }),
+    models.User.hasOne(models.UserDiscord, {
+      foreignKey: 'idUser',
+      targetKey: 'idUser',
+    }),
+    models.User.hasOne(models.UserFacebook, {
+      foreignKey: 'idUser',
+      targetKey: 'idUser',
+    }),
+    models.User.hasOne(models.UserTwitch, {
+      foreignKey: 'idUser',
+      targetKey: 'idUser',
+    }),
+  ])
 
-  return User;
-};
+  return User
+}

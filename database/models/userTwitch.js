@@ -1,15 +1,17 @@
-module.exports = function (sequelize, Sequelize) {
-  var UserTwitch = sequelize.define('UserTwitch', {
+const _ = require('lodash')
+
+module.exports = (sequelize, Sequelize) => {
+  const UserTwitch = sequelize.define('UserTwitch', {
     idUserProvider: {
       type: Sequelize.STRING,
       primaryKey: true,
       unique: true,
-      allowNull: false
+      allowNull: false,
     },
     idUser: {
       type: Sequelize.UUID,
       unique: true,
-      allowNull: false
+      allowNull: false,
     },
     username: {
       type: Sequelize.STRING,
@@ -38,29 +40,26 @@ module.exports = function (sequelize, Sequelize) {
     },
   }, {
     freezeTableName: true,
-  });
+  })
 
-  UserTwitch.prototype.toJSON = function () {
-    with(this.get()) {
-      return {
-        provider: 'twitch',
-        idUserProvider,
-        idUser,
-        displayName,
-        username,
-        picture,
-      }
-    }
+  UserTwitch.prototype.toJSON = function toJSON() {
+    const pick = _.pick(this.get(), [
+      'idUserProvider',
+      'idUser',
+      'displayName',
+      'username',
+      'picture',
+    ])
+    pick.provider = 'twitch'
+    return pick
   }
 
-  UserTwitch.associate = (models) => {
-    return Promise.all([
-      models.UserTwitch.belongsTo(models.User, {
-        foreignKey: 'idUser',
-        targetKey: 'idUser'
-      }),
-    ]);
-  };
+  UserTwitch.associate = (models) => Promise.all([
+    models.UserTwitch.belongsTo(models.User, {
+      foreignKey: 'idUser',
+      targetKey: 'idUser',
+    }),
+  ])
 
-  return UserTwitch;
-};
+  return UserTwitch
+}

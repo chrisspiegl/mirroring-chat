@@ -1,15 +1,17 @@
-module.exports = function (sequelize, Sequelize) {
-  var UserGoogle = sequelize.define('UserGoogle', {
+const _ = require('lodash')
+
+module.exports = (sequelize, Sequelize) => {
+  const UserGoogle = sequelize.define('UserGoogle', {
     idUserProvider: {
       type: Sequelize.STRING,
       primaryKey: true,
       unique: true,
-      allowNull: false
+      allowNull: false,
     },
     idUser: {
       type: Sequelize.UUID,
       unique: true,
-      allowNull: false
+      allowNull: false,
     },
     displayName: {
       type: Sequelize.STRING,
@@ -33,28 +35,25 @@ module.exports = function (sequelize, Sequelize) {
     },
   }, {
     freezeTableName: true,
-  });
+  })
 
-  UserGoogle.prototype.toJSON = function () {
-    with(this.get()) {
-      return {
-        provider: 'google',
-        idUserProvider,
-        idUser,
-        displayName,
-        picture,
-      };
-    }
+  UserGoogle.prototype.toJSON = function toJSON() {
+    const pick = _.pick(this.get(), [
+      'idUserProvider',
+      'idUser',
+      'displayName',
+      'picture',
+    ])
+    pick.provider = 'google'
+    return pick
   }
 
-  UserGoogle.associate = (models) => {
-    return Promise.all([
-      models.UserGoogle.belongsTo(models.User, {
-        foreignKey: 'idUser',
-        targetKey: 'idUser'
-      }),
-    ]);
-  };
+  UserGoogle.associate = (models) => Promise.all([
+    models.UserGoogle.belongsTo(models.User, {
+      foreignKey: 'idUser',
+      targetKey: 'idUser',
+    }),
+  ])
 
-  return UserGoogle;
-};
+  return UserGoogle
+}
