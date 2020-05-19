@@ -81,17 +81,12 @@ const init = async () => {
 
   const onRedisMessage = (userProvider) => (keyRedis, message) => {
     const messageDecoded = messageDecode(message)
-    log('on:redis:message for: ', keyRedis, ' and-message ', messageDecoded)
-    // Do not handle messages that are not in the `keyStream` key range for now
-    // if (keyRedis !== keyStreamChannel) return
-    const keySocket = `message-to-${messageDecoded.channel}`
-    log('socket:emit:', keySocket)
+    log('on:redis:message for: ', keyRedis)
     bot.sendMessage(userProvider.idUserProvider,
       `\`${moment(messageDecoded.timestamp).format('YYYY-MM-DD HH:mm:ss')} on ${messageDecoded.provider} by ${messageDecoded.displayName}\`:\n${messageDecoded.message}`, {
         parse_mode: 'markdown',
       })
   }
-
 
   /**
    * =============================================================================
@@ -131,6 +126,10 @@ const init = async () => {
    */
   bot.onText(/\/(link)(@[A-z0-9._-]*)?$/i, response.use(onlyPrivate)(async (msg, match) => {
     log(`command found in message ${msg.text} from user ${msg.from.id} in chat ${msg.chat.id}`)
+    if (msg.auth.user) {
+      // TODO: implement unlink command
+      return msg.quickResponse('You are already linked to a mirroring.chat account at this time. If you would like to unlink this telegram chat, please contact support.')
+    }
     const token = `${generateTokenAuth(msg.auth.userTelegram.idUserProvider)}`
     const link = `${config.server.protocolPublic}://${config.server.hostname}${config.server.portPublic === '' ? '' : `:${config.server.portPublic}`}/auth/telegram/${token}`
     return msg.quickResponse(`🔑 Click or copy the link to link this chat to your mirroring.chat account on the website [link expires in 15 minutes]: 🔑\n${link}`)
