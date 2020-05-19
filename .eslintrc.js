@@ -17,6 +17,7 @@ module.exports = {
     'no-unused-vars': 'warn',
     'max-len': 0,
     radix: ['error', 'as-needed'],
+    'func-names': ['error', 'as-needed', { generators: 'as-needed' }],
   },
   settings: {
     'import/resolver': {
