@@ -1,5 +1,14 @@
 # Changelog
 
+## 2020-05-19 08:57
+
+- Backend: Database - make 'strict mode' compatible again.
+- Backend: Database - cleanup all eslint warnings and errors
+- Gulpfile: cleanup of gulpfile with eslintrc fixes and some minor cleanup
+- Backend/Frontend: Telegram - Add telegram link functionality and streaming ability to make chat messages available on mobile devices through telegram bot.
+- Backend/Frontend: Telegram - Also already implemented functionality to limit the bot to only be used in private chats or by admins (use as needed on a per command level bases)
+- General code cleaning in some respects.
+
 ## 2020-05-18 19:23
 
 - Backend: YouTube Chat Listener - Implemented bot to automatically auth with youtube api based on oAuth2 login details.
@@ -14,7 +23,7 @@
 ## 2020-05-18 08:57
 
 - Backend: replace self made middleware for async route functions in express.js with a public npm package called `const asyncHandler = require('express-async-handler')`. In the future I may move to `fastify` or a different server implementation but for now I am sticking with `express.js` because I know it.
-- Backend: Socket.io cleanup. `Express Status Monitor` had to be changed because it was highjacking my socket.io connection, now it uses the same socket.io connection as the rest of the backend.
+- Backend: Socket.io cleanup. `Express Status Monitor` had to be changed because it was hijacking my socket.io connection, now it uses the same socket.io connection as the rest of the backend.
 - Backend: Socket.io chat messages are being sent again and working.
 
 ## 2020-05-18 00:50
@@ -24,7 +33,7 @@
 
 ## 2020-05-17 17:28
 
-- Frontend: vue.js implemented Json Web Token based authentication flow (user is redirected to callback based server authentication oauth flow based on provider chosen, then the backend redirects to `/login/success` which calls the api `/api/v1/auth/token` to retreave the jwt token for the session) (Note: this can be improved with a frontend only flow but right now, this works and will be used for the time being. Eventually there will be a solution without session cookies)
+- Frontend: vue.js implemented Json Web Token based authentication flow (user is redirected to callback based server authentication oauth flow based on provider chosen, then the backend redirects to `/login/success` which calls the api `/api/v1/auth/token` to retrieve the jwt token for the session) (Note: this can be improved with a frontend only flow but right now, this works and will be used for the time being. Eventually there will be a solution without session cookies)
 - Frontend: vue.js updated 'link & unlink' functionality to work with the new frontend implementation
 - Frontend: vue.js updated chat to use twitch username of logged in user as channel name (needs improving in the future to be a `idUser` based chat instead)
 - Frontend: vue.js started to use pug for templating (much easier to write and read in my opinion)
