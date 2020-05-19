@@ -13,19 +13,19 @@
 
     v-navigation-drawer(v-model="miniVariant", app, top, clipped, :permanent="!isMobile", :mini-variant="miniVariant && !isMobile", :expand-on-hover="miniVariant && !isMobile")
       v-list(nav, dense)
-        v-list-item(link, to="/home")
+        v-list-item.hidden-md-and-up(link, to="/home")
           v-list-item-action
             v-icon mdi-home
           v-list-item-content
             v-list-item-title Home
 
-        v-list-item(link, to="/about")
+        v-list-item.hidden-md-and-up(link, to="/about")
           v-list-item-action
             v-icon mdi-info
           v-list-item-content
             v-list-item-title About
 
-        v-divider
+        v-divider.hidden-md-and-up
 
         v-list-item.hidden-md-and-up(v-if="!isAuthenticated && !authLoading", link, to="/login")
           v-list-item-action
