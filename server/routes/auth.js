@@ -13,6 +13,9 @@ const pnotice = require('pushnotice')(`${config.slug}:router:authentication`, {
   env: config.env, chat: config.pushnotice.chat, debug: true, disabled: config.pushnotice.disabled,
 })
 
+const jwt = require('jsonwebtoken')
+const models = require('database/models')
+
 const router = express.Router()
 
 router.get('/', (req, res) => res.redirect('/auth/login'))
@@ -46,6 +49,70 @@ router.get('/logout', (req, res) => req.session.regenerate((err) => {
   req.flash('notice', 'Logout success.')
   return res.redirect('/')
 }))
+
+router.get('/telegram', async (req, res) => {
+  const userTelegram = await req.user.UserTelegram
+  console.log(userTelegram)
+  res.send(userTelegram)
+})
+
+router.get('/telegram/:token', async (req, res) => {
+  if (!req.user) {
+    // TODO: implement telegram link when user is currently not logged in already
+    log('telegram auth - initiated without logged in user')
+    return res.redirect('/login')
+  }
+
+  const { token } = req.params
+
+  if (!token) {
+    error('telegram auth - no token in parameters')
+    req.flash('alert', 'Linking Telegram failed. Invalid login token.')
+    return res.redirect('/account/telegram')
+  }
+
+  let decoded
+  try {
+    decoded = jwt.verify(token, config.secrets.jwt)
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      log('telegram auth - token expired', err)
+      req.flash('alert', 'Linking Telegram failed. Token expired.')
+    } else if (err.name === 'JsonWebTokenError') {
+      log(`telegram auth - token ${err.message}`)
+      req.flash('alert', 'Linking Telegram failed. Token invalid.')
+    } else {
+      error('telegram auth - token verification failed', err)
+      req.flash('alert', 'Linking Telegram failed. Invalid login token.')
+    }
+    return res.redirect('/account/telegram')
+  }
+
+  if (!Object.prototype.hasOwnProperty.call(decoded, 'idUserProvider')) {
+    error('telegram auth - does not have `idUserProvider` in decoded jwt')
+    req.flash('alert', 'Linking Telegram failed. Invalid login token.')
+    return res.redirect('/account/telegram')
+  }
+
+  const { idUserProvider } = decoded
+
+  const userTelegram = await models.UserTelegram.findByPk(idUserProvider)
+  if (!userTelegram) {
+    error('telegram auth - no userTelegram with the idUserProvider which got extracted from the token')
+    req.flash('alert', 'Linking Telegram failed. Invalid login token.')
+    return res.redirect('/account/telegram')
+  }
+
+  // Token verified, it was valid, and a UserTelegram with the idUserProvider exists in the database
+  req.flash('alert', 'Login succeeded.')
+  const userTelegramObject = {
+    idUser: req.user.idUser,
+  }
+  await userTelegram.update(userTelegramObject)
+  // Successfully logged in
+  req.flash('info', 'Successfully signed in')
+  return res.redirect('/auth/success')
+})
 
 // Google
 router.get('/google', passport.authenticate('google', {

@@ -74,22 +74,11 @@ module.exports = (sequelize, Sequelize) => {
   }
 
   User.associate = (models) => Promise.all([
-    models.User.hasOne(models.UserGoogle, {
-      foreignKey: 'idUser',
-      targetKey: 'idUser',
-    }),
-    models.User.hasOne(models.UserDiscord, {
-      foreignKey: 'idUser',
-      targetKey: 'idUser',
-    }),
-    models.User.hasOne(models.UserFacebook, {
-      foreignKey: 'idUser',
-      targetKey: 'idUser',
-    }),
-    models.User.hasOne(models.UserTwitch, {
-      foreignKey: 'idUser',
-      targetKey: 'idUser',
-    }),
+    models.User.hasOne(models.UserDiscord, { foreignKey: 'idUser', targetKey: 'idUser' }),
+    models.User.hasOne(models.UserFacebook, { foreignKey: 'idUser', targetKey: 'idUser' }),
+    models.User.hasOne(models.UserGoogle, { foreignKey: 'idUser', targetKey: 'idUser' }),
+    models.User.hasOne(models.UserTelegram, { foreignKey: 'idUser', targetKey: 'idUser' }),
+    models.User.hasOne(models.UserTwitch, { foreignKey: 'idUser', targetKey: 'idUser' }),
   ])
 
   return User

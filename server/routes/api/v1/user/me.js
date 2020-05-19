@@ -22,10 +22,11 @@ module.exports = asyncHandler(async (req, res) => {
 
   if (req.isAuthenticated()) {
     response.data = req.user.toJSON()
-    response.data.UserTwitch = await req.user.UserTwitch
-    response.data.UserFacebook = await req.user.UserFacebook
-    response.data.UserGoogle = await req.user.UserGoogle
-    response.data.UserDiscord = await req.user.UserDiscord
+    response.data.UserDiscord = req.user.UserDiscord
+    response.data.UserFacebook = req.user.UserFacebook
+    response.data.UserGoogle = req.user.UserGoogle
+    response.data.UserTelegram = req.user.UserTelegram
+    response.data.UserTwitch = req.user.UserTwitch
   } else {
     response.data.message = 'not logged in'
   }

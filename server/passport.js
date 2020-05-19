@@ -345,19 +345,6 @@ passport.use(strategyDiscord)
 refresh.use(strategyDiscord)
 
 /**
- * Passport Telegram Login Strategy
- */
-// const strategyTelegram = new PassportTelegram({
-//   clientID: config.passport.telegram.mirroringChatBot.clientId,
-//   // clientSecret: config.passport.telegram.clientSecret,
-//   callbackURL: buildCallbackUrl('telegram'),
-//   scope: config.passport.telegram.scope,
-//   passReqToCallback: true,
-// }, loginFlow)
-// passport.use(strategyTelegram)
-// refresh.use(strategyTelegram)
-
-/**
  * Passport JWT Authentication Strategy
  */
 
@@ -367,10 +354,11 @@ const strategyJwt = new PassportJwt({
 },
 (jwtPayload, done) => models.User.findByPk(jwtPayload.idUser, {
   include: [
-    models.UserGoogle,
-    models.UserTwitch,
-    models.UserFacebook,
     models.UserDiscord,
+    models.UserFacebook,
+    models.UserGoogle,
+    models.UserTelegram,
+    models.UserTwitch,
   ],
 })
   .then((user) => done(null, user))
@@ -407,10 +395,11 @@ passport.deserializeUser(async (idUser, callback) => {
   try {
     const user = await models.User.findByPk(idUser, {
       include: [
-        models.UserGoogle,
-        models.UserTwitch,
-        models.UserFacebook,
         models.UserDiscord,
+        models.UserFacebook,
+        models.UserGoogle,
+        models.UserTelegram,
+        models.UserTwitch,
       ],
     })
     if (!user) return callback(null, false)

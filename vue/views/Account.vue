@@ -1,5 +1,5 @@
 <template lang="pug">
-  .account
+  v-container.account
     h1 Account {{displayName}}
     p Twitch:
       = ' '
@@ -19,7 +19,8 @@
       a(@click="unlink('discord')" v-if="user.UserDiscord") Unlink
     p Telegram:
       = ' '
-      em not implemented yet
+      a(href="/account/telegram" v-if="!user.UserTelegram") Link
+      a(@click="unlink('telegram')" v-if="user.UserTelegram") Unlink
 </template>
 
 <script>

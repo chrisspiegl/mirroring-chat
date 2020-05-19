@@ -8,8 +8,6 @@ log.log = console.log.bind(console)
 // eslint-disable-next-line no-unused-vars
 const error = debug(`${config.slug}:api:v1:auth:unlink:error`)
 
-const jwt = require('jsonwebtoken')
-
 const asyncHandler = require('express-async-handler')
 
 module.exports = asyncHandler(async (req, res) => {
@@ -38,12 +36,24 @@ module.exports = asyncHandler(async (req, res) => {
     case 'discord':
       userProvider = await req.user.getUserDiscord()
       break
+    case 'telegram':
+      userProvider = await req.user.getUserTelegram()
+      break
     default:
       break
   }
 
   if (userProvider) {
-    await userProvider.destroy()
+    switch (provider) {
+      case 'telegram':
+        await userProvider.update({
+          idUser: null,
+        })
+        break
+      default:
+        await userProvider.destroy()
+        break
+    }
   } else {
     response.message = `User is not connected to provider ${provider}.`
   }

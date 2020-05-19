@@ -260,10 +260,39 @@ gulp.task('startCrawlerYoutube', (cb) => {
     })
 })
 
+gulp.task('startBotTelegram', (cb) => {
+  const stream = nodemon({
+    script: 'services/telegramBotListener.js',
+    ext: 'js',
+    watch: ['services'],
+    env: {
+      NODE_PATH: '.',
+      NODE_ENV: config.env,
+      DEBUG: `${config.slug}:*`,
+    },
+  })
+
+  stream.on('start', () => {
+    console.log('nodemon crawler telegram bot listener => started')
+  })
+    .on('quit', () => {
+      console.log('nodemon crawler telegram bot listener => quit')
+      return cb()
+    })
+    .on('restart', () => {
+      console.log('nodemon crawler telegram bot listener => restart')
+    })
+    .on('crash', () => {
+      console.error('nodemon crawler telegram bot listener => app crashed\n')
+    })
+})
+
 gulp.task('default', gulp.parallel('startWebserver', 'watch'))
 
 gulp.task('build', gulp.parallel('copy', 'buildSass', 'buildJs'))
 gulp.task('buildClean', gulp.series('clean', gulp.parallel('copy', 'buildSass', 'buildJs')))
 gulp.task('buildProduction', gulp.series('setProductionMode', 'buildClean'))
+
 gulp.task('twitch', gulp.series('startCrawlerTwitch'))
 gulp.task('youtube', gulp.series('startCrawlerYoutube'))
+gulp.task('telegram', gulp.series('startBotTelegram'))
