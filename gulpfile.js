@@ -1,8 +1,10 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'local'
 process.env.NODE_PATH = '.'
+// eslint-disable-next-line no-underscore-dangle
 require('module').Module._initPaths() // this is needed to update NODE_PATH at runtime of Gulp
 const path = require('path')
 
+// eslint-disable-next-line import/no-dynamic-require
 const config = require(path.join(__dirname, './config'))
 
 const async = require('async')
@@ -58,10 +60,6 @@ const paths = {
   server: ['data/livereload.json'],
 }
 
-const onError = (err) => {
-  console.error(err)
-}
-
 let isProductionMode = false
 
 gulp.task('setProductionMode', (cb) => {
@@ -79,15 +77,20 @@ gulp.task('clean', (cb) => {
   ], cb)
 })
 
-gulp.task('copy', (cb) => async.forEachOf(paths.copy, (src, dest, cb) => {
-  destination = (dest.startsWith('_')) ? src.dest : dest
-  pump([
-    gulp.src(src.src, {
-      cwd: src.cwd,
-    }),
-    changed(destination),
-    gulp.dest(destination),
-  ], cb)
+// TODO: fix the callback double usage and make this a proper promise based copy task.
+// TODO: remove dependency on `async` library
+gulp.task('copy', (cb) => async.forEachOf(paths.copy, (src, dest, done) => {
+  const destination = (dest.startsWith('_')) ? src.dest : dest
+  pump(
+    [
+      gulp.src(src.src, {
+        cwd: src.cwd,
+      }),
+      changed(destination),
+      gulp.dest(destination),
+    ],
+    done,
+  )
 }, (err) => {
   if (err) console.log(err)
   notify('Build Copy Reloading')
@@ -167,24 +170,7 @@ gulp.task('buildServer', (cb) => {
   ], cb)
 })
 
-gulp.task('localtunnelWebserver', (cb) => {
-  const localtunnel = require('localtunnel')
-
-  const opts = {
-    subdomain: 'spieglio-npc-bw2si4afw63',
-  }
-  const tunnel = localtunnel(config.server.port, opts, (err, tunnel) => {
-    if (err) console.log(err)
-    else console.log(tunnel.url)
-  })
-
-  tunnel.on('close', () => {
-    console.log('tunnel closed')
-    return cb()
-  })
-})
-
-gulp.task('watch', (cb) => ((
+gulp.task('watch', () => ((
   gulp.watch(_.map(paths.copy, (el) => `${el.cwd}/**/*`), { delay: 500 }).on('all', gulp.series('copy')),
   gulp.watch(paths.sass, { delay: 500 }).on('all', gulp.series('buildSass')),
   gulp.watch(paths.js, { delay: 500 }).on('all', gulp.series('buildJs')),
@@ -198,7 +184,6 @@ gulp.task('startWebserver', (cb) => {
     ext: 'js',
     watch: ['server'],
     env: {
-      LOCALTUNNEL: 0,
       NODE_PATH: '.',
       NODE_ENV: config.env,
       DEBUG: `${config.slug}:*`,
@@ -280,3 +265,5 @@ gulp.task('default', gulp.parallel('startWebserver', 'watch'))
 gulp.task('build', gulp.parallel('copy', 'buildSass', 'buildJs'))
 gulp.task('buildClean', gulp.series('clean', gulp.parallel('copy', 'buildSass', 'buildJs')))
 gulp.task('buildProduction', gulp.series('setProductionMode', 'buildClean'))
+gulp.task('twitch', gulp.series('startCrawlerTwitch'))
+gulp.task('youtube', gulp.series('startCrawlerYoutube'))
