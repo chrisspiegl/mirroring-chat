@@ -9,6 +9,7 @@ const error = debug(`${config.slug}:messagesStore:error`)
 
 const redisClient = require('server/redis').client
 const redisKeyGenerator = require('server/redisKeyGenerator')
+const models = require('database/models')
 
 const ttl = 60 * 60 * 24 * 7/* seconds */ // 7 days
 
@@ -20,7 +21,6 @@ const messageEncode = (message) => {
     c /* channel */: message.channel,
     p /* provider */: message.provider,
     t /* timestamp */: message.timestamp,
-    u /* username */: message.username,
     dn /* displayName */: message.displayName,
     m /* message */: message.message,
     po /* providerObject */: message.providerObject,
@@ -36,61 +36,47 @@ const messageDecode = (message) => {
     channel: messageDecoded.c,
     provider: messageDecoded.p,
     timestamp: messageDecoded.t,
-    username: messageDecoded.u,
     displayName: messageDecoded.dn,
     message: messageDecoded.m,
     providerObject: messageDecoded.po,
   }
 }
 
-const fetch = (channel) => {
-  const keyList = redisKeyGenerator.messages.store(channel)
-  // TODO: Make the key not depend on the channel name but instead make it map to a userId so that all the chats for a person can be in one redis key
-  // TODO: Figure out what storage method would be best suited to expire old messages and yet request a bunch of them at the same time
-  return new Promise((resolve, reject) => {
-    redisClient.lrangeAsync(keyList, 0, -1).then(
-      (messages) => {
-        const messagesDecoded = messages.reverse().map(messageDecode)
-        return resolve(messagesDecoded)
-      },
-    ).catch((err) => {
-      error(`Redis connection failed: ${err}`)
-      return reject(err)
-    })
+const fetchForUser = (idUser, limit = 25, offset = 0) => {
+  log('fetchForUser -> idUser', idUser)
+  return models.ChatMessage.findAll({
+    where: {
+      idUser,
+    },
+    order: ['sentAt'],
+    limit,
+    offset,
   })
 }
 
-const add = (channel, messageArg) => new Promise((resolve, reject) => {
-  const message = messageArg
-  message.channel = channel
-  const messageEncoded = messageEncode(message)
-  const keyList = redisKeyGenerator.messages.store(channel)
-  const keyStream = redisKeyGenerator.messages.stream(channel)
-  console.log('add -> keyStream', keyStream)
-  // possible use of `.expire(key, ttl)` to expire the whole key after a certain amount of time (after the last rpush)
-  redisClient.multi().lpush(keyList, messageEncoded).expire(keyList, ttl)
-    .publish(keyStream, messageEncoded)
-    .execAsync()
-    .then((resMulti) => {
-      const trimAt = 120
-      const trimTo = 100
-      if (resMulti[0] > trimAt) {
-        log(`found over ${trimAt} messages in the channel, trimming to ${trimTo}`)
-        redisClient.ltrimAsync(keyList, 0, trimTo).then((resLtrim) => {
-          log(`trimmed ${channel} to ${trimTo} messages with ${resLtrim}`)
-        })
-      }
-      return resolve(resMulti)
-    })
-    .catch((err) => {
-      error(`Redis connection failed: ${err}`)
-      return reject(err)
-    })
-})
+const fetchForChat = (idChat, limit = 25, offset = 0) => {
+  log('fetchForChat -> idChat', idChat)
+  return models.ChatMessage.findAll({
+    where: {
+      idChat,
+    },
+    order: ['sentAt'],
+    limit,
+    offset,
+  })
+}
+
+const addMessage = async (message) => {
+  log('addNewMessage -> message')
+  await models.ChatMessage.create(message)
+  await redisClient.publish(redisKeyGenerator.messages.stream(message.idUser), messageEncode(message))
+  return true
+}
 
 module.exports = {
-  add,
-  fetch,
+  addMessage,
+  fetchForChat,
+  fetchForUser,
   messageEncode,
   messageDecode,
 }
