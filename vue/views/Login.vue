@@ -4,11 +4,9 @@
     div
       a(href="/auth/twitch") Twitch
     div
-      a(href="/auth/facebook") Facebook
-    div
-      a(href="/auth/discord") Discord
-    div
       a(href="/auth/google") Google/YouTube
+    //- div
+      a(href="/auth/facebook") Facebook
 
 
 </template>
