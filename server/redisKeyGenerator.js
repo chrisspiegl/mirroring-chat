@@ -11,8 +11,8 @@ const baseKey = `${config.slugShort}:${config.envShort}`
 
 module.exports = {
   messages: {
-    store: (channel) => `${baseKey}:messages:store:${channel}`,
-    stream: (channel) => `${baseKey}:messages:stream:${channel}`,
+    store: (channel) => `${baseKey}:messages:store:${channel || '*'}`,
+    stream: (channel) => `${baseKey}:messages:stream:${channel || '*'}`,
   },
   sessions: () => `${baseKey}:sess:`,
   youtube: {

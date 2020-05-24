@@ -8,10 +8,13 @@ log.log = console.log.bind(console)
 const error = debug(`${config.slug}:messagesStore:error`)
 
 const redisClient = require('server/redis').client
+const { subscriber: redisSubscriber } = require('server/redis')
 const redisKeyGenerator = require('server/redisKeyGenerator')
 const models = require('database/models')
 
 const ttl = 60 * 60 * 24 * 7/* seconds */ // 7 days
+
+const messageSubscribers = {}
 
 const messageEncode = (message) => {
   const messageEncoded = {
@@ -77,10 +80,32 @@ const addMessage = async (message) => {
   return true
 }
 
+const isSubscribed = (idUser) => !!messageSubscribers[idUser]
+
+const subscribe = (idUser, callback) => {
+  if (isSubscribed(idUser)) return 'already-subscribed'
+  messageSubscribers[idUser] = (keyRedis, message) => callback(keyRedis, messageDecode(message))
+  const redisKey = redisKeyGenerator.messages.stream(idUser)
+  redisSubscriber.on('message', messageSubscribers[idUser])
+  redisSubscriber.subscribe(redisKey)
+  return 'subscribed'
+}
+
+const unsubscribe = (idUser) => {
+  if (!messageSubscribers[idUser]) return 'not-subscribed'
+  redisSubscriber.removeListener('message', messageSubscribers[idUser])
+  return 'unsubscribed'
+}
+
 module.exports = {
   addMessage,
   fetchByUser,
   fetchByChat,
   messageEncode,
   messageDecode,
+  subscribe,
+  unsubscribe,
+  isSubscribed,
+  messageSubscribe: subscribe,
+  messageUnsubscribe: unsubscribe,
 }

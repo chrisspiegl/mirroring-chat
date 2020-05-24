@@ -20,7 +20,7 @@ const moment = require('moment-timezone')
 
 const models = require('database/models')
 const { subscriber: redisSubscriber } = require('server/redis')
-const { messageDecode } = require('server/messagesStore')
+const messageStore = require('server/messagesStore')
 const redisKeyGenerator = require('server/redisKeyGenerator')
 const {
   generateTokenAuth,
@@ -78,12 +78,16 @@ const init = async () => {
 
   const activeRedisMessageListeners = {}
 
-  const onRedisMessage = (userProvider) => (keyRedis, message) => {
-    const messageDecoded = messageDecode(message)
-    log('on:redis:message for: ', keyRedis)
+  const onNewMessage = (userProvider) => (key, message) => {
+    log('on:redis:message for: ', key)
+    let dateOrNoDate = ''
+    if (moment().subtract(1, 'minute').isAfter(moment(message.sentAt))) {
+      dateOrNoDate = ` at ${moment(message.sentAt).format('YYYY-MM-DD HH:mm:ss')}`
+    }
     bot.sendMessage(userProvider.idUserProvider,
-      `\`${moment(messageDecoded.timestamp).format('YYYY-MM-DD HH:mm:ss')} on ${messageDecoded.provider} by ${messageDecoded.displayName}\`:\n${messageDecoded.message}`, {
+      `${message.displayName} on ${message.provider}${dateOrNoDate}:\n${message.message}`, {
         parse_mode: 'markdown',
+        disable_web_page_preview: true,
       })
   }
 
@@ -92,27 +96,17 @@ const init = async () => {
    * Utilities
    */
 
-  const chatSubscribe = (userProvider) => {
-    if (activeRedisMessageListeners[userProvider.idUser]) {
-      return 'already-listening'
-    }
-    const onRedisMessageFunction = onRedisMessage(userProvider)
-    activeRedisMessageListeners[userProvider.idUser] = onRedisMessageFunction
-    redisSubscriber.on('message', onRedisMessageFunction)
-    redisSubscriber.subscribe(redisKeyGenerator.messages.stream(userProvider.idUser))
-    return true
-  }
+  const chatSubscribe = (userProvider) => messageStore.subscribe(userProvider.idUser, onNewMessage(userProvider))
 
-  const chatUnsubscribe = (userProvider) => {
-    const onRedisMessageFunction = activeRedisMessageListeners[userProvider.idUser]
-    if (!onRedisMessageFunction) {
-      return 'not-listening'
-    }
-    redisSubscriber.removeListener('message', onRedisMessageFunction)
-    redisSubscriber.unsubscribe(redisKeyGenerator.messages.stream(userProvider.idUser))
-    delete activeRedisMessageListeners[userProvider.idUser]
-    return true
-  }
+  const chatUnsubscribe = (userProvider) => messageStore.unsubscribe(userProvider.idUser)
+
+  /**
+   * =============================================================================
+   * Listen for new messages for all Telegram Users
+   */
+  // TODO: make this available as a setting so people can disable their telegram messenger chat stream by default.
+  const userProviderTelegram = await models.UserTelegram.findAll({})
+  userProviderTelegram.forEach(chatSubscribe)
 
   /**
    * =============================================================================
