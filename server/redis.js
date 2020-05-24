@@ -28,5 +28,7 @@ module.exports = {
   client: redisClient,
   redisSubscriber,
   subscriber: redisSubscriber,
+  publisher: redisClient,
+  redisPublisher: redisClient,
   newRedisClient,
 }
