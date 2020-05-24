@@ -29,7 +29,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     title: {
       // YouTube: broadcast title
-      // Twitch: displayName
+      // Twitch: username
       // Facebook: broadcast title
       type: Sequelize.STRING,
       allowNull: false,
@@ -54,10 +54,12 @@ module.exports = (sequelize, Sequelize) => {
     },
     isPermanent: {
       type: Sequelize.BOOLEAN,
+      defaultValue: false,
       allowNull: false,
     },
     isTracked: {
       type: Sequelize.BOOLEAN,
+      defaultValue: false,
       allowNull: false,
     },
   }, {
