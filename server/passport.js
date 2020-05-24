@@ -22,6 +22,10 @@ const PassportTwitch = require('@d-fischer/passport-twitch').Strategy
 const { Strategy: PassportJwt, ExtractJwt: PassportJwtExtract } = require('passport-jwt')
 
 const models = require('database/models')
+const RedisPubSubManager = require('server/redisPubSubManager')
+const redisKeyGenerator = require('server/redisKeyGenerator')
+
+const rpsm = new RedisPubSubManager()
 
 /**
  * ======================================================
@@ -246,6 +250,10 @@ const createUser = async (profile, tokenAccess, tokenRefresh) => {
   const user = await models.User.create(userOptions, {
     include: [modelProvider],
   })
+  rpsm.publish(redisKeyGenerator.events, {
+    event: redisKeyGenerator.event.USER_CREATED,
+    user,
+  })
   log(`login:user:${user.idUser}:created`)
   return user
 }
@@ -317,6 +325,14 @@ const loginFlow = async (req, tokenAccess, tokenRefresh, profile, done) => {
     log(`login:${profile.provider}:user:${profile.id}:creating-new-user`)
     req.user = await createUser(profile, tokenAccess, tokenRefresh)
   }
+  rpsm.publish(redisKeyGenerator.events, {
+    event: redisKeyGenerator.event.USER_UPDATED,
+    user: req.user,
+  })
+  rpsm.publish(redisKeyGenerator.events, {
+    event: redisKeyGenerator.event.USER_LOGIN,
+    user: req.user,
+  })
   return done(null, req.user)
 }
 

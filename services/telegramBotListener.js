@@ -2,12 +2,12 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 const config = require('config')
 const debug = require('debug')
 
-const log = debug(`${config.slug}:botTelegram:authentication`)
+const log = debug(`${config.slug}:botTelegram:listener`)
 log.log = console.log.bind(console)
 // eslint-disable-next-line no-unused-vars
-const error = debug(`${config.slug}:botTelegram:authentication:error`)
+const error = debug(`${config.slug}:botTelegram:listener:error`)
 
-const pnotice = require('pushnotice')(`${config.slug}:botTelegram:authentication`, {
+const pnotice = require('pushnotice')(`${config.slug}:botTelegram:listener`, {
   env: config.env,
   chat: config.pushnotice.chat,
   debug: true,
@@ -19,7 +19,6 @@ const botTelegramMiddleware = require('node-telegram-bot-api-middleware')
 const moment = require('moment-timezone')
 
 const models = require('database/models')
-const { subscriber: redisSubscriber } = require('server/redis')
 const messageStore = require('server/messagesStore')
 const redisKeyGenerator = require('server/redisKeyGenerator')
 const {
@@ -79,6 +78,7 @@ const init = async () => {
   const activeRedisMessageListeners = {}
 
   const onNewMessage = (userProvider) => (key, message) => {
+    if (key !== redisKeyGenerator.messages.stream(userProvider.idUser)) return // only handle messages which are specifically for this user
     log('on:redis:message for: ', key)
     let dateOrNoDate = ''
     if (moment().subtract(1, 'minute').isAfter(moment(message.sentAt))) {

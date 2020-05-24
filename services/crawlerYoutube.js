@@ -19,7 +19,11 @@ const { CronJob } = require('cron')
 
 const messagesStore = require('server/messagesStore')
 const models = require('database/models')
+const RedisPubSubManager = require('server/redisPubSubManager')
+const redisKeyGenerator = require('server/redisKeyGenerator')
 const YoutubeService = require('./youtubeService')
+
+const rpsm = new RedisPubSubManager()
 
 // Lot's of notes taken from: https://medium.com/@jonnykalambay/doing-it-live-learn-youtubes-api-by-making-a-chatbot-d55e2156715f
 // TODO: improve polling to include error handling, get inspiration from: https://github.com/JamesFrost/youtube-stream/tree/20291650f92bb7ed2acd52d9c4773843bb7bb155
@@ -51,9 +55,17 @@ const crawlUserBroadcasts = async (userProvider, broadcastStatus) => {
     if (broadcastInDatabase) {
       broadcastInDatabase = await broadcastInDatabase.update(broadcastOptions)
       log(`${userProvider.displayName}: updating broadcast ${broadcastOptions.title}`)
+      rpsm.publish(redisKeyGenerator.events, {
+        event: redisKeyGenerator.event.CHAT_UPDATED,
+        chat: broadcastInDatabase,
+      })
     } else {
       broadcastInDatabase = await models.Chat.create(broadcastOptions)
       log(`${userProvider.displayName}: creating broadcast ${broadcastOptions.title}`)
+      rpsm.publish(redisKeyGenerator.events, {
+        event: redisKeyGenerator.event.CHAT_CREATED,
+        chat: broadcastInDatabase,
+      })
     }
   })
 }

@@ -11,7 +11,6 @@ const RedisPubSubManager = require('server/redisPubSubManager')
 const redisKeyGenerator = require('server/redisKeyGenerator')
 const models = require('database/models')
 
-const ttl = 60 * 60 * 24 * 7/* seconds */ // 7 days
 const messageSubscribers = {}
 const rpsm = new RedisPubSubManager()
 
@@ -43,6 +42,10 @@ const addMessage = async (message) => {
   log('addNewMessage -> message', message)
   await models.ChatMessage.create(message)
   rpsm.publish(redisKeyGenerator.messages.stream(message.idUser), message)
+  rpsm.publish(redisKeyGenerator.events, {
+    event: redisKeyGenerator.event.CHAT_MESSAGE_RECEIVED,
+    message,
+  })
   return true
 }
 

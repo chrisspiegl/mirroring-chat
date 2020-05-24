@@ -2,10 +2,10 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 const config = require('config')
 const debug = require('debug')
 
-const log = debug(`${config.slug}:botTelegram:listener`)
+const log = debug(`${config.slug}:botTelegram:authentication`)
 log.log = console.log.bind(console)
 // eslint-disable-next-line no-unused-vars
-const error = debug(`${config.slug}:botTelegram:listener:error`)
+const error = debug(`${config.slug}:botTelegram:authentication:error`)
 
 const jwt = require('jsonwebtoken')
 

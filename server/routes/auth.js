@@ -44,11 +44,13 @@ router.get('/failed', (req, res) => {
   return res.redirect('/login/failed')
 })
 
-router.get('/logout', (req, res) => req.session.regenerate((err) => {
-  req.logout()
-  req.flash('notice', 'Logout success.')
-  return res.redirect('/')
-}))
+router.get('/logout', (req, res) => {
+  req.session.regenerate((err) => {
+    req.logout()
+    req.flash('notice', 'Logout success.')
+    return res.redirect('/')
+  })
+})
 
 router.get('/telegram', async (req, res) => {
   const userTelegram = await req.user.UserTelegram

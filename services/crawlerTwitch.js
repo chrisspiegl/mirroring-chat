@@ -90,10 +90,6 @@ const init = async (userProviderParam = null) => {
       },
     })
 
-    console.log(chat.idChat)
-    console.log(chat.idUser)
-
-
     messagesStore.addMessage({
       idChatMessageProvider: context.id,
       idChat: chat.idChat,

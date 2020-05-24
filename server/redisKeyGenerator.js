@@ -20,4 +20,19 @@ module.exports = {
       nextPage: (broadcastEtag) => `${baseKey}:youtube:broadcast:nextpage:${broadcastEtag}`,
     },
   },
+  events: `${baseKey}:event`,
+  event: {
+    // USER
+    USER_LOGIN: 'USER_LOGIN',
+    USER_LOGOUT: 'USER_LOGOUT',
+    USER_CREATED: 'USER_CREATED',
+    USER_DELETED: 'USER_DELETED',
+    // CHAT
+    CHAT_CREATED: 'CHAT_CREATED',
+    CHAT_UPDATED: 'CHAT_UPDATED',
+    CHAT_DELETED: 'CHAT_DELETED',
+    // CHAT_MESSAGE
+    CHAT_MESSAGE_SENT: 'CHAT_MESSAGE_SENT',
+    CHAT_MESSAGE_RECEIVED: 'CHAT_MESSAGE_RECEIVED',
+  },
 }

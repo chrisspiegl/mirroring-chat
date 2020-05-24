@@ -60,6 +60,7 @@ module.exports = class RedisPubSubManager {
   }
 
   onMessage(key, message) {
+    log(`onMessage: ${key}`)
     const messageParsed = this.parseMessage(message)
     const callbacks = this.subscriptions[key] ? this.subscriptions[key] : []
     callbacks.forEach((callback) => callback(key, messageParsed))
