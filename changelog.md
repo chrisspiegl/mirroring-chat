@@ -1,5 +1,14 @@
 # Changelog
 
+## 2020-05-24 15:23
+
+- Backend: Implement RedisKeyGenerator so that all redis keys are generated in a central location and can easily be updated in the future.
+- Backend: Database based store for all Chat Messages implemented (updated Twitch and YouTube Crawler as well as Socket.io and Telegram Notification sending)
+- Backend: Put Redis Subscribe code into message store for easier notification listening on new messages
+- Backend: Make YouTube Crawler database based and automatically disable / enable crawling based on database settings for channels
+- Backend: Make channels/broadcasts separate in the mysql database
+- Backend: YouTube: Make Broadcast Search and new Chat Messages Crawl via Cron Job
+
 ## 2020-05-19 08:57
 
 - Backend: Database - make 'strict mode' compatible again.
