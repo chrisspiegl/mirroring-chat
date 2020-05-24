@@ -8,16 +8,19 @@ log.log = console.log.bind(console)
 const error = debug(`${config.slug}:botTwitch:error`)
 
 const tmi = require('tmi.js')
+const moment = require('moment-timezone')
 
 const { refreshTokenAccess } = require('server/passportRefresh')
 const models = require('database/models')
-const { diskCache: cache } = require('server/cacheManager')
 const messagesStore = require('server/messagesStore')
+
+moment.tz.setDefault('UTC')
 
 // Define configuration options
 
 const init = async (userProviderParam = null) => {
   await models.init()
+
   let userProvider = userProviderParam
   if (userProvider === null) {
     userProvider = await models.UserTwitch.findOne({
@@ -35,8 +38,13 @@ const init = async (userProviderParam = null) => {
   // Get all active users channels
   // TODO: needs to be limited at a later time (user must have been active in the past 7 days, channel must be enabled)
   // LATER: may also make sense to separate channels from users in the database
-  const users = await models.UserTwitch.findAll({})
-  const channels = users.map((user) => (user.displayName))
+  const chats = await models.Chat.findAll({
+    where: {
+      provider: 'twitch',
+      isTracked: true,
+    },
+  })
+  const channels = chats.map((chat) => (chat.idChatProvider))
 
   const opts = {
     options: {
@@ -59,12 +67,15 @@ const init = async (userProviderParam = null) => {
   // Register our event handlers (defined below)
 
   // Connect to Twitch:
-  client.connect().catch((err) => {
+  client.connect().catch(async (err) => {
     error('Twitch Client Error: ', err)
+    userProvider = await refreshTokenAccess('twitch', userProvider).catch((err) => {
+      error('Error while refreshing the tokens for the mirroringbot on Twitch: ', err)
+    })
   })
 
   // Called every time a message comes in
-  const onMessageHandler = async (channel, context, msg, self) => {
+  const onTwitchMessageHandler = async (channel, context, msg, self) => {
     // Ignore messages from the bot
     if (self) return
     // Ignore all messages that are not type chat for now
@@ -72,28 +83,34 @@ const init = async (userProviderParam = null) => {
     // Remove whitespace from chat message
     const msgCleaned = msg.trim()
     const channelName = channel.substring(1) // remove the # sign
-    const userProviderForMessage = await models.UserTwitch.findOne({
+    const chat = await models.Chat.findOne({
       where: {
-        username: channelName,
+        provider: 'twitch',
+        idChatProvider: channelName,
       },
     })
-    messagesStore.add(userProviderForMessage.idUser, {
-      id: context.id,
+
+    console.log(chat.idChat)
+    console.log(chat.idUser)
+
+
+    messagesStore.addMessage({
+      idChatMessageProvider: context.id,
+      idChat: chat.idChat,
+      idUser: chat.idUser,
       provider: 'twitch',
-      timestamp: parseInt(context['tmi-sent-ts']),
-      username: context.username,
-      displayName: context['display-name'],
+      displayName: context['display-name'] || context.username,
       message: msgCleaned,
       providerObject: {
         channel,
         context,
-        message: msg,
       },
+      sentAt: moment(parseInt(context['tmi-sent-ts'])),
     })
   }
 
   // Called every time the bot connects to Twitch chat
-  function onConnectedHandler(addr, port) {
+  function onTwitchConnectedHandler(addr, port) {
     log(`connected-to:${addr}:${port}`)
   }
 
@@ -104,7 +121,11 @@ const init = async (userProviderParam = null) => {
     client.say(channel, `[${username}] ${message}`)
   }
 
-  client.on('message', onMessageHandler)
-  client.on('connected', onConnectedHandler)
+  client.on('message', onTwitchMessageHandler)
+  client.on('connected', onTwitchConnectedHandler)
 }
-init()
+
+// Run the init method if the file was called directly and not through 'require'
+if (require.main === module) {
+  init()
+}

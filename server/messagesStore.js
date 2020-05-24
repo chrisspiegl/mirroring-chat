@@ -67,7 +67,7 @@ const fetchForChat = (idChat, limit = 25, offset = 0) => {
 }
 
 const addMessage = async (message) => {
-  log('addNewMessage -> message')
+  log('addNewMessage -> message', message)
   await models.ChatMessage.create(message)
   await redisClient.publish(redisKeyGenerator.messages.stream(message.idUser), messageEncode(message))
   return true

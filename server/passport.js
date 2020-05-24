@@ -192,6 +192,15 @@ const createUser = async (profile, tokenAccess, tokenRefresh) => {
           picture: profile.profile_image_url,
           username: profile.login,
         },
+        Chat: {
+          idChatProvider: profile.login,
+          provider: 'twitch',
+          title: profile.login,
+          providerObject: {},
+          status: 'permanent',
+          isPermanent: true,
+          isTracked: true,
+        },
       })
       break
     case 'discord':
@@ -273,12 +282,33 @@ const loginFlow = async (req, tokenAccess, tokenRefresh, profile, done) => {
       // FIXME: special case: user provider found, user not logged in, BUT: on the search for a local user we got nothing.
       // This is an edge case and in this case the user account should be created automatically
     }
+    if (profile.provider === 'twitch') {
+      const chat = await models.Chat.findOne({
+        where: {
+          provider: 'twitch',
+          idUser: req.user.idUser,
+        },
+      })
+      const chatObj = {
+        idChatProvider: profile.login,
+        idUser: req.user.idUser,
+        provider: 'twitch',
+        title: profile.login,
+        providerObject: {},
+        status: 'permanent',
+        isPermanent: true,
+      }
+      if (chat) {
+        await chat.update(chatObj)
+      } else {
+        await models.Chat.create(chatObj)
+      }
+    }
   } else if (req.user) {
     // Provider account does not exist and user is logged in, thus we are linking the provider to the req.user
     log(`login:user:${req.user.idUser}:logged-in-user-linking-new-provider:${profile.provider}:${profile.id}`)
     userProviderOptions.idUserProvider = profile.id
     userProviderOptions.idUser = req.user.idUser
-    console.log('loginFlow -> userProviderOptions', userProviderOptions)
     userProvider = await modelUserProvider.create(userProviderOptions)
     log(`login:user:${req.user.idUser}:logged-in-user-now-linked-to-provider:${profile.provider}:${userProvider.idUserProvider}`)
     req.user = await findUser(userProvider)
