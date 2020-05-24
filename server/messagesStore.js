@@ -18,9 +18,11 @@ const messageEncode = (message) => {
     // condensed variable names to have less redis storage needs
     // Possibly could upgrade to https://www.npmjs.com/package/protobufjs or https://www.npmjs.com/package/msgpack
     id: message.id,
-    c /* channel */: message.channel,
+    idCMP /* idChatMessageProvider */: message.idChatMessageProvider,
+    idC /* channel */: message.idChat,
+    idU /* channel */: message.idUser,
     p /* provider */: message.provider,
-    t /* timestamp */: message.timestamp,
+    at /* timestamp */: message.sentAt,
     dn /* displayName */: message.displayName,
     m /* message */: message.message,
     po /* providerObject */: message.providerObject,
@@ -33,16 +35,18 @@ const messageDecode = (message) => {
   // Remapping condensed json for redis storage back to readable code version.
   return {
     id: messageDecoded.id,
-    channel: messageDecoded.c,
+    idChatMessageProvider: messageDecoded.idCMP,
+    idChat: messageDecoded.idC,
+    idUser: messageDecoded.idU,
     provider: messageDecoded.p,
-    timestamp: messageDecoded.t,
+    sentAt: messageDecoded.at,
     displayName: messageDecoded.dn,
     message: messageDecoded.m,
     providerObject: messageDecoded.po,
   }
 }
 
-const fetchForUser = (idUser, limit = 25, offset = 0) => {
+const fetchByUser = (idUser, limit = 25, offset = 0) => {
   log('fetchForUser -> idUser', idUser)
   return models.ChatMessage.findAll({
     where: {
@@ -54,7 +58,7 @@ const fetchForUser = (idUser, limit = 25, offset = 0) => {
   })
 }
 
-const fetchForChat = (idChat, limit = 25, offset = 0) => {
+const fetchByChat = (idChat, limit = 25, offset = 0) => {
   log('fetchForChat -> idChat', idChat)
   return models.ChatMessage.findAll({
     where: {
@@ -75,8 +79,8 @@ const addMessage = async (message) => {
 
 module.exports = {
   addMessage,
-  fetchForChat,
-  fetchForUser,
+  fetchByUser,
+  fetchByChat,
   messageEncode,
   messageDecode,
 }

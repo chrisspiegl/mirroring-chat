@@ -54,7 +54,7 @@ module.exports = (http) => {
 
       // Do not handle messages that are not in the `keyStream` key range for now
       if (keyRedis !== this.keyStreamChannel) return
-      const keySocket = `message-to-${messageDecoded.channel}`
+      const keySocket = `message-to-${messageDecoded.idUser}`
       log('socket:emit:', keySocket)
       socket.emit(keySocket, {
         status: 200,
