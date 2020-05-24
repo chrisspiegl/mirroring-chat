@@ -25,6 +25,7 @@ const YoutubeService = require('./youtubeService')
 // TODO: improve polling to include error handling, get inspiration from: https://github.com/JamesFrost/youtube-stream/tree/20291650f92bb7ed2acd52d9c4773843bb7bb155
 
 const crawlUserBroadcasts = async (userProvider, broadcastStatus) => {
+  // TODO: needs to be updated to mark no longer existing streams to be set to not track and status = past
   log(`${userProvider.displayName}: crawlUserBroadcasts for ${broadcastStatus} broadcasts`)
   const youtubeService = new YoutubeService(userProvider)
   await youtubeService.authorize()
@@ -114,12 +115,12 @@ const init = async () => {
   const jobChat = new CronJob('0 * * * * *', runCrawlChats, () => log('Cron jobChat Finished'), true, 'UTC', this, true)
 }
 
-// Run the init method if the file was called directly and not through 'require'
-if (require.main === module) {
-  init()
-}
-
 process.on('unhandledRejection', async (reason, promise) => {
   error('unhandledRejection', reason.stack || reason, promise)
   pnotice(`unhandledRejection:\n${JSON.stringify(reason)}`, 'ERROR')
 })
+
+// Run the init method if the file was called directly and not through 'require'
+if (require.main === module) {
+  init()
+}
