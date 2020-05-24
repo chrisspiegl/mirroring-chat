@@ -8,6 +8,8 @@
 - Backend: Make YouTube Crawler database based and automatically disable / enable crawling based on database settings for channels
 - Backend: Make channels/broadcasts separate in the mysql database
 - Backend: YouTube: Make Broadcast Search and new Chat Messages Crawl via Cron Job
+- Backend: Implemented a Redis Pub Sub Manager to have all those notifications go through one central class. This way we do not have multiple listeners and do not have to be careful to close any listeners while others are still listening. While doing so, I also (for now) decided to not 'minimize' the messages when sending through redis… over optimizing in early stages is only a source for errors.
+- Backend: added a global event stack which goes through the RedisPubSubManager and thus is available to all instances that may be listening to these events. Events include but are not limited to USER_LOGIN, USER_CREATED, CHAT_CREATED, CHAT_UPDATED, CHAT_MESSAGE_RECEIVED, and more. This gives the possibility to react to things across processes and applications (even across multiple servers if need be). These events do not guarantee delivery! THat's what RSMQ is for. But these events make it possible for me to have settings for a twitch channel be updated on the web-interface, and the twitch bot process can then update itself accordingly.
 
 ## 2020-05-19 08:57
 
