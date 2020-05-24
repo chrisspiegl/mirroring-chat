@@ -8,10 +8,9 @@ log.log = console.log.bind(console)
 const error = debug(`${config.slug}:messagesStore:error`)
 
 const redisClient = require('server/redis').client
+const redisKeyGenerator = require('server/redisKeyGenerator')
 
 const ttl = 60 * 60 * 24 * 7/* seconds */ // 7 days
-const keyListBase = `${config.slugShort}:${config.envShort}:messages:store:`
-const keyStreamBase = `${config.slugShort}:${config.envShort}:messages:stream:`
 
 const messageEncode = (message) => {
   const messageEncoded = {
@@ -45,7 +44,7 @@ const messageDecode = (message) => {
 }
 
 const fetch = (channel) => {
-  const keyList = keyListBase + channel
+  const keyList = redisKeyGenerator.messages.store(channel)
   // TODO: Make the key not depend on the channel name but instead make it map to a userId so that all the chats for a person can be in one redis key
   // TODO: Figure out what storage method would be best suited to expire old messages and yet request a bunch of them at the same time
   return new Promise((resolve, reject) => {
@@ -65,8 +64,8 @@ const add = (channel, messageArg) => new Promise((resolve, reject) => {
   const message = messageArg
   message.channel = channel
   const messageEncoded = messageEncode(message)
-  const keyList = keyListBase + channel
-  const keyStream = keyStreamBase + channel
+  const keyList = redisKeyGenerator.messages.store(channel)
+  const keyStream = redisKeyGenerator.messages.stream(channel)
   console.log('add -> keyStream', keyStream)
   // possible use of `.expire(key, ttl)` to expire the whole key after a certain amount of time (after the last rpush)
   redisClient.multi().lpush(keyList, messageEncoded).expire(keyList, ttl)

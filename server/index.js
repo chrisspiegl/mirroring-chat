@@ -37,6 +37,7 @@ const pnotice = require('pushnotice')(`${config.slug}:server`, {
   env: config.env, chat: config.pushnotice.chat, debug: true, disabled: config.pushnotice.disabled,
 })
 const redis = require('server/redis')
+const redisKeyGenerator = require('server/redisKeyGenerator')
 
 // Application
 const app = express()
@@ -88,7 +89,7 @@ app.use(bodyParser.json()) // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({ extended: false })) // to support URL-encoded bodies
 
 const sessionRedisStoreOptions = config.database.redis
-sessionRedisStoreOptions.prefix = `${config.slugShort}:${config.envShort}:sess:`
+sessionRedisStoreOptions.prefix = redisKeyGenerator.sessions()
 sessionRedisStoreOptions.client = redis.redisClient
 app.use(session({
   // https://lockmedown.com/securing-node-js-managing-sessions-express-js/

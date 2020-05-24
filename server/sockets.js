@@ -11,8 +11,7 @@ const socketio = require('socket.io')
 
 const { subscriber: redisSubscriber } = require('server/redis')
 const { messageDecode } = require('server/messagesStore')
-
-const keyStream = `${config.slugShort}:${config.envShort}:messages:stream:`
+const redisKeyGenerator = require('server/redisKeyGenerator')
 
 // TODO: make this context based with cleaner functions for the socket to process stuff.
 // EXAMPLE: new Connection() => this.socket available in all functions, and listening on stuff…
@@ -84,7 +83,7 @@ module.exports = (http) => {
       log('on:chat-channel-connect with: ', data)
       const { channelName } = data
       this.channelName = channelName
-      this.keyStreamChannel = keyStream + this.channelName
+      this.keyStreamChannel = redisKeyGenerator.messages.stream(this.channelName)
       log('streamingMessagesStart for: ', this.keyStreamChannel)
       redisSubscriber.on('message', onRedisMessage)
       // FIXME: this stays subscribed (and sending socket replies) until unsubscribed, handle

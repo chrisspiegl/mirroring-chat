@@ -21,6 +21,7 @@ const moment = require('moment-timezone')
 const models = require('database/models')
 const { subscriber: redisSubscriber } = require('server/redis')
 const { messageDecode } = require('server/messagesStore')
+const redisKeyGenerator = require('server/redisKeyGenerator')
 const {
   generateTokenAuth,
   createAuthMiddleware,
@@ -29,8 +30,6 @@ const {
 } = require('./telegramAuthentication')
 
 moment.tz.setDefault('UTC')
-
-const keyStream = `${config.slugShort}:${config.envShort}:messages:stream:`
 
 // Mapping the use to a variable here - very useful
 const { use } = botTelegramMiddleware
@@ -100,7 +99,7 @@ const init = async () => {
     const onRedisMessageFunction = onRedisMessage(userProvider)
     activeRedisMessageListeners[userProvider.idUser] = onRedisMessageFunction
     redisSubscriber.on('message', onRedisMessageFunction)
-    redisSubscriber.subscribe(keyStream + userProvider.idUser)
+    redisSubscriber.subscribe(redisKeyGenerator.messages.stream(userProvider.idUser))
     return true
   }
 
@@ -110,7 +109,7 @@ const init = async () => {
       return 'not-listening'
     }
     redisSubscriber.removeListener('message', onRedisMessageFunction)
-    redisSubscriber.unsubscribe(keyStream + userProvider.idUser)
+    redisSubscriber.unsubscribe(redisKeyGenerator.messages.stream(userProvider.idUser))
     delete activeRedisMessageListeners[userProvider.idUser]
     return true
   }
