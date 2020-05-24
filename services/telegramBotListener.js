@@ -224,5 +224,8 @@ Thank You 😊`)
 
   // Be aware of the all encapsulating init method.
 }
-init()
+// Run the init method if the file was called directly and not through 'require'
+if (require.main === module) {
+  init()
+}
 // Be aware of the all encapsulating init method.
