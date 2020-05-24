@@ -221,7 +221,6 @@ Thank You 😊`)
     log(`message received "${msg.text}" from {idUserProvider: ${msg.from.id}, idChatTelegram: ${msg.chat.id}, username: ${msg.from.username}, title: ${msg.chat.title}, date: ${new Date(msg.date)}}`)
   })
 
-
   // Be aware of the all encapsulating init method.
 }
 // Run the init method if the file was called directly and not through 'require'

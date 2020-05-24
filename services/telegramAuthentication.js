@@ -89,7 +89,9 @@ const createAuthMiddleware = function createAuthMiddleware(bot) {
   return function* authMiddleware() {
     this.msg.bot = bot
     this.msg.quickResponse = function quickResponse(text) {
-      return bot.sendMessage(this.msg.chat.id, text)
+      return bot.sendMessage(this.msg.chat.id, text, {
+        disable_web_page_preview: true,
+      })
     }.bind(this)
     this.msg.auth = yield authByChatId(this.msg)
   }
