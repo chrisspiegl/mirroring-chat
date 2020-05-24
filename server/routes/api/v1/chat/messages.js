@@ -24,7 +24,7 @@ module.exports = asyncHandler(async (req, res) => {
   console.log('channelName', channelName)
 
   response.data.channelName = channelName
-  response.data.messages = await messagesStore.fetch(channelName)
+  response.data.messages = await messagesStore.fetchByUser(channelName)
 
   return res.set('Content-Type', 'application/json').send(response)
 })
