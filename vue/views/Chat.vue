@@ -1,18 +1,77 @@
-<template lang="pug">
+ <template lang="pug">
   //- v-container.fill-height
   v-container.fill-height
-    h1 Chat for {{channelName}}
     .boxToFillHeight
-      .chat-container(v-chat-scroll="{always: false, notSmoothOnInit: true, scrollonremoved: false, smooth: true}" @v-chat-scroll-top-reached="chatTopReached")
-        .message(v-for="message in messages" :key="message.timestamp" :class="`${message.provider}-bg`") {{message.timestamp | moment('YYYY-MM-DD HH:mm:ss')}} [{{message.provider}}/{{message.displayName}}]: {{message.message}}
-        //- .message.facebook-bg facebook Message
-        //- .message.discord-bg discord Message
-        //- .message.twitch-bg twitch Message
-        //- .message.telegram-bg telegram Message
-        //- .message.youtube-bg youtube Message
+      //- div
+        v-toolbar(dense)
+          v-btn-toggle(v-model="chatsToFollow", multiple, dense)
+            v-btn.twitch-bg(icon, title="Show all messages from Twitch")
+              v-icon $twitch
+            v-btn.youtube-bg(icon, title="Show all messages from YouTube")
+              v-icon $youtube
+            v-btn.facebook-bg(icon, title="Show all messages from Facebook")
+              v-icon $facebook
 
-      form(@submit.prevent="send")
-        input.newMessage(type="text" v-model="newMessage" placeholder="Enter message here")
+      v-list(v-bind="messages").chat-container
+        vue-scroll(ref="vuescroll", :ops="vuescrollOps")
+          v-card.mb-2
+            v-card-title.justify-center You Reached the Top
+            v-card-subtitle.text-center Currently this is limited to the past 50 messages on load. #[br] This may change in the future, let us know if this is important to you.
+          v-card.mb-2(v-for="message in messages" :key="message.timestamp", outlined, :class="`${message.provider}-bg`")
+            v-list-item
+              v-list-item-avatar.mr-2.my-0(size=30)
+                v-img(:src="(message.provider === 'youtube') ? message.providerObject.authorDetails.profileImageUrl : `https://api.adorable.io/avatars/285/${message.displayName}.png`")
+              v-list-item-content
+                v-list-item-title
+                  v-icon(size="1rem") ${{message.provider}}
+                  | /{{message.displayName}}
+              v-list-item-action-text {{message.sentAt | moment("from", time)}}
+            v-card-text {{message.message}} Fames cursus justo pellentesque morbi enim amet aliquam placerat condimentum eu nisl donec pretium est pharetra ultricies risus dictumst blandit fusce odio lobortis
+            //- v-card-actions
+              v-btn(icon, title="Ban")
+                v-icon $ban
+              v-btn(icon, title="Timeout")
+                v-icon $timeout
+              v-btn(text, title="Highlight this Message") Highlight
+              v-spacer
+              v-btn(icon)
+                v-icon $reply
+              v-btn(icon)
+                v-icon $share
+
+
+        //- .message.text-center(key='top')
+        //-   v-icon $laughBeam
+        //-   = ' '
+        //-   | You reached the top
+        //-   = ' '
+        //-   v-icon $laughBeam
+        //- div(v-for="message in messages" :key="message.timestamp" :class="`${message.provider}-bg`")
+        //-   span
+        //-     v-icon(size="1rem") ${{message.provider}}
+        //-     | /{{message.displayName}}
+        //-     span {{message.message}}
+        //-   v-spacer
+        //-   div(style="float: right; font-size: .7rem;") {{message.sentAt | moment("from", time)}}
+
+      //- div
+        v-toolbar()
+          v-text-field(label="Send Message", hide-details="auto")
+          v-item-group(dense)
+            v-btn(icon, title="Send to All")
+              v-icon $chat
+            v-btn.twitch-bg(icon, title="Send to Twitch")
+              v-icon $twitch
+            v-btn.youtube-bg(icon, title="Send to YouTube")
+              v-icon $youtube
+            v-btn.facebook-bg(icon, title="Send to Facebook")
+              v-icon $facebook
+      div
+        v-system-bar(color="transparent")
+          v-spacer
+          span(v-if="lastUpdated") Last chat message recieved
+            = " "
+            | {{lastUpdated | moment("from", time)}}
 </template>
 
 <script>
@@ -29,6 +88,7 @@ export default {
     ...mapState({
       channelName: (state) => state.user.profile.idUser,
       user: (state) => state.user.profile,
+      time: (state) => state.time.now,
     }),
   },
 
@@ -36,6 +96,17 @@ export default {
     return {
       newMessage: null,
       messages: [],
+      lastUpdated: null,
+      scrollBottom: true,
+      scrollBottomOnInit: true,
+      vuescrollOps: {
+        scrollPanel: {
+          initialScrollY: '100%',
+          scrollingX: false,
+          scrollingY: true,
+          speed: 300,
+        },
+      },
     }
   },
 
@@ -44,7 +115,10 @@ export default {
       url: `/v1/chat/messages/${this.user.idUser}`,
       method: 'GET',
     }).then((resp) => {
-      this.messages = resp.data.messages
+      resp.data.messages.forEach((message) => {
+        this.messages.push(message)
+      })
+      this.lastUpdated = new Date()
     }).catch((err) => {
       console.error('Error requesting chat messages: ', err)
     })
@@ -52,6 +126,18 @@ export default {
 
   watch: {
     newMessage(value) { console.log('Typing: ', value) },
+    messages(messages) {
+      const { scrollTop } = this.$refs.vuescroll.getPosition()
+      const scrollBottom = scrollTop + this.$refs.vuescroll.$el.scrollHeight
+      const elementScrollHeight = this.$refs.vuescroll.$children[0].$el.scrollHeight
+      this.scrollBottom = (this.scrollBottomOnInit || scrollBottom > elementScrollHeight - 200)
+      this.scrollBottomOnInit = false
+      this.$nextTick(function $nextTick() {
+        if (this.scrollBottom) {
+          this.$refs.vuescroll.scrollTo({ y: '100%' })
+        }
+      })
+    },
   },
 
   methods: {
@@ -87,14 +173,12 @@ export default {
   },
 
   created() {
-    console.log(this.$socket)
-
     // REMEMBER: this is how to subscribe dynamically (not via the definitions in vue component `sockets:{}`)
     this.sockets.subscribe(`message-to-${this.channelName}`, (data) => {
       console.log(`socket received message for ${this.channelName}`)
-
       data.data.messages.forEach((message) => {
         this.messages.push(message)
+        this.lastUpdated = new Date()
       })
     })
 
@@ -103,6 +187,10 @@ export default {
       channelName: this.channelName,
     })
   },
+
+  updated() {
+  },
+
   destroyed() {
     this.$socket.emit('chat-channel-disconnect', {
       channelName: this.channelName,
@@ -130,20 +218,11 @@ console.log('Chat.vue initialized')
   flex: 1 1 auto;
   overflow-y: auto;
   height: 100px; /* == min-height: 100px*/
-
-  .message {
-    border-bottom: solid 1px #ccc;
-    padding: 0.5rem 0.2rem;
-  }
 }
 
-form .newMessage {
-  width: 100%;
-  padding: 0.3rem 0.5rem;
-  background: #f1f1f1;
-  color: #2c2f33;
-  flex: 1 1 auto;
-  outline: none;
+.wrap-text {
+  word-wrap: break-word;
+  -webkit-line-clamp: unset !important;
 }
 
 .twitch-bg {
