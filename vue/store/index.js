@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
+import packageJson from '@/../package.json'
+
 import user from './modules/user'
 import auth from './modules/auth'
 import time from './modules/time'
@@ -21,6 +23,7 @@ const mainStore = new Vuex.Store({
     isMobile: false,
     windowHeight: 450,
     windowWidth: 450,
+    version: packageJson.version,
   },
   mutations: {
     CHANGE_IS_MOBILE(state, payload) {
