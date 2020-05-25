@@ -26,7 +26,7 @@
                   v-icon(size="1rem") ${{message.provider}}
                   | /{{message.displayName}}
               v-list-item-action-text {{message.sentAt | moment("from", time)}}
-            v-card-text {{message.message}} Fames cursus justo pellentesque morbi enim amet aliquam placerat condimentum eu nisl donec pretium est pharetra ultricies risus dictumst blandit fusce odio lobortis
+            v-card-text {{message.message}}
             //- v-card-actions
               v-btn(icon, title="Ban")
                 v-icon $ban
