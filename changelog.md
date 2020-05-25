@@ -11,6 +11,7 @@
 - Frontend: Additionally implemented a new card layout with images, and headlines, and icons for the different providers, and time being displayed based on the time that has passed since the message was received.
 - Frontend: make project version exposed in vuex store to be displayed to users.
 - Frontend: add home page text with project description and a FAQ section.
+- Frontend/Backend: made sure that the socket.io settings are set to infinitely try to reconnect on connection loss so that the streaming chat's and stuff are going to automatically continue even when the server restarts.
 
 ## 2020-05-24 15:23
 
