@@ -53,18 +53,23 @@ const addMessage = async (message) => {
   return true
 }
 
-const isSubscribed = (idUser) => !!messageSubscribers[idUser]
+const isSubscribed = (idSubscriber) => !!messageSubscribers[idSubscriber]
 
-const subscribe = (idUser, callback) => {
-  if (isSubscribed(idUser)) return 'already-subscribed'
-  messageSubscribers[idUser] = (key, message) => callback(key, message)
-  rpsm.subscribe(redisKeyGenerator.messages.stream(idUser), messageSubscribers[idUser])
+const subscribe = (idSubscriber, idUser, callback) => {
+  if (isSubscribed(idSubscriber)) return 'already-subscribed'
+  messageSubscribers[idSubscriber] = {
+    idUser,
+    key: redisKeyGenerator.messages.stream(idUser),
+    callback: (key, message) => callback(key, message),
+  }
+  rpsm.subscribe(messageSubscribers[idSubscriber].key, messageSubscribers[idSubscriber].callback)
   return 'subscribed'
 }
 
-const unsubscribe = (idUser) => {
-  if (!messageSubscribers[idUser]) return 'not-subscribed'
-  rpsm.unsubscribe(redisKeyGenerator.messages.stream(idUser), messageSubscribers[idUser])
+const unsubscribe = (idSubscriber, idUser) => {
+  if (!messageSubscribers[idSubscriber]) return 'not-subscribed'
+  rpsm.unsubscribe(messageSubscribers[idSubscriber].key, messageSubscribers[idSubscriber].callback)
+  delete messageSubscribers[idSubscriber]
   return 'unsubscribed'
 }
 

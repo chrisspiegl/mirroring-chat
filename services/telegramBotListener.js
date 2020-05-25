@@ -96,9 +96,9 @@ const init = async () => {
    * Utilities
    */
 
-  const chatSubscribe = (userProvider) => messageStore.subscribe(userProvider.idUser, onNewMessage(userProvider))
+  const chatSubscribe = (userProvider) => messageStore.subscribe(`telegram-${userProvider.idUserProvider}`, userProvider.idUser, onNewMessage(userProvider))
 
-  const chatUnsubscribe = (userProvider) => messageStore.unsubscribe(userProvider.idUser)
+  const chatUnsubscribe = (userProvider) => messageStore.unsubscribe(`telegram-${userProvider.idUserProvider}`)
 
   /**
    * =============================================================================

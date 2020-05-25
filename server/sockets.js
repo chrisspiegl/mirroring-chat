@@ -8,6 +8,7 @@ log.log = console.log.bind(console)
 const error = debug(`${config.slug}:socket:error`)
 
 const socketio = require('socket.io')
+const uuid = require('uuid')
 
 const messageStore = require('server/messagesStore')
 const redisKeyGenerator = require('server/redisKeyGenerator')
@@ -37,6 +38,7 @@ module.exports = (http) => {
     log('mirroring namespace middleware')
     next()
   }).on('connection', (socket) => {
+    const idSocket = uuid.v4()
     log('on:connection')
 
     this.channelName = ''
@@ -66,12 +68,12 @@ module.exports = (http) => {
 
     socket.on('disconnect', () => {
       log('on:disconnect for: ', this.channelName)
-      messageStore.unsubscribe(this.channelName)
+      messageStore.unsubscribe(`socket-io-${idSocket}`)
     })
 
     socket.on('chat-channel-disconnect', (data) => {
       log('on:chat-channel-disconnect for: ', this.channelName)
-      messageStore.unsubscribe(this.channelName)
+      messageStore.unsubscribe(`socket-io-${idSocket}`)
     })
 
     socket.on('chat-channel-connect', (data) => {
@@ -81,7 +83,7 @@ module.exports = (http) => {
       log('streamingMessagesStart for: ', this.channelName)
       // FIXME: this stays subscribed (and sending socket replies) until unsubscribed, handle
       // NOTE: Already handling `disconnect` and `destroy()` events from frontend, however, not sure what happens on connection interrupt.
-      messageStore.subscribe(this.channelName, onNewMessage)
+      messageStore.subscribe(`socket-io-${idSocket}`, this.channelName, onNewMessage)
     })
   })
 
