@@ -14,7 +14,7 @@ const models = require('database/models')
 const messageSubscribers = {}
 const rpsm = new RedisPubSubManager()
 
-const fetchByUser = (idUser, limit = 50, offset = 0) => {
+const fetchByUser = async (idUser, limit = 50, offset = 0) => {
   log('fetchForUser -> idUser', idUser)
   let messages = await models.ChatMessage.findAll({
     where: {
