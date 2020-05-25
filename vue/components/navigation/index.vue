@@ -16,7 +16,7 @@
     v-navigation-drawer(v-model="miniVariant", app, top, clipped, :permanent="!isMobile", :mini-variant="miniVariant && !isMobile")
       vue-scroll
         v-list(nav, dense)
-          v-list-item.hidden-md-and-up(link, to="/home")
+          v-list-item(link, to="/home", :class="(isAuthenticated ? 'hidden-md-and-up' : '')")
             v-list-item-action
               v-icon(title="Home") $home
             v-list-item-content
