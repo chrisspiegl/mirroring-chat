@@ -3,16 +3,18 @@ import Vuex from 'vuex'
 
 import user from './modules/user'
 import auth from './modules/auth'
+import time from './modules/time'
 
 Vue.use(Vuex)
 
 // TODO: make config / NODE_ENV available to the frontend
 const debug = process.env.NODE_ENV !== 'production'
 
-export default new Vuex.Store({
+const mainStore = new Vuex.Store({
   modules: {
     user,
     auth,
+    time,
   },
   strict: debug,
   state: {
@@ -30,3 +32,7 @@ export default new Vuex.Store({
   actions: {
   },
 })
+
+mainStore.dispatch('start')
+
+export default mainStore
