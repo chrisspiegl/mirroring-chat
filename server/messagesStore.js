@@ -14,28 +14,32 @@ const models = require('database/models')
 const messageSubscribers = {}
 const rpsm = new RedisPubSubManager()
 
-const fetchByUser = (idUser, limit = 25, offset = 0) => {
+const fetchByUser = (idUser, limit = 50, offset = 0) => {
   log('fetchForUser -> idUser', idUser)
-  return models.ChatMessage.findAll({
+  let messages = await models.ChatMessage.findAll({
     where: {
       idUser,
     },
-    order: ['sentAt'],
+    order: [['sentAt', 'DESC']],
     limit,
     offset,
   })
+  messages = messages.reverse()
+  return messages
 }
 
-const fetchByChat = (idChat, limit = 25, offset = 0) => {
+const fetchByChat = async (idChat, limit = 50, offset = 0) => {
   log('fetchForChat -> idChat', idChat)
-  return models.ChatMessage.findAll({
+  let messages = await models.ChatMessage.findAll({
     where: {
       idChat,
     },
-    order: ['sentAt'],
+    order: [['sentAt', 'DESC']],
     limit,
     offset,
   })
+  messages = messages.reverse()
+  return messages
 }
 
 const addMessage = async (message) => {
