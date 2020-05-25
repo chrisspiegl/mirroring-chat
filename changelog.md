@@ -1,5 +1,17 @@
 # Changelog
 
+## 2020-05-25 15:43
+
+- Frontend: Adding vuescroll for a smoother and more beautiful scrollbar implementation.
+- Frontend: Update to use fontawesome for brand icons and all others as well.
+- Frontend: Disable special warning for fontawesome stuff.
+- Backend: Update messagesStore to return the correct sort order and limitations of chat messages (no pagination at this time)
+- Backend: Make messagesStore subscribe and unsubscribe unique id based so that it's easy to unsubscribe from events again via a given id. This makes it possible to have a telegram chat or a socket.io socket uniquely being subscribed just once. This also makes it possible that two chat windows can be open in separate browsers and both receive the same notifications (before one would always disconnect because the second would get the message 'already connected')
+- Frontend: Update the chat windows with a manual way of keeping the scroll at the bottom while using vuescroll as a beautiful scroll bar.
+- Frontend: Additionally implemented a new card layout with images, and headlines, and icons for the different providers, and time being displayed based on the time that has passed since the message was received.
+- Frontend: make project version exposed in vuex store to be displayed to users.
+- Frontend: add home page text with project description and a FAQ section.
+
 ## 2020-05-24 15:23
 
 - Backend: Implement RedisKeyGenerator so that all redis keys are generated in a central location and can easily be updated in the future.
