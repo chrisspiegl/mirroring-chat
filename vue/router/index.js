@@ -117,6 +117,14 @@ const routes = [{
     return import(/* webpackChunkName: "about" */ '@/views/About.vue')
   },
 },
+{
+  path: '/support',
+  name: 'Support',
+  component() {
+    // route level code-splitting this generates a separate chunk (about.[hash].js) for this route which is lazy-loaded when the route is visited.
+    return import(/* webpackChunkName: "about" */ '@/views/Support.vue')
+  },
+},
 // Separated into two routes so that you can also programmatically
 // direct the user to the /404 if missing some data, etc.
 {
