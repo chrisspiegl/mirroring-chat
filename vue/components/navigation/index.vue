@@ -11,67 +11,68 @@
         v-btn(to="/login", v-if="!isAuthenticated && !authLoading") Login
         v-btn(to="/logout", v-if="isAuthenticated && !authLoading") Logout
 
-    v-navigation-drawer(v-model="miniVariant", app, top, clipped, :permanent="!isMobile", :mini-variant="miniVariant && !isMobile", :expand-on-hover="miniVariant && !isMobile")
-      v-list(nav, dense)
-        v-list-item.hidden-md-and-up(link, to="/home")
-          v-list-item-action
-            v-icon mdi-home
-          v-list-item-content
-            v-list-item-title Home
+    v-navigation-drawer(v-model="miniVariant", app, top, clipped, :permanent="!isMobile", :mini-variant="miniVariant && !isMobile")
+      vue-scroll
+        v-list(nav, dense)
+          v-list-item.hidden-md-and-up(link, to="/home")
+            v-list-item-action
+              v-icon(title="Home") $home
+            v-list-item-content
+              v-list-item-title Home
 
-        v-list-item.hidden-md-and-up(link, to="/about")
-          v-list-item-action
-            v-icon mdi-info
-          v-list-item-content
-            v-list-item-title About
+          v-list-item.hidden-md-and-up(link, to="/about")
+            v-list-item-action
+              v-icon(title="About") $about
+            v-list-item-content
+              v-list-item-title About
 
-        v-divider.hidden-md-and-up
+          v-divider.hidden-md-and-up
 
-        v-list-item.hidden-md-and-up(v-if="!isAuthenticated && !authLoading", link, to="/login")
-          v-list-item-action
-            v-icon mdi-face
-          v-list-item-content
-            v-list-item-title Login
+          v-list-item.hidden-md-and-up(v-if="!isAuthenticated && !authLoading", link, to="/login")
+            v-list-item-action
+              v-icon(title="Login") $user
+            v-list-item-content
+              v-list-item-title Login
 
-        v-list-item(v-if="isAuthenticated && !authLoading", link, to="/dashboard")
-          v-list-item-action
-            v-icon mdi-view-dashboard
-          v-list-item-content
-            v-list-item-title Dashboard
+          v-list-item(v-if="isAuthenticated && !authLoading", link, to="/dashboard")
+            v-list-item-action
+              v-icon(title="Dashboard") $dashboard
+            v-list-item-content
+              v-list-item-title Dashboard
 
-        v-list-item(v-if="isAuthenticated && !authLoading", link, to="/chat")
-          v-list-item-action
-            v-icon mdi-chat
-          v-list-item-content
-            v-list-item-title Chat
+          v-list-item(v-if="isAuthenticated && !authLoading", link, to="/chat")
+            v-list-item-action
+              v-icon(title="Chat") $chat
+            v-list-item-content
+              v-list-item-title Chat
 
-        v-divider(v-if="isAuthenticated && !authLoading")
+          v-divider(v-if="isAuthenticated && !authLoading")
 
-        v-list-item(v-if="isAuthenticated && !authLoading", link, to="/account")
-          v-list-item-action
-            v-icon mdi-face
-          v-list-item-content
-            v-list-item-title Account: {{ displayName }}
+          v-list-item(v-if="isAuthenticated && !authLoading", link, to="/account")
+            v-list-item-action
+              v-icon(title="Account") $user
+            v-list-item-content
+              v-list-item-title Account
 
-        v-list-item(v-if="isAuthenticated && !authLoading", link, to="/settings")
-          v-list-item-action
-            v-icon mdi-settings
-          v-list-item-content
-            v-list-item-title Settings
+          v-list-item(v-if="isAuthenticated && !authLoading", link, to="/settings")
+            v-list-item-action
+              v-icon(title="Settings") $settings
+            v-list-item-content
+              v-list-item-title Settings
 
-        v-list-item.hidden-md-and-up(v-if="isAuthenticated && !authLoading", link, to="/logout")
-          v-list-item-action
-            v-icon mdi-exit-to-app
-          v-list-item-content
-            v-list-item-title Logout
+          v-list-item.hidden-md-and-up(v-if="isAuthenticated && !authLoading", link, to="/logout")
+            v-list-item-action
+              v-icon(title="Logout") $logout
+            v-list-item-content
+              v-list-item-title Logout
 
-        v-divider
+          v-divider
 
-        v-list-item(link, to="/support")
-          v-list-item-action
-            v-icon mdi-help
-          v-list-item-content
-            v-list-item-title Support/Help
+          v-list-item(link, to="/support")
+            v-list-item-action
+              v-icon(title="Support/Help") $help
+            v-list-item-content
+              v-list-item-title Support/Help
 
 </template>
 
@@ -102,5 +103,4 @@ console.log('components/navigation/index.vue')
 </script>
 
 <style>
-
 </style>
