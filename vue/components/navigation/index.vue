@@ -4,10 +4,12 @@
       //- TODO: remember the state of the menu in the users local storage? (eventually once there is a unified global 'settings' page or such)
       v-app-bar-nav-icon(@click.stop="miniVariant = !miniVariant")
       v-toolbar-title mirroring.chat
+        = ' '
+        em(style="font-size: .7rem;") v{{version}}
       v-spacer
       v-toolbar-items.hidden-sm-and-down
         v-btn(to="/home") Home
-        v-btn(to="/about") About
+        //- v-btn(to="/about") About
         v-btn(to="/login", v-if="!isAuthenticated && !authLoading") Login
         v-btn(to="/logout", v-if="isAuthenticated && !authLoading") Logout
 
@@ -54,11 +56,11 @@
             v-list-item-content
               v-list-item-title Account
 
-          v-list-item(v-if="isAuthenticated && !authLoading", link, to="/settings")
-            v-list-item-action
-              v-icon(title="Settings") $settings
-            v-list-item-content
-              v-list-item-title Settings
+          //- v-list-item(v-if="isAuthenticated && !authLoading", link, to="/settings")
+          //-   v-list-item-action
+          //-     v-icon(title="Settings") $settings
+          //-   v-list-item-content
+          //-     v-list-item-title Settings
 
           v-list-item.hidden-md-and-up(v-if="isAuthenticated && !authLoading", link, to="/logout")
             v-list-item-action
@@ -84,6 +86,7 @@ export default {
   computed: {
     ...mapGetters(['getProfile', 'isAuthenticated', 'isProfileLoaded']),
     ...mapState({
+      version: (state) => state.version,
       authLoading: (state) => state.auth.status === 'loading',
       displayName: (state) => `${state.user.profile.displayName}`,
       isMobile: (state) => {
