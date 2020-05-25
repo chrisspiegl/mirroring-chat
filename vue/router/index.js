@@ -30,7 +30,7 @@ const ifAuthenticated = (to, from, next) => {
 
 const routes = [{
   path: '/',
-  name: 'Home',
+  name: 'Root',
   beforeEnter: (to, from, next) => {
     if (store.getters.isAuthenticated) {
       return next('/dashboard')
