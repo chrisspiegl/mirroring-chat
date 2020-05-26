@@ -1,5 +1,12 @@
 # Changelog
 
+## 2020-05-26 15:20
+
+- Backend: Twitch: completely rewrite twitch irc bot with all kinds of event listening (things that twitch is sending, as well as events like `CHAT_CREATED` and `CHAT_UPDATED` so that we can join and leave a chat and such things based on that information)
+- Backend: minor cleanup of filenames and stuff
+- Backend: Twitch: testing how I could implement a interval based queue to be used to not run into rate limiting with the twitch IRC server (aka 20 commands per 30 seconds) found p-queue which can do this relatively easily and with a simple implementation. Stored in TwitchListener for later.
+- Backend: Twitch: Listening for `CHAT_CREATED`, `CHAT_UPDATED`, and `CHAT_DELETED` to `join`, `part&join`, and `part` the channel that is being updated.
+
 ## 2020-05-25 15:43
 
 - Frontend: Adding vuescroll for a smoother and more beautiful scrollbar implementation.
