@@ -13,6 +13,7 @@ const pnotice = require('pushnotice')(`${config.slug}:passport`, {
   env: config.env, chat: config.pushnotice.chat, debug: true, disabled: config.pushnotice.disabled,
 })
 
+// eslint-disable-next-line import/no-self-import
 const passport = require('passport')
 const refresh = require('passport-oauth2-refresh')
 const PassportDiscord = require('passport-discord').Strategy
@@ -307,9 +308,17 @@ const loginFlow = async (req, tokenAccess, tokenRefresh, profile, done) => {
         isPermanent: true,
       }
       if (chat) {
-        await chat.update(chatObj)
+        const chatUpdated = await chat.update(chatObj)
+        rpsm.publish(redisKeyGenerator.events, {
+          event: redisKeyGenerator.event.CHAT_UPDATED,
+          chat: chatUpdated,
+        })
       } else {
-        await models.Chat.create(chatObj)
+        const chatCreated = await models.Chat.create(chatObj)
+        rpsm.publish(redisKeyGenerator.events, {
+          event: redisKeyGenerator.event.CHAT_CREATED,
+          chat: chatCreated,
+        })
       }
     }
   } else if (req.user) {
