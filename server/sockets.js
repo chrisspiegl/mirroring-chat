@@ -8,10 +8,8 @@ log.log = console.log.bind(console)
 const error = debug(`${config.slug}:socket:error`)
 
 const socketio = require('socket.io')
-const uuid = require('uuid')
 
-const messageStore = require('server/messagesStore')
-const redisKeyGenerator = require('server/redisKeyGenerator')
+const messagesStore = require('server/messagesStore')
 
 // TODO: make this context based with cleaner functions for the socket to process stuff.
 // EXAMPLE: new Connection() => this.socket available in all functions, and listening on stuff…
@@ -38,8 +36,7 @@ module.exports = (http) => {
     log('mirroring namespace middleware')
     next()
   }).on('connection', (socket) => {
-    const idSocket = uuid.v4()
-    log('on:connection')
+    log(`on:connection:${socket.id}`)
 
     this.channelName = ''
 
@@ -50,9 +47,6 @@ module.exports = (http) => {
 
     const onNewMessage = (key, message) => {
       log('on:redis:message for: ', key, ' and-message ', message)
-
-      // Do not handle messages that are not in the `keyStream` key range for now
-      if (key !== redisKeyGenerator.messages.stream(this.channelName)) return
       const keySocket = `message-to-${message.idUser}`
       log('socket:emit:', keySocket)
       socket.emit(keySocket, {
@@ -68,22 +62,22 @@ module.exports = (http) => {
 
     socket.on('disconnect', () => {
       log('on:disconnect for: ', this.channelName)
-      messageStore.unsubscribe(`socket-io-${idSocket}`)
+      messagesStore.unsubscribe(`socket-io-${socket.id}`)
     })
 
     socket.on('chat-channel-disconnect', (data) => {
       log('on:chat-channel-disconnect for: ', this.channelName)
-      messageStore.unsubscribe(`socket-io-${idSocket}`)
+      messagesStore.unsubscribe(`socket-io-${socket.id}`)
     })
 
     socket.on('chat-channel-connect', (data) => {
-      log('on:chat-channel-connect with: ', data)
+      log('on:chat-channel-connect with: ', data, socket.id)
       const { channelName } = data
       this.channelName = channelName
       log('streamingMessagesStart for: ', this.channelName)
       // FIXME: this stays subscribed (and sending socket replies) until unsubscribed, handle
       // NOTE: Already handling `disconnect` and `destroy()` events from frontend, however, not sure what happens on connection interrupt.
-      messageStore.subscribe(`socket-io-${idSocket}`, this.channelName, onNewMessage)
+      messagesStore.subscribe(`socket-io-${socket.id}`, this.channelName, onNewMessage)
     })
   })
 
