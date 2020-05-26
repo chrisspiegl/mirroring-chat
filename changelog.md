@@ -8,6 +8,9 @@
 - Backend: Adding a memory stored cache manager and a multiCache manager as well (super fast in memory with max 100 keys and redis following that).
 - Frontend: Added avatar logic to front end to request youtube or twitch avatar, depending on the message provider.
 - Frontend: Make the chat list have no individual background.
+- Frontend: tested first 'production' build and it showed that I needed to make the brand colors stick harder.
+- Frontend: Making the brand colors available globally as variables and as classes.
+- Frontend: Forcing the brand colors with `!important` because they tend to get overwritten by some things (may need a cleaner way to do this in the future).
 
 ## 2020-05-26 15:20
 
