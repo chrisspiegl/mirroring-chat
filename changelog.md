@@ -1,5 +1,14 @@
 # Changelog
 
+## 2020-05-26 22:47
+
+- Backend: Added npm package `twitch` for api access for things like requesting userHelix objects with avatar image link.
+- Backend: Rename the `this.client` to `this.clientTmi` to be more compatible with having the secondary `this.clientTwitch` come from the new package.
+- Backend: Added avatar requesting for the twitch users including a 10 minute cache on the user object.
+- Backend: Adding a memory stored cache manager and a multiCache manager as well (super fast in memory with max 100 keys and redis following that).
+- Frontend: Added avatar logic to front end to request youtube or twitch avatar, depending on the message provider.
+- Frontend: Make the chat list have no individual background.
+
 ## 2020-05-26 15:20
 
 - Backend: Twitch: completely rewrite twitch irc bot with all kinds of event listening (things that twitch is sending, as well as events like `CHAT_CREATED` and `CHAT_UPDATED` so that we can join and leave a chat and such things based on that information)
