@@ -1,4 +1,4 @@
-# mirroring.chat — Mirror Your Live Chats and Add Functionality
+# [mirroring.chat](https://mirroring.chat) — Mirror Your Live Chats and Add Functionality
 
 ![current status](https://img.shields.io/badge/current%20status-early%20development-brightgreen?style=flat-square) ![GitHub package.json version](https://img.shields.io/github/package-json/v/chrisspiegl/mirroring-chat?style=flat-square&label=current%20version) ![GitHub last commit](https://img.shields.io/github/last-commit/chrisspiegl/mirroring-chat?style=flat-square)
 
@@ -12,14 +12,14 @@ Additionally, adding functionality like forwarding messages between platforms an
 
 ## Todo List
 
+Lot's of things. Currently managed in private Dynalist todo list.
+
 ## Future Ideas
+
+Coming…
 
 ## Creator: Chris Spiegl
 
 - Website [ChrisSpiegl.com](https://ChrisSpiegl.com)
 - Twitter [@ChrisSpiegl](https://twitter.com/ChrisSpiegl)
 - Instagram [@ChrisSpiegl](https://instagram.com/ChrisSpiegl)
-
-## Credits
-
-This project is heavily based on other open source packages, mainly I want to mention [Node-Media-Server](https://github.com/illuspas/Node-Media-Server) (NMS) which is the RTMP server that I am basing this whole thing on. Mirroring is basically a web-interface for NMS and a few customizations on top.
