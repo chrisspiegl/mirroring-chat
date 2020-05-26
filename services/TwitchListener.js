@@ -9,10 +9,12 @@ log.log = console.log.bind(console)
 const error = debug(`${config.slug}:botTwitch:listener:error`)
 
 const tmi = require('tmi.js')
+const TwitchClient = require('twitch').default
 const moment = require('moment-timezone')
 
 const { refreshTokenAccess } = require('server/passportRefresh')
 const models = require('database/models')
+const { redis: cacheManager } = require('server/cacheManager')
 const messagesStore = require('server/messagesStore')
 const redisKeyGenerator = require('server/redisKeyGenerator')
 const RedisPubSubManager = require('server/redisPubSubManager')
@@ -36,6 +38,8 @@ module.exports = class TwitchListener {
       },
     }
     this.botIsModInChannels = {}
+    this.clientTmi = null
+    this.clientTwitch = null
   }
 
   async start() {
@@ -44,10 +48,11 @@ module.exports = class TwitchListener {
     this.chats = await this.getChatsToJoin()
     this.channels = this.chats.map((chat) => chat.idChatProvider)
     this.twitchOptions.channels = this.channels
-    this.client = new tmi.Client(this.twitchOptions)
+    this.clientTwitch = TwitchClient.withClientCredentials(config.passport.twitch.clientId, config.passport.twitch.clientSecret)
+    this.clientTmi = new tmi.Client(this.twitchOptions)
     this.connectHandlers()
     await this.doConnect()
-    this.client.color('OrangeRed')
+    this.clientTmi.color('OrangeRed')
     // setTimeout(() => {
     //   this.doSay('#spieglio', 'I am here to test…')
     //   this.doEmoteonly('#spieglio')
@@ -127,39 +132,39 @@ module.exports = class TwitchListener {
   // Action - Send an action message on a channel. (/me <message>)
   doAction(channel, message) {
     log(`action:action:on:${channel}:with:${message}`)
-    return this.client.action(channel, message)
+    return this.clientTmi.action(channel, message)
   }
 
   // Ban - Ban username on channel.
   doBan(channel, username, reason) {
     log(`action:ban:on:${channel}:with:${username}:reason:${reason}`)
-    return this.client.ban(channel, username, reason)
+    return this.clientTmi.ban(channel, username, reason)
   }
 
   // Clear - Clear all messages on a channel.
   doClear(channel) {
     log(`action:clear:on:${channel}`)
-    return this.client.clear('channel')
+    return this.clientTmi.clear('channel')
   }
 
   // Color - Change the color of your username.
   doColor(color) {
     log(`action:color:to:${color}`)
-    return this.client.color(color)
+    return this.clientTmi.color(color)
   }
 
   // Commercial - Run commercial on a channel for X seconds.
   doCommercial(channel, seconds) {
     log(`action:commercial:on:${channel}:for:${seconds}:seconds`)
-    return this.client.commercial(channel, seconds)
+    return this.clientTmi.commercial(channel, seconds)
   }
 
   // Connect - Connect to server.
   doConnect() {
     log('action:connect')
-    if (!this.client) throw new Error('connect -> can not connect if client is not initialized')
+    if (!this.clientTmi) throw new Error('connect -> can not connect if client is not initialized')
     try {
-      return this.client.connect()
+      return this.clientTmi.connect()
     } catch (err) {
       this.isRunning = false
       error('Twitch IRC client error caught…', err)
@@ -170,13 +175,13 @@ module.exports = class TwitchListener {
   // Deletemessage - Delete message ID in a channel.
   doDeletemessage(channel, idMessage) {
     log(`action:deletemessage:on:${channel}:idMessage:${idMessage}`)
-    return this.client.deletemessage(channel, idMessage)
+    return this.clientTmi.deletemessage(channel, idMessage)
   }
 
   // Disconnect - Disconnect from server.
   doDisconnect() {
     log('action:disconnect')
-    return this.client.disconnect()
+    return this.clientTmi.disconnect()
   }
 
   // Emoteonly - Enable emote-only on a channel.
@@ -187,7 +192,7 @@ module.exports = class TwitchListener {
       log(`action:emoteonly:on:${channel}:bot-is-not-mod`)
       return false
     }
-    return this.client.emoteonly(channel).catch((err) => {
+    return this.clientTmi.emoteonly(channel).catch((err) => {
       switch (err) {
         case 'no_permission':
           this.botIsModInChannels[channel] = false
@@ -207,31 +212,31 @@ module.exports = class TwitchListener {
   // Emoteonlyoff - Disable emote-only on a channel.
   doEmoteonlyoff(channel) {
     log(`action:emoteonlyoff:on:${channel}`)
-    return this.client.emoteonlyoff(channel)
+    return this.clientTmi.emoteonlyoff(channel)
   }
 
   // Followersonly - Enable followers-only on a channel.
   doFollowersonly(channel) {
     log(`action:followersonly:on:${channel}`)
-    return this.client.followersonly(channel, 30)
+    return this.clientTmi.followersonly(channel, 30)
   }
 
   // Followersonlyoff - Disable followers-only on a channel.
   doFollowersonlyoff(channel) {
     log(`action:followersonlyoff:on:${channel}`)
-    return this.client.followersonlyoff(channel)
+    return this.clientTmi.followersonlyoff(channel)
   }
 
   // Host - Host a channel.
   doHost(channel, target) {
     log(`action:host:on:${channel}:target:${target}`)
-    return this.client.host(channel, target)
+    return this.clientTmi.host(channel, target)
   }
 
   // Join - Join a channel.
   doJoin(channel) {
     log(`action:join:on:${channel}`)
-    return this.client.join(channel).then((data) => {
+    return this.clientTmi.join(channel).then((data) => {
       if (!this.channels.includes(channel)) this.channels.push(channel)
     })
   }
@@ -239,19 +244,19 @@ module.exports = class TwitchListener {
   // Mod - Mod username on channel.
   doMod(channel, username) {
     log(`action:mod:on:${channel}:mod:${username}`)
-    return this.client.mod(channel, username)
+    return this.clientTmi.mod(channel, username)
   }
 
   // Mods - Get list of mods on a channel.
   doMods(channel) {
     log(`action:mods:on:${channel}`)
-    return this.client.mods(channel)
+    return this.clientTmi.mods(channel)
   }
 
   // Part - Leave a channel.
   doPart(channel) {
     log(`action:part:on:${channel}`)
-    return this.client.part(channel).then((data) => {
+    return this.clientTmi.part(channel).then((data) => {
       this.channels = this.channels.filter((channelCheck) => channelCheck !== channel)
     })
   }
@@ -259,25 +264,25 @@ module.exports = class TwitchListener {
   // Ping - Send a PING to the server.
   doPing() {
     log('action:ping')
-    return this.client.ping()
+    return this.clientTmi.ping()
   }
 
   // R9kbeta - Enable R9KBeta on a channel.
   doR9kbeta(channel) {
     log(`action:r9kbeta:on:${channel}`)
-    return this.client.r9kbeta(channel)
+    return this.clientTmi.r9kbeta(channel)
   }
 
   // R9kbetaoff - Disable R9KBeta on a channel.
   doR9kbetaoff(channel) {
     log(`action:r9kbetaoff:on:${channel}`)
-    return this.client.r9kbetaoff(channel)
+    return this.clientTmi.r9kbetaoff(channel)
   }
 
   // Raw - Send a RAW message to the server.
   doRaw(raw) {
     log(`action:raw:with:${raw}`)
-    return this.client.raw(raw)
+    return this.clientTmi.raw(raw)
   }
 
   // Say - Send a message on a channel.
@@ -310,80 +315,80 @@ module.exports = class TwitchListener {
 
     // TODO: implement sending of messages
     log(`channel:${channel} a message: ${message}`)
-    return this.client.say(channel, message)
+    return this.clientTmi.say(channel, message)
   }
 
   // Slow - Enable slow mode on a channel.
   doSlow(channel, length = 300) {
     log(`action:slow:on:${channel}:length:${length}`)
-    return this.client.slow(channel, length)
+    return this.clientTmi.slow(channel, length)
   }
 
   // Slowoff - Disable slow mode on a channel.
   doSlowoff(channel) {
     log(`action:slowoff:on:${channel}`)
-    return this.client.slowoff(channel)
+    return this.clientTmi.slowoff(channel)
   }
 
   // Subscribers - Enable subscriber-only on a channel.
   doSubscribers(channel) {
     log(`action:subscribers:on:${channel}`)
-    return this.client.subscribers(channel)
+    return this.clientTmi.subscribers(channel)
   }
 
   // Subscribersoff - Disable subscriber-only on a channel.
   doSubscribersoff(channel) {
     log(`action:subscribersoff:on:${channel}`)
-    return this.client.subscribersoff(channel)
+    return this.clientTmi.subscribersoff(channel)
   }
 
   // Timeout - Timeout username on channel for X seconds.
   doTimeout(channel, username, length = 300, reason = 'Spamming') {
     log(`action:timeout:on:${channel}:for:${username}:length:${length}:reason:${reason}`)
     // NOTE: These could be excluded from being sent if the message send queue is overly full to prevent clogging
-    return this.client.timeout(channel, username, length, reason)
+    return this.clientTmi.timeout(channel, username, length, reason)
   }
 
   // Unban - Unban username on channel.
   doUnban(channel, username) {
     log(`action:unban:on:${channel}:for:${username}`)
-    return this.client.unban(channel, username)
+    return this.clientTmi.unban(channel, username)
   }
 
   // Unhost - End the current hosting.
   doUnhost(channel) {
     log(`action:unhost:on:${channel}`)
-    return this.client.unhost(channel)
+    return this.clientTmi.unhost(channel)
   }
 
   // Unmod - Unmod user on a channel.
   doUnmod(channel, username) {
     log(`action:unmod:on:${channel}:for:${username}`)
-    return this.client.unmod(channel, username)
+    return this.clientTmi.unmod(channel, username)
   }
 
   // UnVIP - UnVIP user on a channel.
   doUnvip(channel, username) {
     log(`action:unvip:on:${channel}:for:${username}`)
-    return this.client.unvip(channel, username)
+    return this.clientTmi.unvip(channel, username)
   }
 
   // VIP - VIP username on channel.
   doVip(channel, username) {
     log(`action:vip:on:${channel}:for:${username}`)
-    return this.client.vip(channel, username)
+    return this.clientTmi.vip(channel, username)
   }
 
   // VIPs - Get list of VIPs on a channel.
   doVips(channel) {
     log(`action:vips:on:${channel}`)
-    return this.client.vips(channel)
+    return this.clientTmi.vips(channel)
   }
 
   // Whisper - Send an instant message to a user.
   doWhisper(user, message) {
     log(`action:whisper:to:${user}:with:${message}`)
-    return this.client.whisper(user, message)
+    return this.clientTmi.whisper(user, message)
   }
 
   async onRedisPubSubEvent(key, event) {
@@ -409,50 +414,50 @@ module.exports = class TwitchListener {
   }
 
   connectHandlers() {
-    if (!this.client) throw new Error('connectMessageHandler -> can not connect message handler if client is not initialized')
+    if (!this.clientTmi) throw new Error('connectMessageHandler -> can not connect message handler if client is not initialized')
     rpsm.subscribe(redisKeyGenerator.events, this.onRedisPubSubEvent.bind(this))
-    this.client.on('action', this.onAction.bind(this))
-    this.client.on('anongiftpaidupgrade', this.onAnongiftpaidupgrade.bind(this))
-    this.client.on('ban', this.onBan.bind(this))
-    this.client.on('chat', this.onChat.bind(this))
-    this.client.on('cheer', this.onCheer.bind(this))
-    this.client.on('clearchat', this.onClearchat.bind(this))
-    this.client.on('connected', this.onConnected.bind(this))
-    this.client.on('connecting', this.onConnecting.bind(this))
-    this.client.on('disconnected', this.onDisconnected.bind(this))
-    this.client.on('emoteonly', this.onEmoteonly.bind(this))
-    this.client.on('emotesets', this.onEmotesets.bind(this))
-    this.client.on('followersonly', this.onFollowersonly.bind(this))
-    this.client.on('giftpaidupgrade', this.onGiftpaidupgrade.bind(this))
-    this.client.on('hosted', this.onHosted.bind(this))
-    this.client.on('hosting', this.onHosting.bind(this))
-    this.client.on('join', this.onJoin.bind(this))
-    this.client.on('logon', this.onLogon.bind(this))
-    this.client.on('message', this.onMessage.bind(this))
-    this.client.on('messagedeleted', this.onMessagedeleted.bind(this))
-    this.client.on('mod', this.onMod.bind(this))
-    this.client.on('mods', this.onMods.bind(this))
-    this.client.on('notice', this.onNotice.bind(this))
-    this.client.on('part', this.onPart.bind(this))
-    this.client.on('ping', this.onPing.bind(this))
-    this.client.on('pong', this.onPong.bind(this))
-    this.client.on('r9kbeta', this.onR9kbeta.bind(this))
-    this.client.on('raided', this.onRaided.bind(this))
-    // this.client.on('raw_message', this.onRaw_message.bind(this)) // NOTE: Ignoring raw messages as they are only useful for debugging.
-    this.client.on('reconnect', this.onReconnect.bind(this))
-    this.client.on('resub', this.onResub.bind(this))
-    this.client.on('roomstate', this.onRoomstate.bind(this))
-    this.client.on('serverchange', this.onServerchange.bind(this))
-    this.client.on('slowmode', this.onSlowmode.bind(this))
-    this.client.on('subgift', this.onSubgift.bind(this))
-    this.client.on('submysterygift', this.onSubmysterygift.bind(this))
-    this.client.on('subscribers', this.onSubscribers.bind(this))
-    this.client.on('subscription', this.onSubscription.bind(this))
-    this.client.on('timeout', this.onTimeout.bind(this))
-    this.client.on('unhost', this.onUnhost.bind(this))
-    this.client.on('unmod', this.onUnmod.bind(this))
-    this.client.on('vips', this.onVIPs.bind(this))
-    this.client.on('whisper', this.onWhisper.bind(this))
+    this.clientTmi.on('action', this.onAction.bind(this))
+    this.clientTmi.on('anongiftpaidupgrade', this.onAnongiftpaidupgrade.bind(this))
+    this.clientTmi.on('ban', this.onBan.bind(this))
+    this.clientTmi.on('chat', this.onChat.bind(this))
+    this.clientTmi.on('cheer', this.onCheer.bind(this))
+    this.clientTmi.on('clearchat', this.onClearchat.bind(this))
+    this.clientTmi.on('connected', this.onConnected.bind(this))
+    this.clientTmi.on('connecting', this.onConnecting.bind(this))
+    this.clientTmi.on('disconnected', this.onDisconnected.bind(this))
+    this.clientTmi.on('emoteonly', this.onEmoteonly.bind(this))
+    this.clientTmi.on('emotesets', this.onEmotesets.bind(this))
+    this.clientTmi.on('followersonly', this.onFollowersonly.bind(this))
+    this.clientTmi.on('giftpaidupgrade', this.onGiftpaidupgrade.bind(this))
+    this.clientTmi.on('hosted', this.onHosted.bind(this))
+    this.clientTmi.on('hosting', this.onHosting.bind(this))
+    this.clientTmi.on('join', this.onJoin.bind(this))
+    this.clientTmi.on('logon', this.onLogon.bind(this))
+    this.clientTmi.on('message', this.onMessage.bind(this))
+    this.clientTmi.on('messagedeleted', this.onMessagedeleted.bind(this))
+    this.clientTmi.on('mod', this.onMod.bind(this))
+    this.clientTmi.on('mods', this.onMods.bind(this))
+    this.clientTmi.on('notice', this.onNotice.bind(this))
+    this.clientTmi.on('part', this.onPart.bind(this))
+    this.clientTmi.on('ping', this.onPing.bind(this))
+    this.clientTmi.on('pong', this.onPong.bind(this))
+    this.clientTmi.on('r9kbeta', this.onR9kbeta.bind(this))
+    this.clientTmi.on('raided', this.onRaided.bind(this))
+    // this.clientTmi.on('raw_message', this.onRaw_message.bind(this)) // NOTE: Ignoring raw messages as they are only useful for debugging.
+    this.clientTmi.on('reconnect', this.onReconnect.bind(this))
+    this.clientTmi.on('resub', this.onResub.bind(this))
+    this.clientTmi.on('roomstate', this.onRoomstate.bind(this))
+    this.clientTmi.on('serverchange', this.onServerchange.bind(this))
+    this.clientTmi.on('slowmode', this.onSlowmode.bind(this))
+    this.clientTmi.on('subgift', this.onSubgift.bind(this))
+    this.clientTmi.on('submysterygift', this.onSubmysterygift.bind(this))
+    this.clientTmi.on('subscribers', this.onSubscribers.bind(this))
+    this.clientTmi.on('subscription', this.onSubscription.bind(this))
+    this.clientTmi.on('timeout', this.onTimeout.bind(this))
+    this.clientTmi.on('unhost', this.onUnhost.bind(this))
+    this.clientTmi.on('unmod', this.onUnmod.bind(this))
+    this.clientTmi.on('vips', this.onVIPs.bind(this))
+    this.clientTmi.on('whisper', this.onWhisper.bind(this))
   }
 
   async getChatsToJoin() {
@@ -498,6 +503,12 @@ module.exports = class TwitchListener {
       userstate.id = userstate.id || this.username
     }
 
+    // Request the user from the Twitch Helix API (especialy to get the `profile_image_url`)
+    const userHelix = await cacheManager.wrap(redisKeyGenerator.twitch.userHelix(userstate.username), async () => {
+      const { _data: userHelixRes } = await this.clientTwitch.helix.users.getUserByName(userstate.username)
+      return userHelixRes
+    }, { ttl: 60 * 10 /* 10 minutes */ })
+
     messagesStore.addMessage({
       idChatMessageProvider: userstate.id,
       idChat: chat.idChat,
@@ -508,6 +519,7 @@ module.exports = class TwitchListener {
       providerObject: {
         channel,
         userstate,
+        userHelix,
       },
       sentAt: moment(parseInt(userstate['tmi-sent-ts']) || moment()),
     })

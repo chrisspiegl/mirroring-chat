@@ -14,6 +14,12 @@ const fsStore = require('cache-manager-fs-hash')
 // https: //www.npmjs.com/package/cache-manager-redis-store
 const redisStore = require('cache-manager-redis-store')
 
+const memoryCache = cacheManager.caching({
+  store: 'memory',
+  max: 100,
+  ttl: 60,
+})
+
 const diskCache = cacheManager.caching({
   store: fsStore,
   options: {
@@ -33,9 +39,15 @@ const redisCache = cacheManager.caching({
   ttl: 600, /* seconds */
 })
 
+const multiCache = cacheManager.multiCaching([memoryCache, redisCache])
+
+
 module.exports = {
   redisCache,
   redis: redisCache,
   diskCache,
   fs: diskCache,
+  memoryCache,
+  memory: memoryCache,
+  multiCache,
 }

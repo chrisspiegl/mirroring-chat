@@ -12,7 +12,7 @@
             v-btn.facebook-bg(icon, title="Show all messages from Facebook")
               v-icon $facebook
 
-      v-list(v-bind="messages").chat-container
+      div(v-bind="messages").chat-container
         vue-scroll(ref="vuescroll", :ops="vuescrollOps")
           v-card.mb-2
             v-card-title.justify-center You Reached the Top
@@ -20,7 +20,7 @@
           v-card.mb-2(v-for="message in messages" :key="message.timestamp", outlined, :class="`${message.provider}-bg`")
             v-list-item
               v-list-item-avatar.mr-2.my-0(size=30)
-                v-img(:src="(message.provider === 'youtube') ? message.providerObject.authorDetails.profileImageUrl : `https://api.adorable.io/avatars/285/${message.displayName}.png`")
+                v-img(:src="avatar(message)")
               v-list-item-content
                 v-list-item-title
                   v-icon(size="1rem") ${{message.provider}}
@@ -141,6 +141,23 @@ export default {
   },
 
   methods: {
+    avatar(message) {
+      let avatar = `https://api.adorable.io/avatars/285/${message.displayName}.png`
+      switch (message.provider) {
+        case 'twitch':
+          if (message.providerObject && message.providerObject.userHelix) {
+            avatar = message.providerObject.userHelix.profile_image_url
+          }
+          break
+        case 'youtube':
+          avatar = message.providerObject.authorDetails.profileImageUrl
+          break
+
+        default:
+          break
+      }
+      return avatar
+    },
     chatTopReached() {
       console.log('top of chat reached, TODO: load previous messages')
     },

@@ -15,6 +15,9 @@ module.exports = {
     stream: (channel) => `${baseKey}:messages:stream:${channel || '*'}`,
   },
   sessions: () => `${baseKey}:sess:`,
+  twitch: {
+    userHelix: (username) => `${baseKey}:twitch:userHelix:${username}`,
+  },
   youtube: {
     broadcast: {
       nextPage: (broadcastEtag) => `${baseKey}:youtube:broadcast:nextpage:${broadcastEtag}`,
