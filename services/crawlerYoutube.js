@@ -21,7 +21,7 @@ const messagesStore = require('server/messagesStore')
 const models = require('database/models')
 const RedisPubSubManager = require('server/redisPubSubManager')
 const redisKeyGenerator = require('server/redisKeyGenerator')
-const YoutubeService = require('./youtubeService')
+const YoutubeService = require('./YoutubeService')
 
 const rpsm = new RedisPubSubManager()
 
