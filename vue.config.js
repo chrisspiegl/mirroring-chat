@@ -26,6 +26,13 @@ module.exports = {
   },
   outputDir: path.resolve('vue-dist'),
   assetsDir: 'assets',
+  css: {
+    loaderOptions: {
+      scss: {
+        prependData: '@import "@/styles/_brand-colors.scss";',
+      },
+    },
+  },
   configureWebpack: {
     devtool: 'eval-source-map',
     watchOptions: {
