@@ -395,16 +395,20 @@ module.exports = class TwitchListener {
     log(`redis:${event.event}`)
     switch (event.event) {
       case redisKeyGenerator.event.CHAT_CREATED:
-        log('take action on channel updated')
-        await this.doJoin(event.chat.idChatProvider)
+        log('take action on channel created')
+        if (event.chat.isTracked) {
+          await this.doJoin(event.chat.idChatProvider)
+        }
         break
       case redisKeyGenerator.event.CHAT_UPDATED:
         log('take action on channel updated')
         await this.doPart(event.chat.idChatProvider)
-        await this.doJoin(event.chat.idChatProvider)
+        if (event.chat.isTracked) {
+          await this.doJoin(event.chat.idChatProvider)
+        }
         break
       case redisKeyGenerator.event.CHAT_DELETED:
-        log('take action on channel created')
+        log('take action on channel deleted')
         await this.doPart(event.chat.idChatProvider)
         break
 
