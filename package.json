@@ -11,7 +11,7 @@
     "nsauditfix": "echo \"Audit Fix - WITHOUT SAVING TO CONFIG FILES\" && npm audit fix --no-save",
     "test": "echo \"Error: no test specified\" && exit 1",
     "vueBuild": "vue-cli-service build --watch",
-    "vueBuildProduction": "vue-cli-service build --mode production --report",
+    "vueBuildProduction": "vue-cli-service build --mode production",
     "vueLint": "vue-cli-service lint"
   },
   "author": "Chris Spiegl <chris@chrisspiegl.com>",
@@ -112,7 +112,6 @@
     "uglify-es": "^3.3.9",
     "vue-cli-plugin-vuetify": "^2.0.5",
     "vue-template-compiler": "^2.6.11",
-    "vuetify-loader": "^1.4.3",
-    "webpack-bundle-analyzer": "^3.8.0"
+    "vuetify-loader": "^1.4.3"
   }
 }
