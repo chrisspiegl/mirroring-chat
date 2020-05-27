@@ -1,15 +1,61 @@
 import Vue from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { fas } from '@fortawesome/free-solid-svg-icons'
-import { far } from '@fortawesome/free-regular-svg-icons'
-import { fab } from '@fortawesome/free-brands-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // TODO: improve by only importing the icons I am actually using
-// https: //github.com/FortAwesome/vue-fontawesome#import-entire-styles
+// https://github.com/FortAwesome/vue-fontawesome#import-entire-styles
+
+// fab: Font Awesome Brands
+import { faDiscord } from '@fortawesome/free-brands-svg-icons/faDiscord'
+import { faFacebookF } from '@fortawesome/free-brands-svg-icons/faFacebookF'
+import { faTelegram } from '@fortawesome/free-brands-svg-icons/faTelegram'
+import { faTwitch } from '@fortawesome/free-brands-svg-icons/faTwitch'
+import { faYoutube } from '@fortawesome/free-brands-svg-icons/faYoutube'
+
+// far: Font Awesome Regular
+import { faLaughBeam } from '@fortawesome/free-regular-svg-icons/faLaughBeam'
+
+// fas: Font Awesome Solid
+import { faBan } from '@fortawesome/free-solid-svg-icons/faBan'
+import { faBandAid } from '@fortawesome/free-solid-svg-icons/faBandAid'
+import { faBars } from '@fortawesome/free-solid-svg-icons/faBars'
+import { faCog } from '@fortawesome/free-solid-svg-icons/faCog'
+import { faColumns } from '@fortawesome/free-solid-svg-icons/faColumns'
+import { faComment } from '@fortawesome/free-solid-svg-icons/faComment'
+import { faHome } from '@fortawesome/free-solid-svg-icons/faHome'
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle'
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle'
+import { faReply } from '@fortawesome/free-solid-svg-icons/faReply'
+import { faShareAlt } from '@fortawesome/free-solid-svg-icons/faShareAlt'
+import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons/faSignOutAlt'
+import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
+import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
+
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
-library.add(fas, far, fab)
+
+library.add(
+  faDiscord,
+  faFacebookF,
+  faTelegram,
+  faTwitch,
+  faYoutube,
+  faLaughBeam,
+  faBan,
+  faBandAid,
+  faBars,
+  faCog,
+  faColumns,
+  faComment,
+  faHome,
+  faInfoCircle,
+  faQuestionCircle,
+  faReply,
+  faShareAlt,
+  faSignOutAlt,
+  faUser,
+  faUsers,
+)
 
 export default {
   menu: { // used for the nav-icon by vuetify
@@ -135,4 +181,4 @@ export default {
 
 }
 
-console.log('fontawesome initialized')
+Vue.$log.debug('fontawesome.js initialized')

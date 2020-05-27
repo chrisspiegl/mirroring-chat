@@ -13,10 +13,12 @@ export default {
     this.$store.dispatch(AUTH_REQUEST).then(() => {
       this.$router.push('/dashboard')
     }).catch((err) => {
-      console.log('Login Success Page - Catch Error', err)
+      this.$log.debug('Login Success Page - Catch Error', err)
       this.$router.push('/login/failed')
     })
   },
+  mounted() {
+    this.$log.debug('LoginSuccess.vue mounted')
+  },
 }
-console.log('LoginSuccess.vue initialized')
 </script>

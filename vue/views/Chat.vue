@@ -111,6 +111,7 @@ export default {
   },
 
   mounted() {
+    this.$log.debug('Chat.vue mounted')
     apiCall({
       url: `/v1/chat/messages/${this.user.idUser}`,
       method: 'GET',
@@ -120,13 +121,14 @@ export default {
       })
       this.lastUpdated = new Date()
     }).catch((err) => {
-      console.error('Error requesting chat messages: ', err)
+      this.$log.error('Error requesting chat messages: ', err)
     })
   },
 
   watch: {
-    newMessage(value) { console.log('Typing: ', value) },
+    newMessage(value) { this.$log.debug('Typing: ', value) },
     messages(messages) {
+      this.$log.debug(`Currently displaying ${messages.length}`)
       const { scrollTop } = this.$refs.vuescroll.getPosition()
       const scrollBottom = scrollTop + this.$refs.vuescroll.$el.scrollHeight
       const elementScrollHeight = this.$refs.vuescroll.$children[0].$el.scrollHeight
@@ -159,10 +161,10 @@ export default {
       return avatar
     },
     chatTopReached() {
-      console.log('top of chat reached, TODO: load previous messages')
+      this.$log.debug('top of chat reached, TODO: load previous messages')
     },
     send() {
-      console.log('Message Typed and Hit Enter: ', this.newMessage)
+      this.$log.debug('Message Typed and Hit Enter: ', this.newMessage)
       // this.messages.push({
       //   message: this.newMessage,
       //   type: 0,
@@ -179,20 +181,20 @@ export default {
 
   sockets: {
     connect() {
-      console.log('chat socket connected')
+      this.$log.debug('chat socket connected')
     },
     hello(data) {
-      console.log('socket on *hello* with', data)
+      this.$log.debug('socket on *hello* with', data)
     },
     server(data) {
-      console.log('server: ', data)
+      this.$log.debug('server: ', data)
     },
   },
 
   created() {
     // REMEMBER: this is how to subscribe dynamically (not via the definitions in vue component `sockets:{}`)
     this.sockets.subscribe(`message-to-${this.channelName}`, (data) => {
-      console.log(`socket received message for ${this.channelName}`)
+      this.$log.debug(`socket received message for ${this.channelName}`)
       data.data.messages.forEach((message) => {
         this.messages.push(message)
         this.lastUpdated = new Date()
@@ -214,7 +216,6 @@ export default {
     })
   },
 }
-console.log('Chat.vue initialized')
 </script>
 
 <style lang="scss" scoped>

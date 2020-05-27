@@ -22,4 +22,4 @@ Vue.use(io)
 
 export default io
 
-console.log('socket.client initialized')
+Vue.$log.debug('socket.client.js initialized')

@@ -32,13 +32,15 @@ export default {
         url: `/v1/auth/${provider}/unlink`,
       }).then((resp) => {
         if (resp.ok) this.$store.dispatch(USER_REQUEST)
-        else alert('unlink == not ok')
+        else this.$log.debug('Unlink with not ok response', resp)
       }).catch((err) => {
-        console.log('Unlink faied with error: ', err)
+        this.$log.debug('Unlink failed with error', err)
       })
     },
   },
+  mounted() {
+    this.$log.debug('AccountTelegram.vue mounted')
+  },
   components: {},
 }
-console.log('AccountTelegram.vue initialized')
 </script>

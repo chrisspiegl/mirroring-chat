@@ -15,6 +15,8 @@ export default {
       window.location.href = '/auth/logout'
     })
   },
+  mounted() {
+    this.$log.debug('Logout.vue mounted')
+  },
 }
-console.log('Logout.vue initialized')
 </script>

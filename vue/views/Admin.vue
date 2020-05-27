@@ -7,6 +7,8 @@
 export default {
   name: 'Admin',
   components: {},
+  mounted() {
+    this.$log.debug('Admin.vue mounted')
+  },
 }
-console.log('Admin.vue initialized')
 </script>

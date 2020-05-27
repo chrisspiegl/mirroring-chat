@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-
 import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
 import LoginSuccess from '@/views/LoginSuccess.vue'
@@ -145,4 +144,4 @@ const router = new VueRouter({
 
 export default router
 
-console.log('router initialized')
+Vue.$log.debug('router.js initialized')

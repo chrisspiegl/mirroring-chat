@@ -89,19 +89,18 @@ export default {
       version: (state) => state.version,
       authLoading: (state) => state.auth.status === 'loading',
       displayName: (state) => `${state.user.profile.displayName}`,
-      isMobile: (state) => {
-        console.log(state.isMobile)
-        console.log(state.windowWidth)
-        return state.isMobile
-      },
+      isMobile: (state) => state.isMobile,
     }),
   },
 
   data: () => ({
     miniVariant: false,
   }),
+
+  mounted() {
+    this.$log.debug('components/navigation/index.vue mounted')
+  },
 }
-console.log('components/navigation/index.vue')
 
 </script>
 

@@ -7,6 +7,8 @@
 <script>
 export default {
   name: 'Support',
+  mounted() {
+    this.$log.debug('Support.vue initialized')
+  },
 }
-console.log('Support.vue initialized')
 </script>

@@ -9,6 +9,8 @@
 export default {
   name: 'LoginFailed',
   components: {},
+  mounted() {
+    this.$log.debug('LoginFailed.vue mounted')
+  },
 }
-console.log('LoginFailed.vue initialized')
 </script>

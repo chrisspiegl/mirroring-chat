@@ -28,6 +28,8 @@ export default {
       version: (state) => state.version,
     }),
   },
+  mounted() {
+    this.$log.debug('Home.vue mounted')
+  },
 }
-console.log('Home initialized')
 </script>

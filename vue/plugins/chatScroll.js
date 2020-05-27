@@ -5,4 +5,4 @@ import VueChatScroll from 'vue-chat-scroll'
 
 Vue.use(VueChatScroll)
 
-console.log('vue-chat-scroll initialized')
+Vue.$log.debug('chatScroll.js initialized')

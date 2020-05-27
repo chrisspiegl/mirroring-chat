@@ -15,6 +15,8 @@
 export default {
   name: 'Login',
   components: {},
+  mounted() {
+    this.$log.debug('Login.vue mounted')
+  },
 }
-console.log('Login.vue initialized')
 </script>

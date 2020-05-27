@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import '@/plugins/logger'
 
 import App from '@/App.vue'
 import router from '@/router'
@@ -18,7 +19,7 @@ Vue.config.productionTip = false
 const ignoredMessage = 'The .native modifier for v-on is only valid on components but it was used on <svg>.'
 Vue.config.warnHandler = (message, vm, componentTrace) => {
   if (message !== ignoredMessage) {
-    console.error(message + componentTrace)
+    Vue.$log.error(message + componentTrace)
   }
 }
 
@@ -35,4 +36,4 @@ new Vue({
   },
 }).$mount('#app')
 
-console.log('main initialized')
+Vue.$log.debug('main.js initialized')

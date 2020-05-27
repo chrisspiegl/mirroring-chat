@@ -3,4 +3,4 @@ import moment from 'vue-moment'
 
 Vue.use(moment)
 
-console.log('moment.js initialized')
+Vue.$log.debug('moment.js initialized')

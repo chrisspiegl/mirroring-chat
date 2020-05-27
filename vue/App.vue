@@ -47,6 +47,7 @@ export default {
   },
 
   mounted() {
+    this.$log.debug('App.vue mounted')
     window.addEventListener('resize', debounce(this.onResize, 250))
   },
 
@@ -59,12 +60,23 @@ export default {
     this.onResize()
   },
 }
-
-console.log('App.vue initialized')
-
 </script>
 
 <style lang="scss" scoped>
+
+// System font stack: https://www.digitalocean.com/community/tutorials/css-system-font-stack
+$fontStackSystem: -apple-system, BlinkMacSystemFont, "system-ui", "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+$fontStackMono: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+$body-font-family: $fontStackMono;
+$title-font: $fontStackMono;
+
+.v-application {
+  font-family: $body-font-family, sans-serif !important;
+    .title { // To pin point specific classes of some components
+      font-family: $title-font, sans-serif !important;
+    }
+ }
+
 .container.fill-height {
   align-items: flex-start;
 }

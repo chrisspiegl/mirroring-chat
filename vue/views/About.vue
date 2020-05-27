@@ -7,6 +7,8 @@
 export default {
   name: 'About',
   components: {},
+  mounted() {
+    this.$log.debug('About.vue mounted')
+  },
 }
-console.log('About.vue initialized')
 </script>

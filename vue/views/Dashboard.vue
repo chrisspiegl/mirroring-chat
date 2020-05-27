@@ -14,6 +14,8 @@ export default {
   components: {
     // HelloWorld,
   },
+  mounted() {
+    this.$log.debug('Dashboard.vue mounted')
+  },
 }
-console.log('Dashboard.vue initialized')
 </script>

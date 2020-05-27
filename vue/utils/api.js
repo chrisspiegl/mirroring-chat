@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import axios from 'axios'
 
 const apiCall = ({
@@ -18,16 +19,16 @@ const apiCall = ({
   }
 
   axios[methodCall](urlCall, options).then((resp) => {
-    console.log(`Api Call Success for ${methodCall}:${urlCall}`, resp)
+    Vue.$log.debug(`Api Call Success for ${methodCall}:${urlCall}`, resp)
     // Each Api Call may receive back a jwt token and should auto update the local storage token
     if (resp.data && resp.data.tokenUser) {
-      console.log('Setting user token in local storage (api request contained new token)')
+      Vue.$log.debug('Setting user token in local storage (api request contained new token)')
       localStorage.setItem('tokenUser', resp.data.tokenUser)
     }
     if (resp.data) return resolve(resp.data)
     return resolve()
   }).catch((err) => {
-    console.log(`Api Call Error for ${methodCall}:${urlCall}`, err)
+    Vue.$log.debug(`Api Call Error for ${methodCall}:${urlCall}`, err)
     return reject(err)
   })
 })
