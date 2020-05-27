@@ -25,7 +25,6 @@
                 v-list-item-title
                   v-icon(size="1rem") ${{message.provider}}
                   | /{{message.displayName}}
-              v-list-item-action-text {{message.sentAt | moment("from", time)}}
               v-list-item-action-text
                 v-card-actions
                   v-btn(icon, title="Ban")
@@ -39,6 +38,8 @@
                   v-btn(icon, title="Archive")
                     v-icon $check
             v-card-text {{message.message}}
+              v-row.pr-4(align="center", justify="end")
+                v-list-item-action-text {{message.sentAt | moment("from", time)}}
 
 
       //- div
