@@ -56,10 +56,10 @@ module.exports = (sequelize, Sequelize) => {
   }, {
     freezeTableName: true,
     getterMethods: {
-      // profilePath() {
-      //   const identifier = this.getDataValue('username') ? this.getDataValue('username') : this.getDataValue('idUser')
-      //   return `/@${identifier}`
-      // },
+      profilePath() {
+        const identifier = this.getDataValue('username') ? this.getDataValue('username') : this.getDataValue('idUser')
+        return `/@${identifier}`
+      },
     },
   })
 
