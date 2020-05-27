@@ -17,7 +17,7 @@
           v-card.mb-2
             v-card-title.justify-center You Reached the Top
             v-card-subtitle.text-center Currently this is limited to the past 50 messages on load. #[br] This may change in the future, let us know if this is important to you.
-          v-card.mb-2(v-for="message in messages" :key="message.timestamp", outlined, :class="`${message.provider}-bg`")
+          v-card.mb-2(v-for="message in messages" :key="message.idChatMessage", outlined, :class="`${message.provider}-bg`")
             v-list-item
               v-list-item-avatar.mr-2.my-0(size=30)
                 v-img(:src="avatar(message)")
@@ -26,33 +26,20 @@
                   v-icon(size="1rem") ${{message.provider}}
                   | /{{message.displayName}}
               v-list-item-action-text {{message.sentAt | moment("from", time)}}
+              v-list-item-action-text
+                v-card-actions
+                  v-btn(icon, title="Ban")
+                    v-icon $ban
+                  v-btn(icon, title="Timeout")
+                    v-icon $timeout
+                  v-btn(icon, title="Highlight this message")
+                    v-icon $highlight
+                  v-btn(icon, title="Reply to this message")
+                    v-icon $reply
+                  v-btn(icon, title="Archive")
+                    v-icon $check
             v-card-text {{message.message}}
-            //- v-card-actions
-              v-btn(icon, title="Ban")
-                v-icon $ban
-              v-btn(icon, title="Timeout")
-                v-icon $timeout
-              v-btn(text, title="Highlight this Message") Highlight
-              v-spacer
-              v-btn(icon)
-                v-icon $reply
-              v-btn(icon)
-                v-icon $share
 
-
-        //- .message.text-center(key='top')
-        //-   v-icon $laughBeam
-        //-   = ' '
-        //-   | You reached the top
-        //-   = ' '
-        //-   v-icon $laughBeam
-        //- div(v-for="message in messages" :key="message.timestamp" :class="`${message.provider}-bg`")
-        //-   span
-        //-     v-icon(size="1rem") ${{message.provider}}
-        //-     | /{{message.displayName}}
-        //-     span {{message.message}}
-        //-   v-spacer
-        //-   div(style="float: right; font-size: .7rem;") {{message.sentAt | moment("from", time)}}
 
       //- div
         v-toolbar()

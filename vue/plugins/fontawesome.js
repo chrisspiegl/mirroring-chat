@@ -30,11 +30,15 @@ import { faShareAlt } from '@fortawesome/free-solid-svg-icons/faShareAlt'
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons/faSignOutAlt'
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser'
 import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
+import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck'
+import { faBullhorn } from '@fortawesome/free-solid-svg-icons/faBullhorn'
 
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 library.add(
+  faBullhorn,
+  faCheck,
   faDiscord,
   faFacebookF,
   faTelegram,
@@ -58,7 +62,8 @@ library.add(
 )
 
 export default {
-  menu: { // used for the nav-icon by vuetify
+  menu: {
+    // used for the nav-icon by vuetify
     component: FontAwesomeIcon,
     props: {
       icon: ['fas', 'bars'],
@@ -178,7 +183,18 @@ export default {
       icon: ['fas', 'share-alt'],
     },
   },
-
+  check: {
+    component: FontAwesomeIcon,
+    props: {
+      icon: ['fas', 'check'],
+    },
+  },
+  highlight: {
+    component: FontAwesomeIcon,
+    props: {
+      icon: ['fas', 'bullhorn'],
+    },
+  },
 }
 
 Vue.$log.debug('fontawesome.js initialized')

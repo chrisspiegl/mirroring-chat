@@ -6,7 +6,7 @@ import router from '@/router'
 import store from '@/store'
 import vuetify from '@/plugins/vuetify'
 import '@/plugins/socket.client'
-import '@/plugins/moment'
+import '@/plugins/vueMoment'
 import '@/plugins/scroll'
 import '@/plugins/chatScroll'
 
