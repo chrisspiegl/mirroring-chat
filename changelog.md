@@ -1,7 +1,32 @@
 # Changelog
 
+## 2020-05-27 08:32
+
+- DevOps: update the ecosystem file for PM2 so that it includes all the necessary processes for deploy.
+- DevOps: separate production and development api keys so that I don't accidentally overrun any quota for users.
+- DevOps: update all config files to represent the new api keys, client ids, and app secrets.
+- DevOps: create the nginx.conf file so that the server can run the application nice and easy.
+- DevOps: first deploy on [https://mirroring.chat](https://mirroring.chat)
+- Frontend: add debug logger `vuejs-logger` and replace all console.log with it.
+- Frontend: use `webpack-bundle-analyzer` to reduce the file size of the build product (article <https://medium.com/js-dojo/how-to-reduce-your-vue-js-bundle-size-with-webpack-3145bf5019b7)>
+- Frontend: found out that I had to put my own check for `NODE_ENV==='production'` for the source map setting in order to not have source maps in the code for production builds.
+- Frontend: make Font Awesome specific to only include all the icons that I am actually requesting by manual tree shaking.
+- Frontend: removed roboto and all Material Design Icons since that only bloats the bundled size for the code.
+- Frontend: setup font paths for system and monospace system stacks.
+- Frontend: use monospace font satck for all things in the user interface.
+- DevOps: update the `npm run vueBuildProduction` task to include `--report` so that all file sizes are logged in the output.
+- DevOps: noticed that `npm run vueBuildProduction --report` does the same thing as the webpack analyzer so I don't need that one.
+- Frontend: initial public commit of built for production code in `./public`
+- Backend: found out that the file `config/index.js` (which is responsible for loading the config files and merging the NODE_ENV based file with the `all.js` file) was not in the git repo and thus the server could not start.
+- DevOps: fix `nginx.conf` to serve static files statically and all others processed by node backend
+- Frontend: make moment.js `fromNow` show seconds from the start and not `a few seconds ago`.
+- Frontend: add action icons to the chat view to later implement `ban`, `timeout`, `highlight`, `reply`, and `archive`.
+- Frontend: add new font awesome icons as per above.
+- Frontend: Move the time to the bottom right of chat messages.
+
 ## 2020-05-26 22:47
 
+- Backend: TwitchListener: make it so that the `CHAT_CREATED` and `CHAT_UPDATED` only make the chat join if `isTracked` is set to true.
 - Backend: Added npm package `twitch` for api access for things like requesting userHelix objects with avatar image link.
 - Backend: Rename the `this.client` to `this.clientTmi` to be more compatible with having the secondary `this.clientTwitch` come from the new package.
 - Backend: Added avatar requesting for the twitch users including a 10 minute cache on the user object.
