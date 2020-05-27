@@ -1,6 +1,6 @@
 /* eslint-disable no-shadow */
-import apiCall from '@/utils/api'
 import Vue from 'vue'
+import apiCall from '@/utils/api'
 
 import {
   USER_REQUEST,

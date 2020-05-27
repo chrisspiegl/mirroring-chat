@@ -1,4 +1,5 @@
 /* eslint-disable no-shadow */
+import Vue from 'vue'
 import apiCall from '@/utils/api'
 import {
   AUTH_REQUEST,
@@ -33,13 +34,13 @@ const actions = {
     })
       .then((resp) => {
         commit(AUTH_SUCCESS, resp)
-        this.$log.debug(`${AUTH_REQUEST} - user login ${AUTH_SUCCESS}`)
+        Vue.$log.debug(`${AUTH_REQUEST} - user login ${AUTH_SUCCESS}`)
         dispatch(USER_REQUEST)
         resolve(resp)
       })
       .catch((err) => {
         commit(AUTH_ERROR, err)
-        this.$log.debug(`${AUTH_REQUEST} - user login ${AUTH_ERROR}`)
+        Vue.$log.debug(`${AUTH_REQUEST} - user login ${AUTH_ERROR}`)
         localStorage.removeItem('tokenUser')
         reject(err)
       })
@@ -48,7 +49,7 @@ const actions = {
     commit,
   }) => new Promise((resolve) => {
     commit(AUTH_LOGOUT)
-    this.$log.debug(`${AUTH_LOGOUT} - remove tokenUser from local storage`)
+    Vue.$log.debug(`${AUTH_LOGOUT} - remove tokenUser from local storage`)
     localStorage.removeItem('tokenUser')
     resolve()
   }),
