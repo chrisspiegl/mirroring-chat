@@ -1,4 +1,5 @@
 const path = require('path')
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 
 module.exports = {
   transpileDependencies: ['vuetify'],
@@ -34,7 +35,9 @@ module.exports = {
     },
   },
   configureWebpack: {
-    devtool: 'eval-source-map',
+    // NOTE: the BundleANalyzerPlugin is only needed for checking the file size of the finished bundle and the files in it.
+    // plugins: [new BundleAnalyzerPlugin()],
+    devtool: (process.env.NODE_ENV !== 'production') ? 'eval-source-map' : '',
     watchOptions: {
       ignored: [/node_modules/, /public/],
     },

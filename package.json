@@ -11,7 +11,7 @@
     "nsauditfix": "echo \"Audit Fix - WITHOUT SAVING TO CONFIG FILES\" && npm audit fix --no-save",
     "test": "echo \"Error: no test specified\" && exit 1",
     "vueBuild": "vue-cli-service build --watch",
-    "vueBuildProduction": "vue-cli-service build --mode production",
+    "vueBuildProduction": "vue-cli-service build --mode production --report",
     "vueLint": "vue-cli-service lint"
   },
   "author": "Chris Spiegl <chris@chrisspiegl.com>",
@@ -24,7 +24,6 @@
     "@fortawesome/free-regular-svg-icons": "^5.13.0",
     "@fortawesome/free-solid-svg-icons": "^5.13.0",
     "@fortawesome/vue-fontawesome": "^0.1.9",
-    "@mdi/font": "^5.1.45",
     "axios": "^0.19.2",
     "bluebird": "^3.7.2",
     "body-parser": "^1.19.0",
@@ -68,7 +67,6 @@
     "pug-plain-loader": "^1.0.0",
     "pushnotice": "^0.1.6",
     "redis": "^3.0.2",
-    "roboto-fontface": "^0.10.0",
     "sequelize": "^5.21.8",
     "sequelize-cli": "^5.5.1",
     "socket.io": "^2.3.0",
@@ -81,6 +79,7 @@
     "vue-moment": "^4.1.0",
     "vue-router": "^3.1.6",
     "vue-socket.io": "3.0.5",
+    "vuejs-logger": "^1.5.4",
     "vuescroll": "^4.15.0",
     "vuetify": "^2.2.27",
     "vuex": "^3.4.0"
@@ -113,6 +112,7 @@
     "uglify-es": "^3.3.9",
     "vue-cli-plugin-vuetify": "^2.0.5",
     "vue-template-compiler": "^2.6.11",
-    "vuetify-loader": "^1.4.3"
+    "vuetify-loader": "^1.4.3",
+    "webpack-bundle-analyzer": "^3.8.0"
   }
 }
