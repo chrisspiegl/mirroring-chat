@@ -37,3 +37,4 @@ new Vue({
 }).$mount('#app')
 
 Vue.$log.debug('main.js initialized')
+console.info(`Welcome to mirroring.chat - The application is running in ${process.env.NODE_ENV} mode.`)
