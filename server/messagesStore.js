@@ -7,10 +7,15 @@ log.log = console.log.bind(console)
 // eslint-disable-next-line no-unused-vars
 const error = debug(`${config.slug}:messagesStore:error`)
 
+const Filter = require('bad-words') // package to manage bad word filtering
+const naughtyWords = require('naughty-words') // shutterstock bad word lists
+
 const RedisPubSubManager = require('server/redisPubSubManager')
 const redisKeyGenerator = require('server/redisKeyGenerator')
 const models = require('database/models')
 
+const naughtyWordsCustom = [] // set array of custom bad words that I want to filter
+const badWordFilter = new Filter({ placeHolder: '🌸', list: [naughtyWordsCustom, ...Object.values(naughtyWords)].flat() }) // set placeholder & combine all bad word lists to one and add it to the bad word filter
 const messageSubscribers = {}
 const rpsm = new RedisPubSubManager()
 
@@ -42,8 +47,10 @@ const fetchByChat = async (idChat, limit = 50, offset = 0) => {
   return messages
 }
 
-const addMessage = async (message) => {
-  log('addNewMessage -> message', message)
+const addMessage = async (_message) => {
+  log('addNewMessage -> message', _message)
+  const message = { ..._message }
+  message.message = badWordFilter.clean(message.message)
   await models.ChatMessage.create(message)
   rpsm.publish(redisKeyGenerator.messages.stream(message.idUser), message)
   rpsm.publish(redisKeyGenerator.events, {
