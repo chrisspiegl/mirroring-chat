@@ -61,7 +61,6 @@ module.exports = class TwitchListener {
   }
 
   async checkIfBotIsModIn(channel, forceRealCheck) {
-    // eslint-disable-next-line no-param-reassign
     if (this.botIsModInChannels[channel] && !forceRealCheck) {
       return this.botIsModInChannels[channel]
     }
@@ -127,6 +126,36 @@ module.exports = class TwitchListener {
       username: this.userProvider.username,
       password: `oauth:${this.userProvider.tokenAccess}`,
     }
+  }
+
+  replaceTwitchEmotes(message, userstate) {
+    let messageWithEmotes = ''
+    if (userstate.emotes) {
+      const emoteIds = Object.keys(userstate.emotes)
+      const emoteStart = emoteIds.reduce((_starts, id) => {
+        const starts = { ..._starts }
+        userstate.emotes[id].forEach((startEnd) => {
+          const [start, end] = startEnd.split('-')
+          starts[start] = {
+            emoteUrl: `![](https://static-cdn.jtvnw.net/emoticons/v1/${id}/2.0)`,
+            end,
+          }
+        })
+        return starts
+      }, {})
+      const parts = Array.from(message)
+      for (let i = 0; i < parts.length; i += 1) {
+        const char = parts[i]
+        const emoteInfo = emoteStart[i]
+        if (emoteInfo) {
+          messageWithEmotes += emoteInfo.emoteUrl
+          i = emoteInfo.end
+        } else {
+          messageWithEmotes += char
+        }
+      }
+    }
+    return messageWithEmotes || message
   }
 
   // Action - Send an action message on a channel. (/me <message>)
@@ -286,9 +315,9 @@ module.exports = class TwitchListener {
   }
 
   // Say - Send a message on a channel.
-  doSay(channel, message) {
+  doSay(_channel, message) {
+    let channel = _channel
     log(`action:say:on:${channel}:message:${message}`)
-    // eslint-disable-next-line no-param-reassign
     if (channel.charAt(0) !== '#') channel = `#${channel}` // add a # symbol if it is not at the start of the channel
     // TODO: upon implementing the ability to send messages, I will also have to make sure that the bot does not get locked by the rate limit which will probably be '20 messages in 30 seconds' at te start. The code below is doing exactly that by managing a throttled queue which executes as fast as possible, yet limiting to count of calls per interval.
     // const { default: PQueue } = require('p-queue')
@@ -491,7 +520,9 @@ module.exports = class TwitchListener {
   }
 
   // Chat - Received message on channel.
-  async onChat(channel, userstate, message, self) {
+  async onChat(channel, _userstate, _message, self) {
+    let message = _message
+    const userstate = { ..._userstate }
     // if (self) return // NOTE: Ignore messages sent by the bot itself
     log(`channel:${channel} received event "Chat - Received message on channel"`)
     const channelName = channel.substring(1) // remove the # sign
@@ -512,6 +543,8 @@ module.exports = class TwitchListener {
       const { _data: userHelixRes } = await this.clientTwitch.helix.users.getUserByName(userstate.username)
       return userHelixRes
     }, { ttl: 60 * 10 /* 10 minutes */ })
+
+    message = this.replaceTwitchEmotes(message, userstate)
 
     messagesStore.addMessage({
       idChatMessageProvider: userstate.id,
