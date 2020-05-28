@@ -85,7 +85,7 @@ const init = async () => {
       dateOrNoDate = ` at ${moment(message.sentAt).format('YYYY-MM-DD HH:mm:ss')}`
     }
     bot.sendMessage(userProvider.idUserProvider,
-      `${message.displayName} on ${message.provider}${dateOrNoDate}:\n${message.message}`, {
+      `__${message.displayName} on ${message.provider}${dateOrNoDate}:\n${message.message}__`, {
         parse_mode: 'markdown',
         disable_web_page_preview: true,
       })
@@ -153,16 +153,18 @@ const init = async () => {
    * =============================================================================
    * /help or /start
    */
-  bot.onText(/\/(help|start)(@[A-z0-9._-]*)?$/i, response(async (msg, match) => {
+  bot.onText(/\/(help|start)(@[A-z0-9._-]*)?$/i, response.use(onlyPrivate)(async (msg, match) => {
     log(`command found in message ${msg.text} from user ${msg.from.id} in chat ${msg.chat.id}`)
     msg.quickResponse(`Hey ${msg.from.first_name},
 I am 🤖 @${botConfig.username} 👋, I am here to give you notifications about your live chats on YouTube, Twitch, and Facebook. All delivered to this chat.
 
 /help - Helpful info on how to use me
 /link - Login on the website
+/startChat - Receive live chat notifications
+/stopChat - Stop receiving live chat notifications
 /feedback - Send feedback to @MirroringChat
 
-To stay up to day with me, and know when I change the way I work, please join the @MirroringChat.
+To stay up to day with me, and know when I change the way I work, please join the @MirroringChat group.
 `, {
       parse_mode: 'markdown',
     })
@@ -190,7 +192,7 @@ To stay up to day with me, and know when I change the way I work, please join th
    * =============================================================================
    * /feedback : tells user how to get help.
    */
-  bot.onText(/\/feedback(@[A-z0-9._-]*)?$/i, response((msg, match) => {
+  bot.onText(/\/feedback(@[A-z0-9._-]*)?$/i, response.use(onlyPrivate)((msg, match) => {
     log(`command found in message ${msg.text} from user ${msg.from.id} in chat ${msg.chat.id}`)
     msg.quickResponse(`To send feedback, please join the @MirroringChat group for feature discussions, usage ideas, and to get future updates.
 Thank You 😊`)
