@@ -1,5 +1,15 @@
 # Changelog
 
+## 2020-05-28 11:56
+
+- Backend: messagesStore: add bad word filtering
+- Backend: TelegramBot: make all functions onlyPrivate so that the bot does not share anything in groups except for the message to go private.
+- Backend: TelegramBot: update `/start` and `/help` commands to be more helpful.
+- Backend: TelegramBot: should display first line of new messages in __italic__.
+- Backend: Twitch: implement basic emote replace as seen in coding garden twitch bot
+- Backend: Twitch: implement basic markdown parsing and html sanitization based on coding garden twitch bot implementation
+- Backend: TwitchBot: Support action messages to also be displayed
+
 ## 2020-05-27 08:32
 
 - DevOps: update the ecosystem file for PM2 so that it includes all the necessary processes for deploy.
@@ -23,6 +33,7 @@
 - Frontend: add action icons to the chat view to later implement `ban`, `timeout`, `highlight`, `reply`, and `archive`.
 - Frontend: add new font awesome icons as per above.
 - Frontend: Move the time to the bottom right of chat messages.
+- DevOps: testing production installation and noticing some issues (but it works now). Will develop further in the next few days.
 
 ## 2020-05-26 22:47
 
