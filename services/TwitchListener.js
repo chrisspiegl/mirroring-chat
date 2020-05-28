@@ -507,6 +507,7 @@ module.exports = class TwitchListener {
   onAction(channel, userstate, message, self) {
     if (self) return // NOTE: Ignore messages sent by the bot itself
     log(`channel:${channel} received event "Action - Received action message on channel"`)
+    this.onChat(channel, userstate, message, self)
   }
 
   // Anongiftpaidupgrade - Username is continuing the Gift Sub they got from an anonymous user in channel.
@@ -538,7 +539,7 @@ module.exports = class TwitchListener {
       userstate.id = userstate.id || this.username
     }
 
-    // Request the user from the Twitch Helix API (especialy to get the `profile_image_url`)
+    // Request the user from the Twitch Helix API (especially to get the `profile_image_url`)
     const userHelix = await cacheManager.wrap(redisKeyGenerator.twitch.userHelix(userstate.username), async () => {
       const { _data: userHelixRes } = await this.clientTwitch.helix.users.getUserByName(userstate.username)
       return userHelixRes
