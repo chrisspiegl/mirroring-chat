@@ -5,6 +5,7 @@
 		}
 	],
 	"settings": {
-		"todo-tree.tree.scanMode": "current file"
+		"todo-tree.tree.scanMode": "current file",
+		"typewriterScrollMode.enable": false
 	}
 }
