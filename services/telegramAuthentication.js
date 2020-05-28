@@ -88,10 +88,10 @@ const authByChatId = function* (msg) {
 const createAuthMiddleware = function createAuthMiddleware(bot) {
   return function* authMiddleware() {
     this.msg.bot = bot
-    this.msg.quickResponse = function quickResponse(text) {
-      return bot.sendMessage(this.msg.chat.id, text, {
-        disable_web_page_preview: true,
-      })
+    this.msg.quickResponse = function quickResponse(text, options = {}) {
+      // eslint-disable-next-line no-param-reassign
+      options.disable_web_page_preview = true
+      return bot.sendMessage(this.msg.chat.id, text, options)
     }.bind(this)
     this.msg.auth = yield authByChatId(this.msg)
   }
