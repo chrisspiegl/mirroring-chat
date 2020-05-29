@@ -75,6 +75,17 @@
               v-icon(title="Support/Help") $help
             v-list-item-content
               v-list-item-title Support/Help
+      template(v-slot:append)
+        v-btn.py-8(block href="https://ChrisSpiegl.com" target="_self")
+          v-icon(v-if="miniVariant") $twitch
+          span(v-if="!miniVariant") {{` Made by Chris`}}
+        //- v-list
+        //-   //- div Made by #[a(href="https://ChrisSpiegl.com") Chris Spiegl]
+        //-   v-list-item.hidden-md-and-up(v-if="isAuthenticated && !authLoading", link, to="/logout")
+        //-       v-list-item-action
+        //-         v-icon(title="Logout") $logout
+        //-       v-list-item-content
+        //-         v-list-item-title Logout
 
 </template>
 

@@ -89,7 +89,7 @@
           //-     v-btn.facebook-bg(icon, title="Send to Facebook")
           //-       v-icon $facebook
           v-spacer
-          span(v-if="lastUpdated") Last chat message recieved
+          span(v-if="lastUpdated && messages.length > 0") Last message
             = " "
             | {{lastUpdated | moment("from", time)}}
 </template>

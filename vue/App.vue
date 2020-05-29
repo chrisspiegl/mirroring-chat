@@ -4,8 +4,6 @@
     v-content
       v-container.fill-height(fluid, style="padding: 0;")
         router-view
-      v-footer(app)
-        span &copy; 2020 Chris Spiegl | mirroring.chat
 </template>
 
 <script>
