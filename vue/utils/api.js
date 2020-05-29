@@ -15,10 +15,12 @@ const apiCall = ({
     headers: {
       Authorization: `Bearer ${localStorage.getItem('tokenUser')}`,
     },
-    data,
   }
 
-  axios[methodCall](urlCall, options).then((resp) => {
+  console.log(options)
+
+  const call = (['post', 'put', 'patch'].includes(methodCall)) ? axios[methodCall](urlCall, data, options) : axios[methodCall](urlCall, options)
+  call.then((resp) => {
     Vue.$log.debug(`Api Call Success for ${methodCall}:${urlCall}`, resp)
     // Each Api Call may receive back a jwt token and should auto update the local storage token
     if (resp.data && resp.data.tokenUser) {
@@ -27,10 +29,11 @@ const apiCall = ({
     }
     if (resp.data) return resolve(resp.data)
     return resolve()
-  }).catch((err) => {
-    Vue.$log.debug(`Api Call Error for ${methodCall}:${urlCall}`, err)
-    return reject(err)
   })
+    .catch((err) => {
+      Vue.$log.debug(`Api Call Error for ${methodCall}:${urlCall}`, err)
+      return reject(err)
+    })
 })
 
 export default apiCall
