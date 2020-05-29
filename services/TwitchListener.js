@@ -129,31 +129,36 @@ module.exports = class TwitchListener {
   }
 
   replaceTwitchEmotes(message, userstate) {
-    let messageWithEmotes = ''
+    let messageWithEmotes = `${message}`
     if (userstate.emotes) {
       const emoteIds = Object.keys(userstate.emotes)
-      const emoteStart = emoteIds.reduce((_starts, id) => {
-        const starts = { ..._starts }
+      const emotePositions = emoteIds.reduce((positions, id) => {
         userstate.emotes[id].forEach((startEnd) => {
-          const [start, end] = startEnd.split('-')
-          starts[start] = {
-            emoteUrl: `![](https://static-cdn.jtvnw.net/emoticons/v1/${id}/2.0)`,
+          const [start, end] = startEnd.split('-').map((val) => (parseInt(val)))
+          positions[start] = {
+            start,
+            id,
             end,
           }
         })
-        return starts
+        return positions
       }, {})
-      const parts = Array.from(message)
-      for (let i = 0; i < parts.length; i += 1) {
-        const char = parts[i]
-        const emoteInfo = emoteStart[i]
-        if (emoteInfo) {
-          messageWithEmotes += emoteInfo.emoteUrl
-          i = emoteInfo.end
-        } else {
-          messageWithEmotes += char
-        }
-      }
+
+      Object.keys(emotePositions)
+        .map((val) => parseInt(val))
+        .sort((a, b) => a - b)
+        .reverse()
+        .forEach((emoteStart) => {
+          const emoteInfo = emotePositions[emoteStart]
+          console.log('TwitchListener -> replaceTwitchEmotes -> position', emoteInfo)
+          const emoteKey = messageWithEmotes.substring(emoteInfo.start, emoteInfo.end + 1)
+          const messageBeforeEmote = messageWithEmotes.substring(0, emoteInfo.start - 1)
+          console.log('TwitchListener -> replaceTwitchEmotes -> messageBeforeEmote', messageBeforeEmote)
+          const messageAfterEmote = messageWithEmotes.substring(emoteInfo.end + 1, messageWithEmotes.length)
+          console.log('TwitchListener -> replaceTwitchEmotes -> messageAfterEmote', messageAfterEmote)
+          const emoteImage = `![${emoteKey}](https://static-cdn.jtvnw.net/emoticons/v1/${emoteInfo.id}/2.0 "${emoteKey}")`
+          messageWithEmotes = `${messageBeforeEmote} ${emoteImage} ${messageAfterEmote}`
+        })
     }
     return messageWithEmotes || message
   }
