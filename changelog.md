@@ -1,5 +1,20 @@
 # Changelog
 
+- Test and Fix Markdown parsing
+- Test and Fix Twitch Emotes
+- Test and Fix Bad Word Filter
+- Frontend: implement `live` & `done` chat message side by side.
+- Frontend: implement basic `mark as done` button
+- Frontend: flip scroll order to have `latest at the top` for live chat and `oldest undone at the top` for the acknowledge section
+- Frontend: implement confirm dialogs
+- Frontend: implement snackbar / toasts for notifications
+- Frontend: api util separate post, put, patch so that they provide the data separate
+- Frontend: implement api calls for button actions (ban, timeout, reply)
+- Backend: add support for twitch emoticons
+- Backend: prepare routes for ban, timeout, and reply
+- Frontend: moved footer to the navigation drawer
+- Frontend: check chat view on mobile
+
 ## 2020-05-28 11:56
 
 - Backend: messagesStore: add bad word filtering
