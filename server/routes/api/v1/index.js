@@ -14,11 +14,15 @@ const {
   ensureJwtAuth,
 } = require('server/middleware')
 
-const passport = require('server/passport')
-
 const router = express.Router()
+
 router.get('/chat/messages/:channelName', ensureJwtAuth, require('./chat/messages'))
+router.put('/chat/message/:idChatMessage', ensureJwtAuth, require('./chat/message/update'))
+router.post('/chat/message/:idChatMessage/:action', ensureJwtAuth, require('./chat/message/action'))
+router.post('/chat/reply', ensureJwtAuth, require('./chat/reply'))
+
 router.get('/user/me', ensureJwtAuth, require('./user/me'))
+
 router.get('/auth/token', require('./auth/token'))
 router.post('/auth/token', require('./auth/token'))
 router.get('/auth/:provider/unlink', ensureJwtAuth, require('./auth/unlink'))
