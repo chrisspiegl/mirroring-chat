@@ -416,8 +416,14 @@ const strategyJwt = new PassportJwt({
     models.UserTwitch,
   ],
 })
-  .then((user) => done(null, user))
-  .catch((err) => done(err)))
+  .then((user) => {
+    log(`jwt:user:authorized:${user.idUser}`)
+    done(null, user)
+  })
+  .catch((err) => {
+    log('jwt:user:not-authorized', err)
+    done(err)
+  }))
 
 passport.use(strategyJwt)
 
