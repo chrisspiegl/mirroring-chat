@@ -49,6 +49,7 @@
     "googleapis": "^51.0.0",
     "helmet": "^3.22.0",
     "jquery": "^3.5.1",
+    "jsdom": "^16.2.2",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "marked": "^1.1.0",
@@ -87,6 +88,8 @@
     "vuejs-logger": "^1.5.4",
     "vuescroll": "^4.15.0",
     "vuetify": "^2.2.27",
+    "vuetify-confirm": "^2.0.3",
+    "vuetify-toast-snackbar": "^0.6.1",
     "vuex": "^3.4.0"
   },
   "devDependencies": {
