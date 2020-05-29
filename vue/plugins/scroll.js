@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import scroll from 'vuescroll'
+import scroll from 'vuescroll/dist/vuescroll-native'
 
 // You can set global config here.
 Vue.use(scroll, {
@@ -19,3 +19,5 @@ Vue.use(scroll, {
     },
   },
 })
+
+Vue.$log.debug('scroll.js initialized')
