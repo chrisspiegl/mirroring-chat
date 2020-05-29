@@ -18,6 +18,7 @@ module.exports = {
     'func-names': ['error', 'as-needed', {
       generators: 'as-needed',
     }],
+    'no-param-reassign': ['error', { props: false }],
   },
   settings: {
     'import/resolver': {
