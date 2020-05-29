@@ -8,6 +8,8 @@ import vuetify from '@/plugins/vuetify'
 import '@/plugins/socket.client'
 import '@/plugins/vueMoment'
 import '@/plugins/scroll'
+import '@/plugins/toast'
+import '@/plugins/confirmDialog'
 import '@/plugins/chatScroll'
 
 import Loading from '@/components/lib/loading.vue'
