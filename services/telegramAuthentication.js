@@ -29,6 +29,7 @@ const authByChatId = function* (msg) {
       nameFirst: msg.from.first_name,
       nameLast: msg.from.last_name,
       username: msg.from.username,
+      displayName: msg.from.username,
       languageCode: msg.from.language_code,
       lastLogin: new Date(),
       deactivatedAt: null, // set to null whenever user interacts with the bot to make sure the bot is reactivated when activity is seen

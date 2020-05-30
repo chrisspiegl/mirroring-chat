@@ -14,6 +14,7 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: true,
     },
     username: Sequelize.STRING,
+    displayName: Sequelize.STRING,
     nameFirst: Sequelize.STRING,
     nameLast: Sequelize.STRING,
     languageCode: Sequelize.STRING,
@@ -35,6 +36,7 @@ module.exports = (sequelize, Sequelize) => {
     const pick = _.pick(this.get(), [
       'idUserProvider',
       'idUser',
+      'displayName',
       'username',
       'nameFirst',
       'nameLast',
