@@ -13,23 +13,23 @@ import store from '@/store'
 Vue.use(VueRouter)
 
 const ifNotAuthenticated = (to, from, next) => {
-  if (!store.getters.isAuthenticated || !store.getters.isActivated) {
+  if (!store.getters.isAuthenticated) {
     next()
     return
   }
   next('/')
 }
 
-const ifAuthenticated = (to, from, next) => {
-  if (store.getters.isAuthenticated && store.getters.isActivated) {
-    next()
+const ifAuthenticatedAndActivated = (to, from, next) => {
+  if (!store.getters.isAuthenticated) {
+    next('/login')
     return
   }
   if (!store.getters.isActivated) {
     next('/not-activated')
     return
   }
-  next('/login')
+  next()
 }
 
 const routes = [
@@ -81,7 +81,7 @@ const routes = [
       // route level code-splitting this generates a separate chunk (about.[hash].js) for this route which is lazy-loaded when the route is visited.
       return import(/* webpackChunkName: "dashboard" */ '@/views/Account.vue')
     },
-    beforeEnter: ifAuthenticated,
+    beforeEnter: ifAuthenticatedAndActivated,
   },
   {
     path: '/account/telegram',
@@ -90,7 +90,7 @@ const routes = [
       // route level code-splitting this generates a separate chunk (about.[hash].js) for this route which is lazy-loaded when the route is visited.
       return import(/* webpackChunkName: "dashboard" */ '@/views/AccountTelegram.vue')
     },
-    beforeEnter: ifAuthenticated,
+    beforeEnter: ifAuthenticatedAndActivated,
   },
   {
     path: '/dashboard',
@@ -99,7 +99,7 @@ const routes = [
       // route level code-splitting this generates a separate chunk (about.[hash].js) for this route which is lazy-loaded when the route is visited.
       return import(/* webpackChunkName: "dashboard" */ '@/views/Dashboard.vue')
     },
-    beforeEnter: ifAuthenticated,
+    beforeEnter: ifAuthenticatedAndActivated,
   },
   {
     path: '/chat',
@@ -108,7 +108,7 @@ const routes = [
       // route level code-splitting this generates a separate chunk (about.[hash].js) for this route which is lazy-loaded when the route is visited.
       return import(/* webpackChunkName: "chat" */ '@/views/Chat.vue')
     },
-    beforeEnter: ifAuthenticated,
+    beforeEnter: ifAuthenticatedAndActivated,
   },
   {
     path: '/admin',
@@ -117,7 +117,7 @@ const routes = [
       // route level code-splitting this generates a separate chunk (about.[hash].js) for this route which is lazy-loaded when the route is visited.
       return import(/* webpackChunkName: "chat" */ '@/views/Admin.vue')
     },
-    beforeEnter: ifAuthenticated,
+    beforeEnter: ifAuthenticatedAndActivated,
   },
   {
     path: '/about',
