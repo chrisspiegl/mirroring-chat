@@ -1,5 +1,19 @@
 # Changelog
 
+## !2020-05-30 17:05
+
+- Implement manual account activation for live system.
+- Normalize the UserProvider models by adding `displayName` to the telegram database model.
+- Initial implementation of user setting model & api routes
+- Initial implementation of the `/account` page for the frontend which now shows:
+  - linked platforms and their usernames/displaynames
+  - account settings for youtube tracking (disable / enable the tracking of active and upcomign streams)
+    - implemented so that the database stores the values
+  - display all live, permanent, upcoming, and past streams
+  - ability to set the stream 'tracking or not tracking' (and the database stores the information)
+
+## 2020-05-29
+
 - Test and Fix Markdown parsing
 - Test and Fix Twitch Emotes
 - Test and Fix Bad Word Filter
@@ -13,6 +27,7 @@
 - Backend: add support for twitch emoticons
 - Backend: prepare routes for ban, timeout, and reply
 - Frontend: moved footer to the navigation drawer
+- Frontend: chat view smaller last message footer message
 - Frontend: check chat view on mobile
 
 ## 2020-05-28 11:56
