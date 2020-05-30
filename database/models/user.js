@@ -87,6 +87,7 @@ module.exports = (sequelize, Sequelize) => {
     models.User.hasOne(models.UserGoogle, { foreignKey: 'idUser', targetKey: 'idUser' }),
     models.User.hasOne(models.UserTelegram, { foreignKey: 'idUser', targetKey: 'idUser' }),
     models.User.hasOne(models.UserTwitch, { foreignKey: 'idUser', targetKey: 'idUser' }),
+    models.User.hasMany(models.UserSetting, { foreignKey: 'idUser', targetKey: 'idUser' }),
     models.User.hasMany(models.Chat, { foreignKey: 'idUser', targetKey: 'idUser' }),
     models.User.hasMany(models.ChatMessage, { foreignKey: 'idUser', targetKey: 'idUser' }),
   ])

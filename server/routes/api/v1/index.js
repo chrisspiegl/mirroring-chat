@@ -16,12 +16,21 @@ const {
 
 const router = express.Router()
 
+router.get('/chats/:idUser', ensureJwtAuth, require('./chat/list'))
+router.put('/chats/:idUser/:idChat', ensureJwtAuth, require('./chat/update'))
+
 router.get('/chat/messages/:channelName', ensureJwtAuth, require('./chat/messages'))
 router.put('/chat/message/:idChatMessage', ensureJwtAuth, require('./chat/message/update'))
 router.post('/chat/message/:idChatMessage/:action', ensureJwtAuth, require('./chat/message/action'))
 router.post('/chat/reply', ensureJwtAuth, require('./chat/reply'))
 
 router.get('/user/me', ensureJwtAuth, require('./user/me'))
+
+router.get('/usersettings/:idUser', ensureJwtAuth, require('./userSetting/list'))
+router.get('/usersetting/:idUser/:idUserSetting', ensureJwtAuth, require('./userSetting/one'))
+router.post('/usersetting/:idUser/:idUserSetting', ensureJwtAuth, require('./userSetting/create'))
+router.put('/usersetting/:idUser/:idUserSetting', ensureJwtAuth, require('./userSetting/update'))
+router.delete('/usersetting/:idUser/:idUserSetting', ensureJwtAuth, require('./userSetting/delete'))
 
 router.get('/auth/token', require('./auth/token'))
 router.post('/auth/token', require('./auth/token'))

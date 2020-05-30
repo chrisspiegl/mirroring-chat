@@ -7,9 +7,6 @@ import {
   AUTH_SUCCESS,
   AUTH_LOGOUT,
 } from '../actions/auth'
-import {
-  USER_REQUEST,
-} from '../actions/user'
 
 const state = {
   tokenUser: localStorage.getItem('tokenUser') || '',
