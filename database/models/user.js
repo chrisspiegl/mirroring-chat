@@ -45,6 +45,10 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: false,
       allowNull: false,
     },
+    activatedAt: {
+      type: Sequelize.DATE,
+      allowNull: true,
+    },
     lastActive: {
       type: Sequelize.DATE,
       allowNull: false,
@@ -69,6 +73,10 @@ module.exports = (sequelize, Sequelize) => {
       'displayName',
       'username',
       'picture',
+      'activatedAt',
+      'lastLogin',
+      'lastActive',
+      'adminSuper',
     ])
     return pick
   }

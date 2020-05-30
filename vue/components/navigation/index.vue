@@ -16,7 +16,7 @@
     v-navigation-drawer(v-model="miniVariant", app, top, clipped, :permanent="!isMobile", :mini-variant="miniVariant && !isMobile")
       vue-scroll
         v-list(nav, dense)
-          v-list-item(link, to="/home", :class="(isAuthenticated ? 'hidden-md-and-up' : '')")
+          v-list-item(link, to="/home", :class="(isAuthenticated && isActivated ? 'hidden-md-and-up' : '')")
             v-list-item-action
               v-icon(title="Home") $home
             v-list-item-content
@@ -36,27 +36,27 @@
             v-list-item-content
               v-list-item-title Login
 
-          v-list-item(v-if="isAuthenticated && !authLoading", link, to="/dashboard")
+          v-list-item(v-if="isAuthenticated && isActivated && !authLoading", link, to="/dashboard")
             v-list-item-action
               v-icon(title="Dashboard") $dashboard
             v-list-item-content
               v-list-item-title Dashboard
 
-          v-list-item(v-if="isAuthenticated && !authLoading", link, to="/chat")
+          v-list-item(v-if="isAuthenticated && isActivated && !authLoading", link, to="/chat")
             v-list-item-action
               v-icon(title="Chat") $chat
             v-list-item-content
               v-list-item-title Chat
 
-          v-divider(v-if="isAuthenticated && !authLoading")
+          v-divider(v-if="isAuthenticated && isActivated && !authLoading")
 
-          v-list-item(v-if="isAuthenticated && !authLoading", link, to="/account")
+          v-list-item(v-if="isAuthenticated && isActivated && !authLoading", link, to="/account")
             v-list-item-action
               v-icon(title="Account") $user
             v-list-item-content
               v-list-item-title Account
 
-          //- v-list-item(v-if="isAuthenticated && !authLoading", link, to="/settings")
+          //- v-list-item(v-if="isAuthenticated && isActivated && !authLoading", link, to="/settings")
           //-   v-list-item-action
           //-     v-icon(title="Settings") $settings
           //-   v-list-item-content
@@ -76,12 +76,12 @@
             v-list-item-content
               v-list-item-title Support/Help
       template(v-slot:append)
-        v-btn.py-8(block href="https://ChrisSpiegl.com" target="_self")
-          v-icon(v-if="miniVariant") $twitch
-          span(v-if="!miniVariant") {{` Made by Chris`}}
+        v-btn.py-8(block href="https://ChrisSpiegl.com" title="Made by Chris" target="_self")
+          v-icon(v-if="miniVariant") $madeBy
+          span(v-if="!miniVariant") Made with ❤ by Chris
         //- v-list
         //-   //- div Made by #[a(href="https://ChrisSpiegl.com") Chris Spiegl]
-        //-   v-list-item.hidden-md-and-up(v-if="isAuthenticated && !authLoading", link, to="/logout")
+        //-   v-list-item.hidden-md-and-up(v-if="isAuthenticated && isActivated && !authLoading", link, to="/logout")
         //-       v-list-item-action
         //-         v-icon(title="Logout") $logout
         //-       v-list-item-content
@@ -95,7 +95,7 @@ import { mapGetters, mapState } from 'vuex'
 export default {
   name: 'navigation',
   computed: {
-    ...mapGetters(['getProfile', 'isAuthenticated', 'isProfileLoaded']),
+    ...mapGetters(['getProfile', 'isAuthenticated', 'isActivated', 'isProfileLoaded']),
     ...mapState({
       version: (state) => state.version,
       authLoading: (state) => state.auth.status === 'loading',

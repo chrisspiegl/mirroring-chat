@@ -35,7 +35,6 @@ const actions = {
       .then((resp) => {
         commit(AUTH_SUCCESS, resp)
         Vue.$log.debug(`${AUTH_REQUEST} - user login ${AUTH_SUCCESS}`)
-        dispatch(USER_REQUEST)
         resolve(resp)
       })
       .catch((err) => {

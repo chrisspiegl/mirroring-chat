@@ -18,6 +18,7 @@ import { faLaughBeam } from '@fortawesome/free-regular-svg-icons/faLaughBeam'
 // fas: Font Awesome Solid
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan'
 import { faBandAid } from '@fortawesome/free-solid-svg-icons/faBandAid'
+import { faHeartbeat } from '@fortawesome/free-solid-svg-icons/faHeartbeat'
 import { faBars } from '@fortawesome/free-solid-svg-icons/faBars'
 import { faCog } from '@fortawesome/free-solid-svg-icons/faCog'
 import { faColumns } from '@fortawesome/free-solid-svg-icons/faColumns'
@@ -41,6 +42,7 @@ library.add(
   faCheck,
   faDiscord,
   faFacebookF,
+  faHeartbeat,
   faTelegram,
   faTwitch,
   faYoutube,
@@ -67,6 +69,12 @@ export default {
     component: FontAwesomeIcon,
     props: {
       icon: ['fas', 'bars'],
+    },
+  },
+  madeBy: {
+    component: FontAwesomeIcon,
+    props: {
+      icon: ['fas', 'heartbeat'],
     },
   },
   twitch: {

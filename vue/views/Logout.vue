@@ -12,6 +12,7 @@ export default {
   created() {
     this.$store.dispatch(AUTH_LOGOUT).then(() => {
       // this.$router.push('/login')
+      localStorage.removeItem('profileUser')
       window.location.href = '/auth/logout'
     })
   },

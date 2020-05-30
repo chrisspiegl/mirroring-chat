@@ -19,26 +19,29 @@ const state = {
 const getters = {
   getProfile: (state) => state.profile,
   isProfileLoaded: (state) => !!state.profile.idUser,
+  isActivated: (state) => !!state.profile.activatedAt,
 }
 
 const actions = {
   [USER_REQUEST]: ({
     commit,
     dispatch,
-  }) => {
+  }) => new Promise((resolve, reject) => {
     commit(USER_REQUEST)
     apiCall({
       url: '/v1/user/me',
     })
       .then((resp) => {
         commit(USER_SUCCESS, resp)
+        resolve(resp)
       })
-      .catch(() => {
+      .catch((err) => {
         commit(USER_ERROR)
         // if resp is unauthorized, logout, to
         dispatch(AUTH_LOGOUT)
+        reject(err)
       })
-  },
+  }),
 }
 
 const mutations = {
