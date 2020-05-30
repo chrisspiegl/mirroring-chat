@@ -41,19 +41,26 @@
           v-list-item-title Account Settings
       v-card-text
         v-list
-          v-list-item
+          v-list-item(v-if="user.UserGoogle")
             v-switch.mx-2(v-model="youtubeCrawlForActiveStreams.value", @change="updateUserSetting(youtubeCrawlForActiveStreams)")
             v-list-item-title
               v-icon(size="1rem") $youtube
               = ' '
               | YouTube Track for Active Streams
 
-          v-list-item
+          v-list-item(v-if="user.UserGoogle")
             v-switch.mx-2(v-model="youtubeCrawlForUpcomingStreams.value", @change="updateUserSetting(youtubeCrawlForUpcomingStreams)")
             v-list-item-title
               v-icon(size="1rem") $youtube
               = ' '
               | YouTube Track for Upcoming Streams
+
+          v-list-item(v-if="user.UserTelegram")
+            v-switch.mx-2(v-model="telegramForward.value", @change="updateUserSetting(telegramForward)")
+            v-list-item-title
+              v-icon(size="1rem") $telegram
+              = ' '
+              | Forward Messages to Telegram
 
           //- v-list-item
             v-switch.mx-2(v-model="facebookCrawlForActiveStreams")
@@ -147,6 +154,10 @@ export default {
         key: 'youtubeCrawlForActiveStreams',
         value: false,
       },
+      telegramForward: {
+        key: 'telegramForward',
+        value: false,
+      },
     }
   },
   computed: {
@@ -232,6 +243,16 @@ export default {
       }
     }).catch((err) => {
       this.$log.error('Error requesting youtubeCrawlForUpcomingStreams: ', err)
+    })
+    apiCall({
+      url: `/v1/usersetting/${this.user.idUser}/telegramForward`,
+      method: 'GET',
+    }).then((resp) => {
+      if (resp.data) {
+        this.telegramForward = resp.data
+      }
+    }).catch((err) => {
+      this.$log.error('Error requesting telegramForward: ', err)
     })
   },
 }
