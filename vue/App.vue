@@ -8,6 +8,8 @@
 </template>
 
 <script>
+import appConfig from '@/app.config'
+
 import Navigation from '@/components/navigation/index.vue'
 
 function debounce(func, wait, immediate) {
@@ -25,11 +27,20 @@ function debounce(func, wait, immediate) {
   }
 }
 
+
 export default {
   name: 'App',
 
   components: {
     Navigation,
+  },
+
+  page: {
+    // All subcomponent titles will be injected into this template.
+    titleTemplate(_title) {
+      const title = typeof _title === 'function' ? _title(this.$store) : _title
+      return title ? `${title} | ${appConfig.title}` : appConfig.title
+    },
   },
 
   props: {
