@@ -12,33 +12,37 @@ const jwt = require('jsonwebtoken')
 
 const asyncHandler = require('express-async-handler')
 
-module.exports = asyncHandler(async (req, res) => {
+const tokenGenerator = (obj) => jwt.sign({ ...obj }, config.secrets.jwt, { expiresIn: 2592000 }) // expires in 30 days in seconds
+const currentUserObject = (user) => {
   const response = {
-    ok: true,
-    status: 200,
-    apiVersion: 1,
-    name: 'AuthToken',
-    description: 'Returning a JsonWebToken for the logged in user.',
-    data: {},
+    user: {
+      ...user.toJSON(),
+      UserDiscord: user.UserDiscord,
+      UserFacebook: user.UserFacebook,
+      UserGoogle: user.UserGoogle,
+      UserTelegram: user.UserTelegram,
+      UserTwitch: user.UserTwitch,
+    },
+    token: tokenGenerator({ idUser: user.idUser }),
   }
+  return response
+}
 
-  if (req.isAuthenticated()) {
-    // TODO: Automatically attach a new token to each request? Or have the frontend renew the tokens in a certain timeframe?
-    const token = jwt.sign(
-      {
-        idUser: req.user.idUser,
-      },
-      config.secrets.jwt,
-      {
-        expiresIn: 2592000, // expires in 30 days in seconds
-      },
-    )
-    response.tokenUser = token
-  } else {
-    response.ok = false
-    response.status = 401
-    response.message = 'Login failed, not authenticated.'
-  }
+// NOTE: validate that the token used to login is still valid.
+// route already has "ensureLogin" so user only arrives if session or jwt or similar
+const validate = asyncHandler(async (req, res) => res
+  .status(200)
+  .set('Content-Type', 'application/json')
+  .send(currentUserObject(req.user)))
 
-  return res.status(response.status).set('Content-Type', 'application/json').send(response)
-})
+// NOTE: log in the user, this may be need in the future as oauth moves to the frontend (potentially)
+// if loign needed, verify whatever is used to login, and send a jwt back.
+const logIn = asyncHandler(async (req, res) => res
+  .status(200)
+  .set('Content-Type', 'application/json')
+  .send(currentUserObject(req.user)))
+
+module.exports = {
+  validate,
+  logIn,
+}

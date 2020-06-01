@@ -85,9 +85,9 @@ const ensureLogin = (req, res, next) => {
     return next()
   }
   req.flash('alert', `You have to be logged in to access ${req.originalUrl}`)
-  return res.format({
+  return res.status(401).format({
     html() {
-      return res.redirect('/auth')
+      return res.redirect('/')
     },
     json() {
       return res.json({
@@ -95,7 +95,7 @@ const ensureLogin = (req, res, next) => {
       })
     },
     default() {
-      return res.redirect('/auth')
+      return res.redirect('/')
     },
   })
 }
