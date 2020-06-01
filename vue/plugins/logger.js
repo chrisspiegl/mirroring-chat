@@ -13,4 +13,11 @@ const options = {
   showConsoleColors: true,
 }
 
+// LEVELS:
+// debug
+// info
+// warn
+// error
+// fatal
+
 Vue.use(VueLogger, options)

@@ -1,6 +1,6 @@
 <template lang="pug">
   v-container.account
-    h1 Account {{displayName}}
+    h1 Account {{userCurrent.displayName}}
     v-card
       v-list-item
         v-list-item-content
@@ -8,30 +8,30 @@
       v-card-text
         p Twitch:
           = ' '
-          a(href="/auth/twitch" v-if="!user.UserTwitch") Link
-          template(v-if="user.UserTwitch")
-            span {{user.UserTwitch.displayName}}
+          a(href="/auth/twitch" v-if="!userCurrent.UserTwitch") Link
+          template(v-if="userCurrent.UserTwitch")
+            span {{userCurrent.UserTwitch.displayName}}
             = ' '
             a(@click="unlink('twitch')") Unlink
         p YouTube:
           = ' '
-          a(href="/auth/google" v-if="!user.UserGoogle") Link
-          template(v-if="user.UserGoogle")
-            span {{user.UserGoogle.displayName}}
+          a(href="/auth/google" v-if="!userCurrent.UserGoogle") Link
+          template(v-if="userCurrent.UserGoogle")
+            span {{userCurrent.UserGoogle.displayName}}
             = ' '
             a(@click="unlink('google')") Unlink
         //- p Facebook:
           = ' '
-          a(href="/auth/facebook" v-if="!user.UserFacebook") Link
-          template(v-if="user.UserFacebook")
-            span {{user.UserFacebook.displayName}}
+          a(href="/auth/facebook" v-if="!userCurrent.UserFacebook") Link
+          template(v-if="userCurrent.UserFacebook")
+            span {{userCurrent.UserFacebook.displayName}}
             = ' '
             a(@click="unlink('facebook')") Unlink
         p Telegram:
           = ' '
-          a(href="/account/telegram" v-if="!user.UserTelegram") Link
-          template(v-if="user.UserTelegram")
-            span {{user.UserTelegram.displayName}}
+          a(href="/account/telegram" v-if="!userCurrent.UserTelegram") Link
+          template(v-if="userCurrent.UserTelegram")
+            span {{userCurrent.UserTelegram.displayName}}
             = ' '
             a(@click="unlink('telegram')") Unlink
 
@@ -41,21 +41,21 @@
           v-list-item-title Account Settings
       v-card-text
         v-list
-          v-list-item(v-if="user.UserGoogle")
+          v-list-item(v-if="userCurrent.UserGoogle")
             v-switch.mx-2(v-model="youtubeCrawlForActiveStreams.value", @change="updateUserSetting(youtubeCrawlForActiveStreams)")
             v-list-item-title
               v-icon(size="1rem") $youtube
               = ' '
               | YouTube Track for Active Streams
 
-          v-list-item(v-if="user.UserGoogle")
+          v-list-item(v-if="userCurrent.UserGoogle")
             v-switch.mx-2(v-model="youtubeCrawlForUpcomingStreams.value", @change="updateUserSetting(youtubeCrawlForUpcomingStreams)")
             v-list-item-title
               v-icon(size="1rem") $youtube
               = ' '
               | YouTube Track for Upcoming Streams
 
-          v-list-item(v-if="user.UserTelegram")
+          v-list-item(v-if="userCurrent.UserTelegram")
             v-switch.mx-2(v-model="telegramForward.value", @change="updateUserSetting(telegramForward)")
             v-list-item-title
               v-icon(size="1rem") $telegram
@@ -137,9 +137,8 @@
 </template>
 
 <script>
-import apiCall from '@/utils/api'
-import { USER_REQUEST } from '@/store/actions/user'
-import { mapGetters, mapState } from 'vuex'
+import { apiCall } from '@/utils/api'
+import { authComputed } from '@/state/helpers'
 
 export default {
   name: 'Account',
@@ -161,11 +160,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['getProfile', 'isAuthenticated', 'isProfileLoaded']),
-    ...mapState({
-      displayName: (state) => `${state.user.profile.displayName}`,
-      user: (state) => state.user.profile,
-    }),
+    ...authComputed,
     chatsActiveOrPermanent() {
       return this.chats.filter((chat) => !!chat.isPermanent || chat.status === 'active')
     },
@@ -179,7 +174,7 @@ export default {
   methods: {
     isTrackedToggle(chat) {
       apiCall({
-        url: `/v1/chats/${this.user.idUser}/${chat.idChat}`,
+        url: `/v1/chats/${this.userCurrent.idUser}/${chat.idChat}`,
         method: 'PUT',
         data: chat,
       }).then((resp) => {
@@ -190,7 +185,7 @@ export default {
     },
     updateUserSetting(userSetting) {
       apiCall({
-        url: `/v1/usersetting/${this.user.idUser}/${userSetting.key}`,
+        url: `/v1/usersetting/${this.userCurrent.idUser}/${userSetting.key}`,
         method: 'PUT',
         data: userSetting,
       }).then((resp) => {
@@ -203,7 +198,7 @@ export default {
       apiCall({
         url: `/v1/auth/${provider}/unlink`,
       }).then((resp) => {
-        if (resp.ok) this.$store.dispatch(USER_REQUEST)
+        if (resp.ok) this.$store.dispatch('USER_REQUEST')
         else this.$log.debug('Unlink with not ok response', resp)
       }).catch((err) => {
         this.$log.debug('Unlink failed with error', err)
@@ -214,7 +209,7 @@ export default {
   mounted() {
     this.$log.debug('Account.vue mounted')
     apiCall({
-      url: `/v1/chats/${this.user.idUser}`,
+      url: `/v1/chats/${this.userCurrent.idUser}`,
       method: 'GET',
     }).then((resp) => {
       resp.data.chats.forEach((chat) => {
@@ -224,7 +219,7 @@ export default {
       this.$log.error('Error requesting chats: ', err)
     })
     apiCall({
-      url: `/v1/usersetting/${this.user.idUser}/youtubeCrawlForActiveStreams`,
+      url: `/v1/usersetting/${this.userCurrent.idUser}/youtubeCrawlForActiveStreams`,
       method: 'GET',
     }).then((resp) => {
       if (resp.data) {
@@ -235,7 +230,7 @@ export default {
       this.$log.error('Error requesting youtubeCrawlForActiveStreams: ', err)
     })
     apiCall({
-      url: `/v1/usersetting/${this.user.idUser}/youtubeCrawlForUpcomingStreams`,
+      url: `/v1/usersetting/${this.userCurrent.idUser}/youtubeCrawlForUpcomingStreams`,
       method: 'GET',
     }).then((resp) => {
       if (resp.data) {
@@ -245,7 +240,7 @@ export default {
       this.$log.error('Error requesting youtubeCrawlForUpcomingStreams: ', err)
     })
     apiCall({
-      url: `/v1/usersetting/${this.user.idUser}/telegramForward`,
+      url: `/v1/usersetting/${this.userCurrent.idUser}/telegramForward`,
       method: 'GET',
     }).then((resp) => {
       if (resp.data) {

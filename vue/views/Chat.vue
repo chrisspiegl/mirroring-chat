@@ -96,7 +96,8 @@
 
 <script>
 import { mapGetters, mapState, mapMutations } from 'vuex'
-import apiCall from '@/utils/api'
+import { authComputed } from '@/state/helpers'
+import { apiCall } from '@/utils/api'
 
 import Message from '../components/Message.vue'
 
@@ -108,10 +109,9 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['getProfile', 'isAuthenticated', 'isProfileLoaded']),
+    ...authComputed,
     ...mapState({
-      channelName: (state) => state.user.profile.idUser,
-      user: (state) => state.user.profile,
+      channelName: (state) => state.auth.userCurrent.idUser,
       time: (state) => state.time.now,
     }),
     messagesUndone() {
@@ -155,7 +155,7 @@ export default {
   mounted() {
     this.$log.debug('Chat.vue mounted')
     apiCall({
-      url: `/v1/chat/messages/${this.user.idUser}`,
+      url: `/v1/chat/messages/${this.userCurrent.idUser}`,
       method: 'GET',
     }).then((resp) => {
       resp.data.messages.forEach((message) => {
@@ -240,7 +240,7 @@ export default {
 
       // socket.emit('chat-message', {
       //   message: this.newMessage,
-      //   user: this.username,
+      //   user: this.userCurrentname,
       // })
       // this.newMessage = null
     },

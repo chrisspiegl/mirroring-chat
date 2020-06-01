@@ -1,9 +1,12 @@
 import Vue from 'vue'
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+
 import '@/plugins/logger'
 
 import App from '@/App.vue'
 import router from '@/router'
-import store from '@/store'
+import store from '@/state/store'
 import vuetify from '@/plugins/vuetify'
 import '@/plugins/socket.client'
 import '@/plugins/vueMoment'

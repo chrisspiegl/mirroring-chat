@@ -14,8 +14,7 @@
 </template>
 
 <script>
-import apiCall from '@/utils/api'
-import { USER_REQUEST } from '@/store/actions/user'
+import { apiCall } from '@/utils/api'
 import { mapGetters, mapState } from 'vuex'
 
 export default {
@@ -31,7 +30,7 @@ export default {
       apiCall({
         url: `/v1/auth/${provider}/unlink`,
       }).then((resp) => {
-        if (resp.ok) this.$store.dispatch(USER_REQUEST)
+        if (resp.ok) this.$store.dispatch('USER_REQUEST')
         else this.$log.debug('Unlink with not ok response', resp)
       }).catch((err) => {
         this.$log.debug('Unlink failed with error', err)

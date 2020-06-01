@@ -3,7 +3,8 @@
     navigation
     v-content
       v-container.fill-height(fluid, style="padding: 0;")
-        router-view
+        transition: keep-alive: router-view(v-if="$route.meta.keepAlive", :key="$route.fullPath")
+        router-view(v-if="!$route.meta.keepAlive", :key="$route.fullPath")
 </template>
 
 <script>

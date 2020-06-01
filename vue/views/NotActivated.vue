@@ -9,9 +9,5 @@
 <script>
 export default {
   name: 'NotActivated',
-  components: {},
-  mounted() {
-    this.$log.debug('NotActivated.vue mounted')
-  },
 }
 </script>

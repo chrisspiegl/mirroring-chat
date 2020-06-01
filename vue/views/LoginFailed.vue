@@ -6,6 +6,8 @@
 </template>
 
 <script>
+import appConfig from '@/app.config'
+
 export default {
   name: 'LoginFailed',
   components: {},
