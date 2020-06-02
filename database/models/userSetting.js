@@ -12,12 +12,12 @@ module.exports = (sequelize, Sequelize) => {
       },
       idUser: {
         type: Sequelize.UUID,
-        unique: true,
+        unique: false,
         allowNull: false,
       },
       key: {
         type: Sequelize.STRING,
-        unique: true,
+        unique: false,
         allowNull: false,
       },
       value: {
