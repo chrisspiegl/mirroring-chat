@@ -24,5 +24,5 @@ module.exports = asyncHandler(async (req, res) => {
   // TODO: reply message implementation missing
   // needs to send a notification through redis because it gets handled by the respective crawlers
 
-  return res.set('Content-Type', 'application/json').send(response)
+  return res.json(response)
 })

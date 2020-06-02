@@ -12,21 +12,17 @@ const asyncHandler = require('express-async-handler')
 const models = require('database/models')
 
 module.exports = asyncHandler(async (req, res) => {
-  const response = {
-    ok: true,
-    status: 200,
-    apiVersion: 1,
-    name: 'UserSettingCreate',
-    description: '',
-    data: {},
-  }
-
-  const { idUser } = req.params
+  const { idUser } = req.user
   const { body } = req
 
-  body.idUser = idUser
+  body.idUser = body.idUser || idUser
 
-  response.data = await models.UserSetting.create({ ...body })
+  console.log(body)
 
-  return res.set('Content-Type', 'application/json').send(response)
+
+  if (idUser !== body.idUser) return res.boom.unauthorized('you can only update your own user settings')
+
+  const response = await models.UserSetting.create({ ...body })
+
+  return res.json(response)
 })

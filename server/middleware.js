@@ -9,6 +9,7 @@ log.log = console.log.bind(console)
 const error = debug(`${config.slug}:router:middleware:error`)
 
 const _ = require('lodash')
+// TOOD: remove the dependency on boom package or update the dependency to the new version @hapi/boom
 const boom = require('boom')
 const moment = require('moment-timezone')
 const url = require('url')

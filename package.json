@@ -42,6 +42,7 @@
     "dompurify": "^2.0.11",
     "express": "^4.17.1",
     "express-async-handler": "^1.1.4",
+    "express-boom": "git+https://github.com/scottcorgan/express-boom.git",
     "express-flash": "0.0.2",
     "express-session": "^1.17.1",
     "express-status-monitor": "^1.3.3",

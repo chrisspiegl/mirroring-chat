@@ -12,22 +12,11 @@ const asyncHandler = require('express-async-handler')
 const models = require('database/models')
 
 module.exports = asyncHandler(async (req, res) => {
-  const response = {
-    ok: true,
-    status: 200,
-    apiVersion: 1,
-    name: 'UserSettingList',
-    description: '',
-    data: {},
-  }
-
-  const { idUser } = req.params
-
-  response.data = await models.UserSetting.findAll({
+  const { idUser } = req.user
+  const response = await models.UserSetting.findAll({
     where: {
       idUser,
     },
   })
-
-  return res.set('Content-Type', 'application/json').send(response)
+  return res.json(response)
 })

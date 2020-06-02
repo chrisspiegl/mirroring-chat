@@ -11,26 +11,14 @@ const asyncHandler = require('express-async-handler')
 const models = require('database/models')
 
 module.exports = asyncHandler(async (req, res) => {
-  const response = {
-    ok: true,
-    status: 200,
-    apiVersion: 1,
-    name: 'ChatMessageUpdate',
-    description: 'Update a chat message.',
-    data: {},
-  }
-
   const { idChatMessage } = req.params
-  const { message } = req.body
-
+  const { body: message } = req
   log(`updating message ${idChatMessage} by ${message.displayName} on ${message.provider}`)
-
-  const updatedMessage = await models.ChatMessage.update(message, {
+  await models.ChatMessage.update(message, {
     where: {
       idChatMessage,
     },
   })
-  response.data.message = updatedMessage
-
-  return res.set('Content-Type', 'application/json').send(response)
+  const response = await models.ChatMessage.findByPk(message.idChatMessage)
+  return res.json(response)
 })

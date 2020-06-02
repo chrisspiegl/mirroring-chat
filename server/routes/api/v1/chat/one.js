@@ -25,5 +25,5 @@ module.exports = asyncHandler(async (req, res) => {
 
   response.data = await models.Chat.findByPk(idChat)
 
-  return res.set('Content-Type', 'application/json').send(response)
+  return res.json(response)
 })

@@ -17,6 +17,7 @@ const expressStatusMonitor = require('express-status-monitor')
 const flash = require('express-flash')
 const fs = require('fs')
 const helmet = require('helmet')
+const boom = require('express-boom')
 const logger = require('morgan')
 const moment = require('moment-timezone')
 const path = require('path')
@@ -47,6 +48,7 @@ const websocket = sockets(server)
 app.use(helmet())
 app.use(cors())
 app.use(logger('tiny')) // Less extreme logging of requests
+app.use(boom()) // easy and good error handling
 // app.use(middleware.analytics) // Disable analytics cause it's a internal tool
 app.use(expressStatusMonitor({
   title: 'Express Status', // Default title

@@ -12,17 +12,13 @@ const asyncHandler = require('express-async-handler')
 const models = require('database/models')
 
 module.exports = asyncHandler(async (req, res) => {
-  const response = {
-    ok: true,
-    status: 200,
-    apiVersion: 1,
-    name: 'UserSettingUpdate',
-    description: '',
-    data: {},
-  }
-
-  const { idUser, idUserSetting } = req.params
+  const { idUser } = req.user
+  const { idUserSetting } = req.params
   const { body } = req
+
+  body.idUser = body.idUser || idUser
+
+  if (idUser !== body.idUser) return res.boom.unauthorized('you can only update your own user settings')
 
   const userSetting = await models.UserSetting.findOne({
     where: {
@@ -31,19 +27,14 @@ module.exports = asyncHandler(async (req, res) => {
     },
   })
 
-  body.idUser = idUser
+  if (!userSetting) return res.boom.notFound('user setting not found. use create instead.')
 
-  if (userSetting) {
-    response.data = await models.UserSetting.update({ ...body }, {
-      where: {
-        idUserSetting,
-        idUser,
-      },
-    })
-  } else {
-    response.data = await models.UserSetting.create({ ...body })
-  }
-
-
-  return res.set('Content-Type', 'application/json').send(response)
+  await models.UserSetting.update({ ...body }, {
+    where: {
+      idUserSetting,
+      idUser,
+    },
+  })
+  const response = await models.UserSetting.findByPk(userSetting.idUserSetting)
+  return res.json(response)
 })

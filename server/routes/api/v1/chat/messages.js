@@ -11,20 +11,7 @@ const asyncHandler = require('express-async-handler')
 const messagesStore = require('server/messagesStore')
 
 module.exports = asyncHandler(async (req, res) => {
-  const response = {
-    ok: true,
-    status: 200,
-    apiVersion: 1,
-    name: 'ChatMessages',
-    description: 'Last chat messages for requested channel (up to 150 messages).',
-    data: {},
-  }
-
-  const { channelName } = req.params
-  console.log('channelName', channelName)
-
-  response.data.channelName = channelName
-  response.data.messages = await messagesStore.fetchByUser(channelName)
-
-  return res.set('Content-Type', 'application/json').send(response)
+  const { idUser } = req.user
+  const response = await messagesStore.fetchByUser(idUser)
+  return res.json(response)
 })

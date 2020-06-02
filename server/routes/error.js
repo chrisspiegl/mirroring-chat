@@ -34,11 +34,11 @@ const errorResponder = (status, req, res, err) => {
 
   if (res.locals.isApi) {
     // If the request is an API request, definitely respond with API response.
-    return res.status(status).set('Content-Type', 'application/json').send(boomError.output.payload)
+    return res.status(status).json(boomError.output.payload)
   }
 
   return res.format({
-    '*/*': () => res.status(status).set('Content-Type', 'application/json').send(errorObject),
+    '*/*': () => res.status(status).json(errorObject),
     text: () => res.status(status).send(errorObject.message),
     html: () => {
       error.bodyClasses = 'pageError'

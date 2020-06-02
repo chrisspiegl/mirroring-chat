@@ -32,15 +32,13 @@ const currentUserObject = (user) => {
 // route already has "ensureLogin" so user only arrives if session or jwt or similar
 const validate = asyncHandler(async (req, res) => res
   .status(200)
-  .set('Content-Type', 'application/json')
-  .send(currentUserObject(req.user)))
+  .json(currentUserObject(req.user)))
 
 // NOTE: log in the user, this may be need in the future as oauth moves to the frontend (potentially)
 // if loign needed, verify whatever is used to login, and send a jwt back.
 const logIn = asyncHandler(async (req, res) => res
   .status(200)
-  .set('Content-Type', 'application/json')
-  .send(currentUserObject(req.user)))
+  .json(currentUserObject(req.user)))
 
 module.exports = {
   validate,

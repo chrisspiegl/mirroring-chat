@@ -12,29 +12,34 @@ const asyncHandler = require('express-async-handler')
 const models = require('database/models')
 
 module.exports = asyncHandler(async (req, res) => {
-  const response = {
-    ok: true,
-    status: 200,
-    apiVersion: 1,
-    name: 'ChatUpdate',
-    description: '',
-    data: {},
-  }
-
-  const { idUser, idChat } = req.params
+  const { idUser } = req.user
+  const { idChat } = req.params
   const { body } = req
 
-  console.log(idUser)
-  console.log(idChat)
-  console.log(body)
+  console.log('body', body)
 
+  body.idUser = body.idUser || idUser
 
-  response.data.chat = await models.Chat.update({ ...body }, {
+  if (idUser !== body.idUser) return res.boom.unauthorized('you can only update your own chats')
+
+  const chat = await models.Chat.findOne({
     where: {
       idChat,
       idUser,
     },
   })
 
-  return res.set('Content-Type', 'application/json').send(response)
+  if (!chat) return res.boom.notFound('chat not found. use create instead.')
+
+  await models.Chat.update(
+    { ...body },
+    {
+      where: {
+        idChat,
+        idUser,
+      },
+    },
+  )
+  const response = await models.Chat.findByPk(chat.idChat)
+  return res.json(response)
 })

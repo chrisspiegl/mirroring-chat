@@ -46,5 +46,5 @@ module.exports = asyncHandler(async (req, res) => {
   }
 
 
-  return res.set('Content-Type', 'application/json').send(response)
+  return res.json(response)
 })

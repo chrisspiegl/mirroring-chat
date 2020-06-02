@@ -58,5 +58,5 @@ module.exports = asyncHandler(async (req, res) => {
     response.message = `User is not connected to provider ${provider}.`
   }
 
-  return res.status(response.status).set('Content-Type', 'application/json').send(response)
+  return res.status(response.status).json(response)
 })
