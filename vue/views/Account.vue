@@ -42,40 +42,25 @@
       v-card-text
         v-list
           v-list-item(v-if="userCurrent.UserGoogle")
-            v-switch.mx-2(v-model="youtubeCrawlForActiveStreams.value", @change="updateUserSetting(youtubeCrawlForActiveStreams)")
+            v-switch.mx-2(v-model="youtubeCrawlForActiveStreams")
             v-list-item-title
               v-icon(size="1rem") $youtube
               = ' '
               | YouTube Track for Active Streams
 
           v-list-item(v-if="userCurrent.UserGoogle")
-            v-switch.mx-2(v-model="youtubeCrawlForUpcomingStreams.value", @change="updateUserSetting(youtubeCrawlForUpcomingStreams)")
+            v-switch.mx-2(v-model="youtubeCrawlForUpcomingStreams")
             v-list-item-title
               v-icon(size="1rem") $youtube
               = ' '
               | YouTube Track for Upcoming Streams
 
           v-list-item(v-if="userCurrent.UserTelegram")
-            v-switch.mx-2(v-model="telegramForward.value", @change="updateUserSetting(telegramForward)")
+            v-switch.mx-2(v-model="telegramForward")
             v-list-item-title
               v-icon(size="1rem") $telegram
               = ' '
               | Forward Messages to Telegram
-
-          //- v-list-item
-            v-switch.mx-2(v-model="facebookCrawlForActiveStreams")
-            v-list-item-title
-              v-icon(size="1rem") $facebook
-              = ' '
-              | Facebook Track for Active Streams
-
-          //- v-list-item
-            v-switch.mx-2(v-model="facebookCrawlForUpcomingStreams")
-            v-list-item-title
-              v-icon(size="1rem") $facebook
-              = ' '
-              | Facebook Track for Active Streams
-
 
     v-card.mt-8
       v-list-item
@@ -93,7 +78,7 @@
                 = ' '
                 a(:href="(chat.provider === 'twitch' ? `https://twitch.com/${chat.idChatProvider}` : `https://youtu.be/${chat.idChatProvider}`)") {{chat.title}}
             v-list-item-action-text
-              v-switch.mx-2(v-model="chat.isTracked", label="tracking new messages", @change="isTrackedToggle(chat)")
+              v-switch.mx-2(:input-value="chat.isTracked", label="tracking new messages", @change="isTrackedToggle(chat)")
 
     v-card.mt-8
       v-list-item
@@ -113,7 +98,7 @@
               | Scheduled for {{(chat.provider === 'youtube') ? chat.providerObject.snippet.scheduledStartTime : '' | moment('YYYY-MM-DD HH:mm:ss')}} which is {{(chat.provider === 'youtube') ? chat.providerObject.snippet.scheduledStartTime : '' | moment("from")}}
             v-list-item-action-text
               v-card-actions
-                v-switch.mx-2(v-model="chat.isTracked", label="tracking new messages", @change="isTrackedToggle(chat)")
+                v-switch.mx-2(:input-value="chat.isTracked", label="tracking new messages", @change="isTrackedToggle(chat)")
 
     v-card.mt-8
       v-list-item
@@ -132,67 +117,57 @@
                 a(:href="(chat.provider === 'twitch' ? `https://twitch.com/${chat.idChatProvider}` : `https://youtu.be/${chat.idChatProvider}`)") {{chat.title}}
             v-list-item-action-text(disabled)
               v-card-actions
-                v-switch.mx-2(v-model="chat.isTracked", label="tracking new messages", @change="isTrackedToggle(chat)", disabled)
+                v-switch.mx-2(:input-value="chat.isTracked", label="tracking new messages", @change="isTrackedToggle(chat)", disabled)
 
 </template>
 
 <script>
 import { apiCall } from '@/utils/api'
-import { authComputed } from '@/state/helpers'
+import {
+  authComputed,
+  userSettingsComputed,
+  userSettingsMethods,
+  chatsComputed,
+  chatsMethods,
+} from '@/state/helpers'
 
 export default {
-  name: 'Account',
-  data() {
-    return {
-      chats: [],
-      youtubeCrawlForUpcomingStreams: {
-        key: 'youtubeCrawlForUpcomingStreams',
-        value: false,
-      },
-      youtubeCrawlForActiveStreams: {
-        key: 'youtubeCrawlForActiveStreams',
-        value: false,
-      },
-      telegramForward: {
-        key: 'telegramForward',
-        value: false,
-      },
-    }
-  },
   computed: {
     ...authComputed,
-    chatsActiveOrPermanent() {
-      return this.chats.filter((chat) => !!chat.isPermanent || chat.status === 'active')
+    ...userSettingsComputed,
+    ...chatsComputed,
+    youtubeCrawlForActiveStreams: {
+      get() { return this.getUserSettingValueByKey({ key: 'youtubeCrawlForActiveStreams' }) },
+      set(value) { this.updateUserSetting({ key: 'youtubeCrawlForActiveStreams', value }) },
     },
-    chatsUpcoming() {
-      return this.chats.filter((chat) => chat.status === 'upcoming')
+    youtubeCrawlForUpcomingStreams: {
+      get() { return this.getUserSettingValueByKey({ key: 'youtubeCrawlForUpcomingStreams' }) },
+      set(value) { this.updateUserSetting({ key: 'youtubeCrawlForUpcomingStreams', value }) },
     },
-    chatsPast() {
-      return this.chats.filter((chat) => !['upcoming', 'permanent', 'live', 'active'].includes(chat.status))
+    telegramForward: {
+      get() { return this.getUserSettingValueByKey({ key: 'telegramForward' }) },
+      set(value) { this.updateUserSetting({ key: 'telegramForward', value }) },
     },
   },
   methods: {
-    isTrackedToggle(chat) {
-      apiCall({
-        url: `/v1/chats/${this.userCurrent.idUser}/${chat.idChat}`,
-        method: 'PUT',
-        data: chat,
-      }).then((resp) => {
-        this.$log.debug(`Updated tracking status of ${chat.title} / ${chat.idChat}`)
+    ...userSettingsMethods,
+    ...chatsMethods,
+    async updateUserSetting({ key, value }) {
+      this.updateUserSettingByKey({ key, value }).then(() => {
+        this.$toast(`${value ? 'Activated' : 'Deactivated'} ${key}.`)
       }).catch((err) => {
-        this.$log.error('Error updating chat: ', chat, ' with error:', err)
+        this.$toast(`Error while ${value ? 'activating' : 'deactivating'} of ${key}.`)
+        this.$log.error(`Error while ${value ? 'activating' : 'deactivating'} of ${key}.`, err)
       })
     },
-    updateUserSetting(userSetting) {
-      apiCall({
-        url: `/v1/usersetting/${this.userCurrent.idUser}/${userSetting.key}`,
-        method: 'PUT',
-        data: userSetting,
-      }).then((resp) => {
-        this.$log.debug(`Updated tracking status of ${userSetting.key} / ${userSetting.idUserSetting}`)
-      }).catch((err) => {
-        this.$log.error('Error updating chat: ', userSetting, ' with error:', err)
+    async isTrackedToggle(chat) {
+      console.log('isTrackedToggle -> chat', chat)
+      const isTracked = !chat.isTracked
+      await this.updateChat({
+        chat,
+        changes: { isTracked },
       })
+      this.$toast(`Chat ${chat.title} marked to be ${(isTracked) ? 'tracked' : 'not tracked'}.`)
     },
     unlink(provider) {
       apiCall({
@@ -208,47 +183,7 @@ export default {
   components: {},
   mounted() {
     this.$log.debug('Account.vue mounted')
-    apiCall({
-      url: `/v1/chats/${this.userCurrent.idUser}`,
-      method: 'GET',
-    }).then((resp) => {
-      resp.data.chats.forEach((chat) => {
-        this.chats.push(chat)
-      })
-    }).catch((err) => {
-      this.$log.error('Error requesting chats: ', err)
-    })
-    apiCall({
-      url: `/v1/usersetting/${this.userCurrent.idUser}/youtubeCrawlForActiveStreams`,
-      method: 'GET',
-    }).then((resp) => {
-      if (resp.data) {
-        this.youtubeCrawlForActiveStreams = resp.data
-      }
-      console.log(resp.data)
-    }).catch((err) => {
-      this.$log.error('Error requesting youtubeCrawlForActiveStreams: ', err)
-    })
-    apiCall({
-      url: `/v1/usersetting/${this.userCurrent.idUser}/youtubeCrawlForUpcomingStreams`,
-      method: 'GET',
-    }).then((resp) => {
-      if (resp.data) {
-        this.youtubeCrawlForUpcomingStreams = resp.data
-      }
-    }).catch((err) => {
-      this.$log.error('Error requesting youtubeCrawlForUpcomingStreams: ', err)
-    })
-    apiCall({
-      url: `/v1/usersetting/${this.userCurrent.idUser}/telegramForward`,
-      method: 'GET',
-    }).then((resp) => {
-      if (resp.data) {
-        this.telegramForward = resp.data
-      }
-    }).catch((err) => {
-      this.$log.error('Error requesting telegramForward: ', err)
-    })
+    this.fetchChats()
   },
 }
 </script>

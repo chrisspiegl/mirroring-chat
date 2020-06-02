@@ -1,152 +1,124 @@
  <template lang="pug">
-  v-container.fill-height
+  v-container.pa-0.my-0.fill-height
     .boxToFillHeight
-      //- div
+      div
         v-toolbar(dense)
-          v-btn-toggle(v-model="chatsToFollow", multiple, dense)
-            v-btn.twitch-bg(icon, title="Show all messages from Twitch")
-              v-icon $twitch
-            v-btn.youtube-bg(icon, title="Show all messages from YouTube")
-              v-icon $youtube
-            v-btn.facebook-bg(icon, title="Show all messages from Facebook")
-              v-icon $facebook
-
+          v-card-title.justify-center All Chat Messages
+          //- v-model="chatsToFollow",
+          //- v-btn-toggle(multiple, dense)
+          //-   v-btn.twitch-bg(icon, title="Show all messages from Twitch")
+          //-     v-icon $twitch
+          //-   v-btn.youtube-bg(icon, title="Show all messages from YouTube")
+          //-     v-icon $youtube
+          //-   v-btn.facebook-bg(icon, title="Show all messages from Facebook")
+          //-     v-icon $facebook
       v-row
         v-col
           div.boxToFillHeight(style="height: 100%")
             v-card
               v-toolbar(dense)
-                v-toolbar-title {{messagesUndone.length}} Unacknoweledged Messages
+                v-toolbar-title {{chatMessagesUndone.length}} Unacknoweledged Messages
                 v-spacer
                 //- v-btn(icon)
                   v-icon $twitch
             div.chat-container
               vue-scroll(ref="vuescrollDone", :ops="vuescrollOptionsDone")
-                //- v-card.mb-2
-                //-   v-card-title.justify-center You Reached the Top
-                //-   v-card-subtitle.text-center Currently this is limited to the past 50 messages on load. #[br] This may change in the future, let us know if this is important to you.
                 message(
-                  v-if="messagesUndone.length > 0"
-                  v-for="(message, index) in messagesUndone"
+                  v-if="chatMessagesUndone.length > 0"
+                  v-for="(message, index) in chatMessagesUndone"
                   :key="message.idChatMessage"
                   :provider="message.provider"
                   :message="message"
                   :index="index"
-                  :markMessageDone="markMessageDone"
+                  :actionMessageDone="actionMessageDone"
                   :actionMessageReply="actionMessageReply"
                   :actionUserBan="actionUserBan"
                   :actionUserTimeout="actionUserTimeout"
                   :actionMessageHighlight="actionMessageHighlight"
                 )
-                v-card.mb-2(v-if="messagesUndone.length === 0 && messages.length !== 0")
+                v-card.mb-2(v-if="chatMessagesUndone.length === 0 && chatMessages.length !== 0")
                   v-card-title.justify-center INBOX ZERO
                   v-card-subtitle.text-center You reached the bottom.
-                v-card.mb-2(v-if="messages.length === 0")
+                v-card.mb-2(v-if="chatMessagesUndone.length === 0")
                   v-card-title.justify-center Nothing yet…
                   v-card-subtitle.text-center Invite some people to your strem and let's chat.
         v-col
           div.boxToFillHeight(style="height: 100%")
             v-card
               v-toolbar(dense)
-                v-toolbar-title Live Chat with {{messagesReversed.length}} Messages
+                v-toolbar-title Live Chat with {{chatMessagesReversed.length}} Messages
                 v-spacer
                 //- v-btn(icon)
                   v-icon $twitch
             div.chat-container
-              vue-scroll(ref="vuescrollLive", :ops="vuescrollOptionsDone")
-                //- v-card.mb-2
-                //-   v-card-title.justify-center You Reached the Top
-                //-   v-card-subtitle.text-center Currently this is limited to the past 50 messages on load. #[br] This may change in the future, let us know if this is important to you.
+              vue-scroll(ref="vuescrollLive", :ops="vuescrollOptionsLive")
                 message(
-                  v-if="messages.length > 0"
-                  v-for="(message, index) in messagesReversed"
+                  v-if="chatMessagesReversed.length > 0"
+                  v-for="(message, index) in chatMessagesReversed"
                   :key="message.idChatMessage"
                   :provider="message.provider"
                   :message="message"
                   :index="index"
-                  :markMessageDone="markMessageDone"
+                  :actionMessageDone="actionMessageDone"
                   :actionMessageReply="actionMessageReply"
                   :actionUserBan="actionUserBan"
                   :actionUserTimeout="actionUserTimeout"
                   :actionMessageHighlight="actionMessageHighlight"
                   :style="{ opacity: message.doneAt ? 0.5 : 1 }"
                 )
-                v-card.mb-2(v-if="messages.length === 0")
+                v-card.mb-2(v-if="chatMessagesReversed.length === 0")
                   v-card-title.justify-center Nothing yet…
                   v-card-subtitle.text-center Invite some people to your strem and let's chat.
       div
-        v-system-bar(color="transparent")
-          //- div
-          //- v-toolbar()
-          //-   v-text-field(label="Send Message", hide-details="auto")
-          //-   v-item-group(dense)
-          //-     v-btn(icon, title="Send to All")
-          //-       v-icon $chat
-          //-     v-btn.twitch-bg(icon, title="Send to Twitch")
-          //-       v-icon $twitch
-          //-     v-btn.youtube-bg(icon, title="Send to YouTube")
-          //-       v-icon $youtube
-          //-     v-btn.facebook-bg(icon, title="Send to Facebook")
-          //-       v-icon $facebook
-          v-spacer
-          span(v-if="lastUpdated && messages.length > 0") Last message
+        v-toolbar()
+          v-text-field(label="Send Message", hide-details="auto")
+          v-item-group.pr-4()
+            v-btn(icon, title="Send to All")
+              v-icon(size="1rem") $chat
+            v-btn.twitch-bg(icon, title="Send to Twitch")
+              v-icon(size="1rem") $twitch
+            v-btn.youtube-bg(icon, title="Send to YouTube")
+              v-icon(size="1rem") $youtube
+            v-btn.facebook-bg(icon, title="Send to Facebook")
+              v-icon(size="1rem") $facebook
+          span(v-if="chatMessagesLastUpdated && chatMessages.length > 0") Last updated
             = " "
-            | {{lastUpdated | moment("from", time)}}
+            abbr(:title="chatMessagesLastUpdated")
+              | {{chatMessagesLastUpdated | moment("from", time)}}
 </template>
 
 <script>
 import { mapGetters, mapState, mapMutations } from 'vuex'
-import { authComputed } from '@/state/helpers'
-import { apiCall } from '@/utils/api'
+import { authComputed, chatMessagesComputed, chatMessagesMethods } from '@/state/helpers'
 
 import Message from '../components/Message.vue'
 
 export default {
-  name: 'Chat',
-
   components: {
     Message,
   },
 
   computed: {
     ...authComputed,
+    ...chatMessagesComputed,
     ...mapState({
       channelName: (state) => state.auth.userCurrent.idUser,
       time: (state) => state.time.now,
     }),
-    messagesUndone() {
-      return this.messages.filter(
-        (m) => !m.doneAt
-          && !m.message.startsWith('!drop'),
-      )
-    },
-    messagesReversed() {
-      return this.messages.slice().reverse()
-    },
-
   },
 
   data() {
     return {
-      newMessage: null,
-      messages: [],
-      lastUpdated: null,
-      scrollBottom: true,
-      scrollBottomOnInit: true,
       vuescrollOptionsDone: {
         scrollPanel: {
-          // initialScrollY: '100%',
           scrollingX: false,
           scrollingY: true,
-          // speed: 300,
         },
       },
       vuescrollOptionsLive: {
         scrollPanel: {
-          initialScrollY: '100%',
           scrollingX: false,
           scrollingY: true,
-          // speed: 300,
         },
       },
     }
@@ -154,34 +126,19 @@ export default {
 
   mounted() {
     this.$log.debug('Chat.vue mounted')
-    apiCall({
-      url: `/v1/chat/messages/${this.userCurrent.idUser}`,
-      method: 'GET',
-    }).then((resp) => {
-      resp.data.messages.forEach((message) => {
-        this.messages.push(message)
-      })
-      this.lastUpdated = new Date()
-    }).catch((err) => {
-      this.$log.error('Error requesting chat messages: ', err)
-    })
+    this.fetchChatMessages()
   },
 
   watch: {
-    newMessage(value) { this.$log.debug('Typing: ', value) },
-    messages(messages) {
-      this.$log.debug(`Currently displaying ${messages.length}`)
+    chatMessages(chatMessages) {
+      this.$log.debug(`Currently displaying ${chatMessages.length}`)
     },
   },
 
   methods: {
-    markMessageDone(index, message) {
-      this.$set(message, 'doneAt', new Date())
-      apiCall({
-        url: `/v1/chat/message/${message.idChatMessage}`,
-        method: 'PUT',
-        data: { message },
-      }).then((resp) => {
+    ...chatMessagesMethods,
+    actionMessageDone(index, message) {
+      this.markChatMessageDone(message).then(() => {
         this.$toast(`Message by ${message.displayName} marked done.`)
       }).catch((err) => {
         this.$log.error(`PUT /v1/chat/message/${message.idChatMessage}`, err)
@@ -196,16 +153,13 @@ export default {
         buttonFalseText: 'No',
       })
       if (confirmedDialog) {
-        apiCall({
-          url: `/v1/chat/message/${message.idChatMessage}/ban`,
-          method: 'POST',
-          data: { message },
-        }).then((resp) => {
-          this.$toast(resp.message)
-        }).catch((err) => {
-          this.$toast(`Failed to ban ${message.displayName} from the live chat.`)
-          this.$log.error('Failed to ban user', err)
+        this.banChatMessage(message).then((resp) => {
+          this.$toast(resp.message) // TODO: check if resp.message is the right choice here?!
         })
+          .catch((err) => {
+            this.$toast(`Failed to ban ${message.displayName} from the live chat.`)
+            this.$log.error('Failed to ban user', err)
+          })
       }
     },
     async actionUserTimeout(index, message) {
@@ -216,37 +170,21 @@ export default {
         buttonFalseText: 'No',
       })
       if (confirmedDialog) {
-        this.$toast(`Sent ${message.displayName} into timeout.`)
-        apiCall({
-          url: `/v1/chat/message/${message.idChatMessage}/timeout`,
-          method: 'POST',
-          data: { message },
-        }).then((resp) => {
-          this.$toast(resp.message)
+        this.banChatMessage(message).then((resp) => {
+          this.$toast(`Sent ${message.displayName} into timeout.`)
         }).catch((err) => {
           this.$toast(`Failed to timeout ${message.displayName} from the live chat.`)
           this.$log.error('Failed to timeout user', err)
         })
       }
     },
-    actionMessageHighlight(index, message) {},
-    send() {
-      this.$log.debug('Message Typed and Hit Enter: ', this.newMessage)
-      // this.messages.push({
-      //   message: this.newMessage,
-      //   type: 0,
-      //   user: 'Me',
-      // })
-
-      // socket.emit('chat-message', {
-      //   message: this.newMessage,
-      //   user: this.userCurrentname,
-      // })
-      // this.newMessage = null
+    actionMessageHighlight(index, message) {
+      // TODO: implement endpoint for this action with the widget implementation
     },
   },
 
   sockets: {
+    // TODO: move all these chat sockets to the vuex store…
     connect() {
       this.$log.debug('chat socket connected')
     },
@@ -264,7 +202,7 @@ export default {
       this.$log.debug(`socket received message for ${this.channelName}`)
       data.data.messages.forEach((message) => {
         this.messages.push(message)
-        this.lastUpdated = new Date()
+        this.chatMessagesLastUpdated = new Date()
       })
     })
 

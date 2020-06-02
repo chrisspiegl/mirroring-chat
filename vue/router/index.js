@@ -58,6 +58,8 @@ router.beforeEach(async (routeTo, routeFrom, next) => {
   // Redirect to the login if invalid token
   if (!validUser) return redirectToLogin()
 
+  await store.dispatch('userSettings/fetchUserSettings')
+
   // Check if activated account is required on this route:
   const activationRequired = routeTo.matched.some((route) => route.meta.activationRequired)
   // If activation is not required move forward to the requested page

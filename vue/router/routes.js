@@ -11,7 +11,7 @@ export default [
       if (store.getters['auth/loggedIn']) {
         return next({ name: 'dashboard' })
       }
-      return next('/home')
+      return next({ name: 'home' })
     },
   },
   {

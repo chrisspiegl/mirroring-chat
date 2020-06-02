@@ -49,9 +49,10 @@ export const getters = {
 export const actions = {
   // This is automatically run in `src/state/store.js` when the app
   // starts, along with any other actions named `init` in other modules.
-  init({ state, dispatch }) {
+  async init({ state, dispatch }) {
     setDefaultAuthHeaders(state.userToken)
-    dispatch('validate')
+    await dispatch('validate')
+    await dispatch('userSettings/fetchUserSettings', {}, { root: true })
   },
 
   // Logs in the current user.

@@ -74,7 +74,7 @@ function getNamespace(subtree, path) {
       updateModules()
       // Trigger a hot update in the store.
       // eslint-disable-next-line global-require
-      require('../index.js').default.hotUpdate({ modules: storeData.modules })
+      require('../store').default.hotUpdate({ modules: storeData.modules })
     })
   }
 }())

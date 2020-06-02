@@ -18,7 +18,7 @@
               v-icon $highlight
             v-btn(icon, title="Reply to this message", @click="actionMessageReply(index, message)")
               v-icon $reply
-            v-btn(icon, title="Archive", @click="markMessageDone(index, message)")
+            v-btn(icon, title="Archive", @click="actionMessageDone(index, message)")
               v-icon $check
       v-card-text
         v-list-item-action-text(style="float: right") {{message.sentAt | moment("from", time)}}
@@ -29,7 +29,7 @@
 import { mapGetters, mapState } from 'vuex'
 
 export default {
-  props: ['message', 'provider', 'index', 'markMessageDone', 'actionMessageReply', 'actionUserBan', 'actionUserTimeout', 'actionMessageHighlight'],
+  props: ['message', 'provider', 'index', 'actionMessageDone', 'actionMessageReply', 'actionUserBan', 'actionUserTimeout', 'actionMessageHighlight'],
   computed: {
     ...mapGetters(['getProfile', 'isAuthenticated', 'isProfileLoaded']),
     ...mapState({
