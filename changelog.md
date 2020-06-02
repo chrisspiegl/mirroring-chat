@@ -5,8 +5,10 @@
 - Frontend: update the implementation of the `userSettings` store to work properly (including updates, and also the proper observed bindings for interface updates)
 - Frontend: took the learnings by recoding the `userSettings` to now also move all the `chats` into it's own module as well as all the `chatMessages` for the `Chat.vue` page
 - Backend: updated the api endpoints to be more minimalist and without the whole warper object which was just more stuff to write each time (may come back at some point in the future but for now it's all about smaller == better)
-- Frontend: Added the toolbars in the `Chat.vue`
 - Backend: api cleanup (no longer specify the whole application header manually, instead using `res.json(content)`)
+- Backend: simplified the error handling by adding `express-boom` to the project
+- Frontend: Added the toolbars in the `Chat.vue`
+- Frontend: make sure that all the user settings are definitely fetched on routes that are logged in only (pre-fetch each route request, but only once, and then cached)
 
 ## 2020-06-01 18:17
 
