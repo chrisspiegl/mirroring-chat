@@ -1,6 +1,25 @@
 # Changelog
 
-## !2020-05-30 17:05
+## 2020-06-02 22:01
+
+- Frontend: update the implementation of the `userSettings` store to work properly (including updates, and also the proper observed bindings for interface updates)
+- Frontend: took the learnings by recoding the `userSettings` to now also move all the `chats` into it's own module as well as all the `chatMessages` for the `Chat.vue` page
+- Backend: updated the api endpoints to be more minimalist and without the whole warper object which was just more stuff to write each time (may come back at some point in the future but for now it's all about smaller == better)
+- Frontend: Added the toolbars in the `Chat.vue`
+- Backend: api cleanup (no longer specify the whole application header manually, instead using `res.json(content)`)
+
+## 2020-06-01 18:17
+
+- Frontend: update complete vuex state/store implementation
+- Frontend: update complete router implementation
+- Frontend: update the vuex auth implementation to be much simpler
+- Frontend: update all views and components to the new auth implementation
+- DevOps: update all dependencies
+- Frontend: updating smaller things and changes for later testability and page title updates
+- Backend: update the auth api endpoint to include the users details
+- Backend: remove the `/api/v1/users/me` endpoint becuase that is now done inside the `/api/v1/auth/token1` route
+
+## 2020-05-30 17:05
 
 - Implement manual account activation for live system.
 - Normalize the UserProvider models by adding `displayName` to the telegram database model.
