@@ -1,5 +1,26 @@
 # Changelog
 
+## 2020-06-03 15:58
+
+- Frontend: `/login` now has buttons instead of text links
+- Frontend: Fixed: login error "request to user Settings failed" only do this after login has happend?!
+- Frontend: Fixed: system is trying to request `userSettings` even when loading the `/home` page?! needs fixing…
+- Frontend: Fixed: upon hitting "logout" it prints cannot read property `displayName` of null?
+- Frontend: implement chatMessages socket connection through VUEX Store
+- Frontend: implement "afterAuth" and "afterAuthLogOut" global vuex actions
+- Frontend: move away from `moment.js` in `vue.js` to => `date-fns`
+- Frontend: Chat: button to send reply and prepopulate the send message field with `@+username`
+- Frontend: Chat: make chat message sender name a link to their profile or channel
+- Frontend: Chat: add ability to destroy all chat messages by a certain author
+- Frontend: `/chat` screen should be fully functional with ban and timeout calling the API and asking for those actions…
+- Backend: Chat Actions: send redis notifications
+- Backend: Chat Actions: make chatMessage permanent (aka never delete anything)
+- Backend: Chat Actions: and `destroy` all messages by the user that is put in `timeout` or `banned`
+- Backend: Chat Actions / Twitch Crawler / YouTube Crawler: added the idAuthorProvider so that I can destroy all messages by a certain author
+- Frontend: Chat: `/chat` screen should work with `reply button`
+- Frontend: Chat: send text to api with knowledge which system should send the message
+- Frontend: Chat: send that text message onto the redis notification system for the respective services to pick it up and send away…
+
 ## 2020-06-02 22:01
 
 - Frontend: update the implementation of the `userSettings` store to work properly (including updates, and also the proper observed bindings for interface updates)
