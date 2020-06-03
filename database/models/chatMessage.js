@@ -26,6 +26,11 @@ module.exports = (sequelize, Sequelize) => {
         unique: false,
         allowNull: false,
       },
+      idAuthorProvider: {
+        type: Sequelize.STRING,
+        unique: false,
+        allowNull: false,
+      },
       provider: {
         // youtube, twitch, facebook
         type: Sequelize.STRING,
@@ -64,6 +69,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     {
       freezeTableName: true,
+      paranoid: true,
     },
   )
 
