@@ -110,6 +110,7 @@ const runCrawlChats = async () => {
         idChatMessageProvider: message.id,
         idChat: chat.idChat,
         idUser: userProvider.idUser,
+        idAuthorProvider: message.author.channelId,
         displayName: message.authorDetails.displayName,
         message: message.snippet.displayMessage,
         provider: 'youtube',

@@ -544,6 +544,7 @@ module.exports = class TwitchListener {
       userstate.id = userstate.id || this.username
     }
 
+
     // Request the user from the Twitch Helix API (especially to get the `profile_image_url`)
     const userHelix = await cacheManager.wrap(redisKeyGenerator.twitch.userHelix(userstate.username), async () => {
       const { _data: userHelixRes } = await this.clientTwitch.helix.users.getUserByName(userstate.username)
@@ -556,6 +557,7 @@ module.exports = class TwitchListener {
       idChatMessageProvider: userstate.id,
       idChat: chat.idChat,
       idUser: chat.idUser,
+      idAuthorProvider: userstate['user-id'] || userstate.username,
       provider: 'twitch',
       displayName: userstate['display-name'] || userstate.username,
       message,
