@@ -67,4 +67,9 @@ export const chatMessagesComputed = {
   ]),
 }
 
-export const chatMessagesMethods = mapActions('chatMessages', ['fetchChatMessages', 'markChatMessageDone'])
+export const chatMessagesMethods = mapActions('chatMessages', [
+  'fetchChatMessages',
+  'markChatMessageDone',
+  'banChatMessage',
+  'timeoutChatMessage',
+])

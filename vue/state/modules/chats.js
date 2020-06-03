@@ -12,10 +12,7 @@ export const state = {
 }
 
 export const getters = {
-  chatsActiveOrPermanent: (state) => {
-    console.log('TESTING CHATS ACTIVE OR PERMANENT')
-    return state.chats.filter((chat) => !!chat.isPermanent || chat.status === 'active')
-  },
+  chatsActiveOrPermanent: (state) => state.chats.filter((chat) => !!chat.isPermanent || chat.status === 'active'),
   chatsUpcoming: (state) => state.chats.filter((chat) => chat.status === 'upcoming'),
   chatsPast: (state) => state.chats.filter((chat) => !['upcoming', 'permanent', 'live', 'active'].includes(chat.status)),
 }

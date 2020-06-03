@@ -95,7 +95,7 @@
                 v-icon(size="1rem") ${{chat.provider}}
                 = ' '
                 a(:href="(chat.provider === 'twitch' ? `https://twitch.com/${chat.idChatProvider}` : `https://youtu.be/${chat.idChatProvider}`)") {{chat.title}}
-              | Scheduled for {{(chat.provider === 'youtube') ? chat.providerObject.snippet.scheduledStartTime : '' | moment('YYYY-MM-DD HH:mm:ss')}} which is {{(chat.provider === 'youtube') ? chat.providerObject.snippet.scheduledStartTime : '' | moment("from")}}
+              | Scheduled for {{(chat.provider === 'youtube') ? dateFormat(parseISO(chat.providerObject.snippet.scheduledStartTime)) : ''}} which is {{(chat.provider === 'youtube') ? dateFormatRelative(parseISO(chat.providerObject.snippet.scheduledStartTime)) : ''}}
             v-list-item-action-text
               v-card-actions
                 v-switch.mx-2(:input-value="chat.isTracked", label="tracking new messages", @change="isTrackedToggle(chat)")
@@ -123,6 +123,10 @@
 
 <script>
 import { apiCall } from '@/utils/api'
+import parseISO from 'date-fns/parseISO'
+import dateFormat from '@/utils/dateFormat'
+import dateFormatRelative from '@/utils/dateFormatRelative'
+
 import {
   authComputed,
   userSettingsComputed,
@@ -152,6 +156,9 @@ export default {
   methods: {
     ...userSettingsMethods,
     ...chatsMethods,
+    dateFormat,
+    dateFormatRelative,
+    parseISO,
     async updateUserSetting({ key, value }) {
       this.updateUserSettingByKey({ key, value }).then(() => {
         this.$toast(`${value ? 'Activated' : 'Deactivated'} ${key}.`)

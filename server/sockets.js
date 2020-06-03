@@ -21,63 +21,57 @@ module.exports = (http) => {
   // NOTE: future note for socket.io with authentication
   // io.use((socket, next) => {
   //   console.log('I AM ACTUALLY HERE')
-  //   // if (socket.handshake.query && socket.handshake.query.token) {
-  //   //   jwt.verify(socket.handshake.query.token, 'SECRET_KEY', function (err, decoded) {
-  //   //     if (err) return next(new Error('Authentication error'));
-  //   //     socket.decoded = decoded;
-  //   //     next();
-  //   //   });
-  //   // } else {
-  //   //   next(new Error('Authentication error'));
-  //   // }
+  //   if (socket.handshake.query && socket.handshake.query.token) {
+  //     jwt.verify(socket.handshake.query.token, 'SECRET_KEY', function (err, decoded) {
+  //       if (err) return next(new Error('Authentication error'));
+  //       socket.decoded = decoded;
+  //       next();
+  //     });
+  //   } else {
+  //     next(new Error('Authentication error'));
+  //   }
   // })
 
   io.of('/mirroring').use((socket, next) => {
     log('mirroring namespace middleware')
+    // console.log(socket)
     next()
   }).on('connection', (socket) => {
     log(`on:connection:${socket.id}`)
+    this.idUser = null
+    socket.emit('CONNECT', 'socket with server established')
 
-    this.channelName = ''
-
-    socket.on('hello', (data) => {
-      log('on:hello', data)
-      socket.emit('hello', 'this is the server speaking')
+    // handling client disconnect
+    socket.on('disconnect', () => {
+      log('on:disconnect for: ', this.idUser)
+      messagesStore.unsubscribe(`socket-io-${socket.id}`)
     })
+
 
     const onNewMessage = (key, message) => {
       log('on:redis:message for: ', key, ' and-message ', message)
-      const keySocket = `message-to-${message.idUser}`
+      const keySocket = 'ADD_CHAT_MESSAGE'
       log('socket:emit:', keySocket)
       socket.emit(keySocket, {
         status: 200,
         socketVersion: 1,
-        data: {
-          messages: [
-            message,
-          ],
-        },
+        data: message,
       })
     }
 
-    socket.on('disconnect', () => {
-      log('on:disconnect for: ', this.channelName)
-      messagesStore.unsubscribe(`socket-io-${socket.id}`)
-    })
-
-    socket.on('chat-channel-disconnect', (data) => {
-      log('on:chat-channel-disconnect for: ', this.channelName)
-      messagesStore.unsubscribe(`socket-io-${socket.id}`)
-    })
-
-    socket.on('chat-channel-connect', (data) => {
-      log('on:chat-channel-connect with: ', data, socket.id)
-      const { channelName } = data
-      this.channelName = channelName
-      log('streamingMessagesStart for: ', this.channelName)
+    socket.on('CHAT_CONNECT', (data) => {
+      log('on:CHAT_CONNECT with: ', data, socket.id)
+      const { idUser } = data
+      this.idUser = idUser
+      log('streamingMessagesStart for: ', this.idUser)
       // FIXME: this stays subscribed (and sending socket replies) until unsubscribed, handle
       // NOTE: Already handling `disconnect` and `destroy()` events from frontend, however, not sure what happens on connection interrupt.
-      messagesStore.subscribe(`socket-io-${socket.id}`, this.channelName, onNewMessage)
+      messagesStore.subscribe(`socket-io-${socket.id}`, this.idUser, onNewMessage)
+    })
+
+    socket.on('CHAT_DISCONNECT', () => {
+      log('on:CHAT_DISCONNECT for: ', this.idUser)
+      messagesStore.unsubscribe(`socket-io-${socket.id}`)
     })
   })
 

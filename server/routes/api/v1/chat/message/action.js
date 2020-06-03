@@ -9,42 +9,52 @@ const error = debug(`${config.slug}:api:v1:chat:message:action:error`)
 
 const asyncHandler = require('express-async-handler')
 
+const RedisPubSubManager = require('server/redisPubSubManager')
+const redisKeyGenerator = require('server/redisKeyGenerator')
+const models = require('database/models')
+
+const rpsm = new RedisPubSubManager()
+
 module.exports = asyncHandler(async (req, res) => {
-  const response = {
-    ok: true,
-    status: 200,
-    apiVersion: 1,
-    name: 'ChatMessageAction',
-    description: 'Ban, Timeout, or similar methods.',
-    data: {},
-  }
-
   const { idChatMessage, action } = req.params
-  const { message } = req.body
-
-  console.log(req.body)
-
-  console.log(message)
-
+  const { body: message } = req
 
   switch (action) {
     case 'ban':
-      // TODO: implement banning of users
-      // needs to send a notification through redis because it gets handled by the respective crawlers
-      response.message = `User ${message.displayName} was banned on ${message.provider}.`
-      break
+      models.ChatMessage.destroy({
+        where: {
+          idAuthorProvider: message.idAuthorProvider,
+        },
+      })
+      rpsm.publish(redisKeyGenerator.events, {
+        event: redisKeyGenerator.event.CHAT_MESSAGE_BAN,
+        data: message,
+      })
+      return res.json({
+        message: `User ${message.displayName} was banned on ${message.provider}.`,
+      })
     case 'timeout':
-      // TODO: implement banning of users
-      // needs to send a notification through redis because it gets handled by the respective crawlers
-      response.message = `User ${message.displayName} was sent into timeout on ${message.provider}.`
-      break
+      models.ChatMessage.destroy({
+        where: {
+          idAuthorProvider: message.idAuthorProvider,
+        },
+      })
+      rpsm.publish(redisKeyGenerator.events, {
+        event: redisKeyGenerator.event.CHAT_MESSAGE_TIMEOUT,
+        data: message,
+      })
+      return res.json({
+        message: `User ${message.displayName} was sent into timeout on ${message.provider}.`,
+      })
+    case 'send':
+      rpsm.publish(redisKeyGenerator.events, {
+        event: redisKeyGenerator.event.CHAT_MESSAGE_SENT,
+        data: message,
+      })
+      return res.json({
+        message: `Message sent to ${message.provider}.`,
+      })
     default:
-      response.ok = false
-      response.status = 501
-      response.message = `The action ${action} is not implemented.`
-      break
+      return res.boom.notImplemented(`The action ${action} is not implemented.`)
   }
-
-
-  return res.json(response)
 })

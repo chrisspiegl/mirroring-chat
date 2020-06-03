@@ -19,8 +19,8 @@ router.put('/chat/:idChat', ensureJwtAuth, require('./chat/update'))
 
 router.get('/chat/messages', ensureJwtAuth, require('./chat/messages'))
 router.put('/chat/message/:idChatMessage', ensureJwtAuth, require('./chat/message/update'))
-// router.post('/chat/message/:idChatMessage/:action', ensureJwtAuth, require('./chat/message/action'))
-// router.post('/chat/reply', ensureJwtAuth, require('./chat/reply'))
+router.post('/chat/message/:idChatMessage/:action', ensureJwtAuth, require('./chat/message/action'))
+router.post('/chat/send', ensureJwtAuth, require('./chat/send'))
 
 router.get('/usersettings', ensureJwtAuth, require('./userSetting/list'))
 router.post('/usersetting', ensureJwtAuth, require('./userSetting/create'))
@@ -30,6 +30,7 @@ router.put('/usersetting/:idUserSetting', ensureJwtAuth, require('./userSetting/
 
 router.post('/auth/token', ensureLogin, require('./auth/token').logIn)
 router.get('/auth/token', ensureJwtAuth, require('./auth/token').validate)
+router.get('/auth/logout', ensureJwtAuth, require('./auth/logout'))
 router.get('/auth/:provider/unlink', ensureJwtAuth, require('./auth/unlink'))
 router.post('/auth/:provider/unlink', ensureJwtAuth, require('./auth/unlink'))
 

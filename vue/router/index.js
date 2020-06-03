@@ -97,7 +97,7 @@ router.beforeResolve(async (routeTo, routeFrom, next) => {
               }
               // Complete the redirect.
               next(...args)
-              reject(new Error('Redirected'))
+              reject(new Error('redirected'))
             } else {
               resolve()
             }
@@ -109,7 +109,8 @@ router.beforeResolve(async (routeTo, routeFrom, next) => {
       })
     }
     // If a `beforeResolve` hook chose to redirect, just return.
-  } catch (error) {
+  } catch (err) {
+    if (err.message !== 'redirected') Vue.$log.error('beforeResolve hook error: ', err)
     return
   }
 

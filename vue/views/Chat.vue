@@ -18,9 +18,6 @@
             v-card
               v-toolbar(dense)
                 v-toolbar-title {{chatMessagesUndone.length}} Unacknoweledged Messages
-                v-spacer
-                //- v-btn(icon)
-                  v-icon $twitch
             div.chat-container
               vue-scroll(ref="vuescrollDone", :ops="vuescrollOptionsDone")
                 message(
@@ -39,7 +36,7 @@
                 v-card.mb-2(v-if="chatMessagesUndone.length === 0 && chatMessages.length !== 0")
                   v-card-title.justify-center INBOX ZERO
                   v-card-subtitle.text-center You reached the bottom.
-                v-card.mb-2(v-if="chatMessagesUndone.length === 0")
+                v-card.mb-2(v-if="chatMessagesUndone.length === 0 && chatMessages.length === 0")
                   v-card-title.justify-center Nothing yet…
                   v-card-subtitle.text-center Invite some people to your strem and let's chat.
         v-col
@@ -47,9 +44,6 @@
             v-card
               v-toolbar(dense)
                 v-toolbar-title Live Chat with {{chatMessagesReversed.length}} Messages
-                v-spacer
-                //- v-btn(icon)
-                  v-icon $twitch
             div.chat-container
               vue-scroll(ref="vuescrollLive", :ops="vuescrollOptionsLive")
                 message(
@@ -70,27 +64,29 @@
                   v-card-title.justify-center Nothing yet…
                   v-card-subtitle.text-center Invite some people to your strem and let's chat.
       div
-        v-toolbar()
-          v-text-field(label="Send Message", hide-details="auto")
-          v-item-group.pr-4()
-            v-btn(icon, title="Send to All")
+        v-toolbar(dense)
+          v-text-field(v-model="newMessageText", ref="newMessageText" label="Send Message", hide-details="auto")
+          v-btn-toggle.mx-4()
+            v-btn(color="primary", title="Send to All", @click="sendMessage('all')")
               v-icon(size="1rem") $chat
-            v-btn.twitch-bg(icon, title="Send to Twitch")
+            v-btn.twitch-bg(title="Send to Twitch", @click="sendMessage('twitch')")
               v-icon(size="1rem") $twitch
-            v-btn.youtube-bg(icon, title="Send to YouTube")
+            v-btn.youtube-bg(title="Send to YouTube", @click="sendMessage('youtube')")
               v-icon(size="1rem") $youtube
-            v-btn.facebook-bg(icon, title="Send to Facebook")
+            //- v-btn.facebook-bg(title="Send to Facebook", @click="sendMessage('facebook')")
               v-icon(size="1rem") $facebook
           span(v-if="chatMessagesLastUpdated && chatMessages.length > 0") Last updated
             = " "
-            abbr(:title="chatMessagesLastUpdated")
-              | {{chatMessagesLastUpdated | moment("from", time)}}
+            abbr(:title="dateFormat(chatMessagesLastUpdated)") {{dateFormatRelative(chatMessagesLastUpdated, time)}}
 </template>
 
 <script>
 import { mapGetters, mapState, mapMutations } from 'vuex'
 import { authComputed, chatMessagesComputed, chatMessagesMethods } from '@/state/helpers'
 
+import dateFormatRelative from '@/utils/dateFormatRelative'
+import dateFormat from '@/utils/dateFormat'
+import { apiCall } from '@/utils/api'
 import Message from '../components/Message.vue'
 
 export default {
@@ -109,6 +105,7 @@ export default {
 
   data() {
     return {
+      newMessageText: '',
       vuescrollOptionsDone: {
         scrollPanel: {
           scrollingX: false,
@@ -137,6 +134,25 @@ export default {
 
   methods: {
     ...chatMessagesMethods,
+    dateFormat,
+    dateFormatRelative,
+    sendMessage(provider) {
+      if (!this.newMessageText || this.newMessageText.trim() === '') return this.$toast('Message can not be empty!')
+      const data = {
+        provider,
+        text: this.newMessageText,
+      }
+      return apiCall({
+        method: 'post',
+        url: '/v1/chat/send',
+        data,
+      }).then((resp) => {
+        this.$toast(resp.message)
+        this.newMessageText = ''
+      }).catch((err) => {
+        this.$log.error('error while sending message', err)
+      })
+    },
     actionMessageDone(index, message) {
       this.markChatMessageDone(message).then(() => {
         this.$toast(`Message by ${message.displayName} marked done.`)
@@ -144,7 +160,10 @@ export default {
         this.$log.error(`PUT /v1/chat/message/${message.idChatMessage}`, err)
       })
     },
-    actionMessageReply(index, message) {},
+    actionMessageReply(index, message) {
+      this.newMessageText = `@${message.displayName} `
+      this.$refs.newMessageText.focus()
+    },
     async actionUserBan(index, message) {
       const confirmedDialog = await this.$confirm(`Do you really want to ban <b>${message.displayName}</b>?`, {
         color: 'error',
@@ -154,7 +173,8 @@ export default {
       })
       if (confirmedDialog) {
         this.banChatMessage(message).then((resp) => {
-          this.$toast(resp.message) // TODO: check if resp.message is the right choice here?!
+          console.log('actionMessageReply -> resp', resp)
+          this.$toast(resp.message)
         })
           .catch((err) => {
             this.$toast(`Failed to ban ${message.displayName} from the live chat.`)
@@ -183,35 +203,6 @@ export default {
     },
   },
 
-  sockets: {
-    // TODO: move all these chat sockets to the vuex store…
-    connect() {
-      this.$log.debug('chat socket connected')
-    },
-    hello(data) {
-      this.$log.debug('socket on *hello* with', data)
-    },
-    server(data) {
-      this.$log.debug('server: ', data)
-    },
-  },
-
-  created() {
-    // REMEMBER: this is how to subscribe dynamically (not via the definitions in vue component `sockets:{}`)
-    this.sockets.subscribe(`message-to-${this.channelName}`, (data) => {
-      this.$log.debug(`socket received message for ${this.channelName}`)
-      data.data.messages.forEach((message) => {
-        this.messages.push(message)
-        this.chatMessagesLastUpdated = new Date()
-      })
-    })
-
-    this.$socket.emit('hello', 'client says hey')
-    this.$socket.emit('chat-channel-connect', {
-      channelName: this.channelName,
-    })
-  },
-
   updated() {
     // Logic to stay at the bottom if already at the bottom.
     // const { scrollTop } = this.$refs.vuescroll.getPosition()
@@ -224,12 +215,6 @@ export default {
     //     this.$refs.vuescroll.scrollTo({ y: '100%' })
     //   }
     // })
-  },
-
-  destroyed() {
-    this.$socket.emit('chat-channel-disconnect', {
-      channelName: this.channelName,
-    })
   },
 }
 </script>

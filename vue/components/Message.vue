@@ -6,8 +6,9 @@
           v-img(:src="avatar(message)")
         v-list-item-content
           v-list-item-title
-            v-icon(size="1rem") ${{message.provider}}
-            | /{{message.displayName}}
+            a(:href="profileLink(message)", target="_blank")
+              v-icon(size="1rem") ${{message.provider}}
+              | /{{message.displayName}}
         v-list-item-action-text
           v-card-actions
             v-btn(icon, title="Ban", @click="actionUserBan(index, message)")
@@ -21,12 +22,18 @@
             v-btn(icon, title="Archive", @click="actionMessageDone(index, message)")
               v-icon $check
       v-card-text
-        v-list-item-action-text(style="float: right") {{message.sentAt | moment("from", time)}}
+        v-list-item-action-text(style="float: right")
+          abbr(:title="dateFormat(parseISO(message.sentAt))") {{dateFormatStrict(parseISO(message.sentAt), time)}}
         div(v-html="message.message")
 </template>
 
 <script>
 import { mapGetters, mapState } from 'vuex'
+import parseISO from 'date-fns/parseISO'
+
+import dateFormatRelative from '@/utils/dateFormatRelative'
+import dateFormatStrict from '@/utils/dateFormatStrict'
+import dateFormat from '@/utils/dateFormat'
 
 export default {
   props: ['message', 'provider', 'index', 'actionMessageDone', 'actionMessageReply', 'actionUserBan', 'actionUserTimeout', 'actionMessageHighlight'],
@@ -38,11 +45,22 @@ export default {
       time: (state) => state.time.now,
     }),
   },
-  created() {
-    // eslint-disable-next-line no-script-url
-    // this.message.message = this.message.message.replace('javascript:', 'wat:').replace('https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'https://www.youtube.com/watch?v=l60MnDJklnM')
-  },
   methods: {
+    dateFormatRelative,
+    dateFormatStrict,
+    dateFormat,
+    parseISO,
+    profileLink(message) {
+      switch (message.provider) {
+        case 'twitch':
+          if (!message.providerObject.userstate.username) return '#'
+          return `https://twitch.tv/${message.providerObject.userstate.username}`
+        case 'youtube':
+          return message.providerObject.authorDetails.channelUrl
+        default:
+          return '#'
+      }
+    },
     avatar(message) {
       let avatar = `https://api.adorable.io/avatars/285/${message.displayName}.png`
       switch (message.provider) {

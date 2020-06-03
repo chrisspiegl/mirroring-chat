@@ -1,12 +1,10 @@
 <template lang='pug'>
-  v-container.login
-    h1 Login
-    div
-      a(href="/auth/twitch") Twitch
-    div
-      a(href="/auth/google") Google/YouTube
-    //- div
-      a(href="/auth/facebook") Facebook
+  v-container.login.text-center
+    h1 Login with…
+    div.justify-center
+      v-btn.ma-4(href="/auth/twitch") Twitch
+    div.justify-center
+      v-btn.ma-4(href="/auth/google") Google/YouTube
 
 
 </template>

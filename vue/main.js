@@ -9,7 +9,6 @@ import router from '@/router'
 import store from '@/state/store'
 import vuetify from '@/plugins/vuetify'
 import '@/plugins/socket.client'
-import '@/plugins/vueMoment'
 import '@/plugins/scroll'
 import '@/plugins/toast'
 import '@/plugins/confirmDialog'
@@ -40,7 +39,7 @@ Vue.config.warnHandler = (message, vm, componentTrace) => {
 Vue.component('loading', Loading)
 Vue.component('center-container', CenterContainer)
 
-new Vue({
+export default new Vue({
   router,
   store,
   template: '<App/>',

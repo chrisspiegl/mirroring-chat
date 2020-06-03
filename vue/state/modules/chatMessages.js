@@ -1,6 +1,7 @@
 /* eslint-disable no-shadow */
 import Vue from 'vue'
 
+import vm from '@/main.js'
 import { apiCall } from '@/utils/api'
 
 export const state = {
@@ -33,11 +34,30 @@ export const mutations = {
     Vue.set(state.chatMessages, index, chatMessage)
     state.chatMessagesLastUpdated = new Date()
   },
+  ADD_CHAT_MESSAGE(state, chatMessage) {
+    state.chatMessages.push(chatMessage)
+    state.chatMessagesLastUpdated = new Date()
+  },
+  REMOVE_CHAT_MESSAGE(state, chatMessage) {
+    state.chatMessages.splice(
+      state.chatMessages.findIndex((item) => item.idChatMessage === chatMessage.idChatMessage),
+      1,
+    )
+  },
 }
 
 export const actions = {
   init({ commit }) {},
-  fetchChatMessages({ commit, state }) {
+  afterAuth({ dispatch, rootGetters }) {
+    if (rootGetters['auth/loggedInAndActivated']) {
+      dispatch('fetchChatMessages')
+      dispatch('CONNECT_CHAT_SOCKET')
+    }
+  },
+  afterAuthLogOut({ dispatch }) {
+    dispatch('DISCONNECT_CHAT_SOCKET')
+  },
+  fetchChatMessages({ commit, dispatch, state }) {
     if (state.ready) return state.chatMessages
     return apiCall({
       url: '/v1/chat/messages',
@@ -49,31 +69,65 @@ export const actions = {
       })
   },
   async markChatMessageDone({ commit }, chatMessage) {
-    console.log('markChatMessageDone -> chatMessage', chatMessage)
     apiCall({
       url: `/v1/chat/message/${chatMessage.idChatMessage}`,
       method: 'PUT',
       data: { ...chatMessage, ...{ doneAt: new Date() } },
     }).then((chatMessage) => {
-      console.log('markChatMessageDone -> chatMessage', chatMessage)
       commit('UPDATE_CHAT_MESSAGE', chatMessage)
     })
   },
-  async timeoutChatMessage({ commit }, chatMessage) {
-    // TODO: send timeout request to api & destroy all messages by this user (make chat table permanent so that this is reversible)
-    // apiCall({
-    //   url: `/v1/chat/message/${message.idChatMessage}/timeout`,
-    //   method: 'POST',
-    //   data: { message },
-    // })
+  async timeoutChatMessage({ dispatch }, chatMessage) {
+    return new Promise((resolve, reject) => {
+      apiCall({
+        url: `/v1/chat/message/${chatMessage.idChatMessage}/timeout`,
+        method: 'POST',
+        data: chatMessage,
+      })
+        .then((data) => {
+          dispatch('removeChatMessagesByAuthor', chatMessage)
+          resolve(data)
+        })
+        .catch((err) => reject(err))
+    })
   },
-  async banChatMessage({ commit }, chatMessage) {
-    // TODO: send ban request to api & destroy all messages by this user (make chat table permanent so that this is reversible)
-    // apiCall({
-    //   url: `/v1/chat/message/${message.idChatMessage}/ban`,
-    //   method: 'POST',
-    //   data: { message },
-    // })
-
+  async banChatMessage({ dispatch }, chatMessage) {
+    return new Promise((resolve, reject) => {
+      apiCall({
+        url: `/v1/chat/message/${chatMessage.idChatMessage}/ban`,
+        method: 'POST',
+        data: chatMessage,
+      })
+        .then((data) => {
+          dispatch('removeChatMessagesByAuthor', chatMessage)
+          resolve(data)
+        })
+        .catch((err) => reject(err))
+    })
+  },
+  CONNECT_CHAT_SOCKET({ rootState }) {
+    Vue.$log.debug('CONNECT_CHAT_SOCKET')
+    vm.$socket.emit('CHAT_CONNECT', {
+      idUser: rootState.auth.userCurrent.idUser,
+    })
+  },
+  removeChatMessagesByAuthor({ commit, state }, chatMessage) {
+    const { idAuthorProvider } = chatMessage
+    const chatMessages = state.chatMessages.filter((m) => m.idAuthorProvider === idAuthorProvider)
+    chatMessages.forEach((chatMessage) => commit('REMOVE_CHAT_MESSAGE', chatMessage))
+  },
+  DISCONNECT_CHAT_SOCKET({ rootState }) {
+    Vue.$log.debug('DISCONNECT_CHAT_SOCKET')
+    vm.$socket.emit('CHAT_DISCONNECT')
+  },
+  SOCKET_CHAT_CONNECTED({ commit }, message) {
+    Vue.$log.debug('SOCKET_CHAT_CONNECTED -> message', message)
+  },
+  SOCKET_CHAT_DISCONNECTED({ commit }, message) {
+    Vue.$log.debug('SOCKET_CHAT_DISCONNECTED -> message', message)
+  },
+  SOCKET_ADD_CHAT_MESSAGE({ commit }, message) {
+    Vue.$log.debug('SOCKET_ADD_CHAT_MESSAGE -> message', message)
+    commit('ADD_CHAT_MESSAGE', message.data)
   },
 }

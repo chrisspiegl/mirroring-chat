@@ -14,9 +14,7 @@ export const state = {
 
 export const getters = {
   getUserSettingValueByKey: (state, getters) => ({ key, defaultValue }) => {
-    console.log('key', key)
     const element = getters.getUserSettingByKey({ key })
-    console.log('element', element)
     if (element) return getters.getUserSettingByKey({ key }).value
     return defaultValue || DEFAULT_USER_SETTING_VALUE
   },
@@ -51,6 +49,9 @@ export const mutations = {
 
 export const actions = {
   init({ commit }) {},
+  afterAuth({ dispatch }) {
+    dispatch('fetchUserSettings')
+  },
   fetchUserSettings({ commit, state }) {
     if (state.ready) return state.userSettings
     return apiCall({
