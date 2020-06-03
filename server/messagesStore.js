@@ -70,11 +70,11 @@ const addMessage = async (_message) => {
     FORBID_TAGS: ['table', 'script', 'audio', 'video', 'style', 'iframe', 'textarea', 'frame', 'frameset'],
   })
 
-  await models.ChatMessage.create(message)
-  rpsm.publish(redisKeyGenerator.messages.stream(message.idUser), message)
+  const createdMessage = await models.ChatMessage.create(message)
+  rpsm.publish(redisKeyGenerator.messages.stream(message.idUser), createdMessage)
   rpsm.publish(redisKeyGenerator.events, {
     event: redisKeyGenerator.event.CHAT_MESSAGE_RECEIVED,
-    message,
+    message: createdMessage,
   })
   return true
 }
