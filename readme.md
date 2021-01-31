@@ -1,8 +1,12 @@
 # [mirroring.chat](https://mirroring.chat) — Mirror Your Live Chats and Add Functionality
 
-![current status](https://img.shields.io/badge/current%20status-early%20development-brightgreen?style=flat-square) ![GitHub package.json version](https://img.shields.io/github/package-json/v/chrisspiegl/mirroring-chat?style=flat-square&label=current%20version) ![GitHub last commit](https://img.shields.io/github/last-commit/chrisspiegl/mirroring-chat?style=flat-square)
+![current status](https://img.shields.io/badge/current%20status-halted-red?style=flat-square) ![GitHub package.json version](https://img.shields.io/github/package-json/v/chrisspiegl/mirroring-chat?style=flat-square&label=current%20version) ![GitHub last commit](https://img.shields.io/github/last-commit/chrisspiegl/mirroring-chat?style=flat-square)
 
 <!--![GitHub Release Date](https://img.shields.io/github/release-date/chrisspiegl/mirroring-chat?style=flat-square)-->
+
+## Halted Project
+
+I lost motivation to work on this for now. The code is here if you want to take a look.
 
 ## Purpose
 
